@@ -1,0 +1,134 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/k3dvol/plex"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: plex-nfs-pv-volume
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  mountOptions:
+    - hard
+    - nfsvers=4
+    - rsize=4096
+    - wsize=4096
+    - noacl
+    - nocto
+    - noatime
+    - nodiratime
+  nfs:
+    path: /volume1/public
+    server: 192.168.2.3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: plex-nfs-pv-claim
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: plex
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: plex
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: plex
+    spec:
+      volumes:
+        - name: plex-storage
+          persistentVolumeClaim:
+            claimName: plex-pv-claim
+        - name: plex-nfs
+          persistentVolumeClaim:
+            claimName: plex-nfs-pv-claim
+        - name: dshm
+          emptyDir:
+            medium: Memory
+      containers:
+        - image: plexinc/pms-docker:latest
+          imagePullPolicy: Always
+          name: plex
+          volumeMounts:
+            - mountPath: "/config"
+              name: plex-storage
+            - mountPath: "/data"
+              name: plex-nfs
+            - mountPath: /dev/shm
+              name: dshm
+          env:
+            - name: PLEX_UID
+              value: "1026"
+            - name: PLEX_GID
+              value: "100"
+            - name: ADVERTISE_IP
+              value: "http://192.168.2.4:32400"
+            - name: HOSTNAME
+              value: "nucio.nowhere"
+            - name: TZ
+              value: "Europe/Dublin"
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: plex
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: plex-svc
+spec:
+  externalTrafficPolicy: Local
+  loadBalancerIP: 192.168.2.204
+  selector:
+    app: plex
+  ports:
+    - port: 32400
+      targetPort: 32400
+  type: LoadBalancer

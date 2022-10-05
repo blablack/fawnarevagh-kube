@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: picsync-nfs-pv-volume
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  mountOptions:
+    - hard
+    - nfsvers=4
+    - rsize=4096
+    - wsize=4096
+    - noacl
+    - nocto
+    - noatime
+    - nodiratime
+  nfs:
+    path: "/volume1/public/Our Pictures"
+    server: 192.168.2.3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: picsync-nfs-pv-claim
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: picsync
+spec:
+  schedule: "0 0 15 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: picsync
+        spec:
+          volumes:
+            - name: picsync-nfs
+              persistentVolumeClaim:
+                claimName: picsync-nfs-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/picsync:latest
+              imagePullPolicy: Always
+              env:
+                - name: SSHPASS_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: picsync-sshpassword
+                      key: password
+              command: ["python3"]
+              args:
+                [
+                  "picsync.py",
+                  "-h",
+                  "igorito.nowhere",
+                  "-u",
+                  "blablack",
+                  "-s",
+                  "/source/",
+                  "-t",
+                  "~/Pictures",
+                ]
+              name: picsync
+              volumeMounts:
+                - mountPath: "/source"
+                  name: picsync-nfs
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.200
