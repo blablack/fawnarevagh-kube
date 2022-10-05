@@ -1,0 +1,222 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kublicity-home-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/k3dvol/kublicity"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kublicity-home-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kublicity-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/k3dvol/"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kublicity-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: kublicity-nfs-pv-volume
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Recycle
+  storageClassName: nfs
+  mountOptions:
+    - hard
+    - nfsvers=4
+    - rsize=4096
+    - wsize=4096
+    - noacl
+    - nocto
+    - noatime
+    - nodiratime
+  nfs:
+    path: /volume1/public/MyBackup/
+    server: 192.168.2.3
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: kublicity-nfs-pv-claim
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kublicity-full
+spec:
+  schedule: "0 0 1 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: kublicity
+        spec:
+          volumes:
+            - name: kublicity-storage
+              persistentVolumeClaim:
+                claimName: kublicity-pv-claim
+            - name: kublicity-nfs
+              persistentVolumeClaim:
+                claimName: kublicity-nfs-pv-claim
+            - name: kublicity-home
+              persistentVolumeClaim:
+                claimName: kublicity-home-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/kublicity:latest
+              imagePullPolicy: Always
+              command: ["duplicity"]
+              args: ["full", "/data", "file:///backup/DejaDupNucio", "--no-encryption", "--allow-source-mismatch"]
+              name: kublicity-full
+              volumeMounts:
+                - mountPath: "/data"
+                  name: kublicity-storage
+                - mountPath: "/backup"
+                  name: kublicity-nfs
+                - mountPath: "/root"
+                  name: kublicity-home
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.200
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kublicity-clean
+spec:
+  schedule: "30 0 1 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: kublicity
+        spec:
+          volumes:
+            - name: kublicity-storage
+              persistentVolumeClaim:
+                claimName: kublicity-pv-claim
+            - name: kublicity-nfs
+              persistentVolumeClaim:
+                claimName: kublicity-nfs-pv-claim
+            - name: kublicity-home
+              persistentVolumeClaim:
+                claimName: kublicity-home-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/kublicity:latest
+              imagePullPolicy: Always
+              command: ["duplicity"]
+              args: ["remove-all-but-n-full", "3", "file:///backup/DejaDupNucio", "--force"]
+              name: kublicity-clean
+              volumeMounts:
+                - mountPath: "/data"
+                  name: kublicity-storage
+                - mountPath: "/backup"
+                  name: kublicity-nfs
+                - mountPath: "/root"
+                  name: kublicity-home
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.200
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kublicity-incr
+spec:
+  schedule: "0 0 * * 0"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: kublicity
+        spec:
+          volumes:
+            - name: kublicity-storage
+              persistentVolumeClaim:
+                claimName: kublicity-pv-claim
+            - name: kublicity-nfs
+              persistentVolumeClaim:
+                claimName: kublicity-nfs-pv-claim
+            - name: kublicity-home
+              persistentVolumeClaim:
+                claimName: kublicity-home-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/kublicity:latest
+              imagePullPolicy: Always
+              command: ["duplicity"]
+              args: ["incr", "/data", "file:///backup/DejaDupNucio", "--no-encryption", "--allow-source-mismatch"]
+              name: kublicity-incr
+              volumeMounts:
+                - mountPath: "/data"
+                  name: kublicity-storage
+                - mountPath: "/backup"
+                  name: kublicity-nfs
+                - mountPath: "/root"
+                  name: kublicity-home
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.200

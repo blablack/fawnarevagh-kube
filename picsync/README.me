@@ -1,0 +1,17 @@
+# picsync
+
+## docker
+
+Build image and push to local registry
+
+### build image
+```bash
+docker build -t picsync .
+```
+
+
+### tag and push to local registry
+```bash
+docker tag picsync:latest nucio.nowhere:5050/picsync:latest
+docker push nucio.nowhere:5050/picsync:latest
+```
