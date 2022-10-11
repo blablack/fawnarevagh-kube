@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: unbound-pv-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/opt/k3dvol/unbound"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: unbound-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: unbound
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: unbound
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: unbound
+    spec:
+      volumes:
+        - name: unbound-storage
+          persistentVolumeClaim:
+            claimName: unbound-pv-claim
+      containers:
+        - image: mvance/unbound:latest
+          imagePullPolicy: Always
+          name: unbound
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/opt/unbound/etc/unbound/"
+              name: unbound-storage
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.200
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: unbound
+spec:
+  selector:
+    app: unbound
+  ports:
+    - protocol: TCP
+      port: 5335
+      targetPort: 53
+      name: tcpport
+    - protocol: UDP
+      port: 5335
+      targetPort: 53  
+      name: udpport
+  type: ClusterIP
