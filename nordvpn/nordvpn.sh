@@ -1,9 +1,15 @@
 #!/bin/bash
 
+echo "Start NordVPN"
 systemctl start nordvpn &
 
-sleep 15s
+echo "Login to NordVPN"
+nordvpn login --token $NORDVPN_TOKEN 
 
-nordvpn login --token $NORDVPN_TOKEN ; 
-nordvpn set technology nordlynx ; 
+echo "Configure NordVPN"
+nordvpn set technology nordlynx 
+
+echo "Connect to VPN"
 nordvpn connect $COUNTRY
+
+sleep 365d
