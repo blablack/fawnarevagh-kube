@@ -114,11 +114,11 @@ ExecStart=/usr/local/bin/k3s \
 ```bash
 echo -n '[MYPASSWORD]' > pihole_password.txt
 echo -n '[MYOTHERPASSWORD]' > ssh_password.txt
-echo -n '[ANOTHERPASSWORD]' > vikunja_password.txt
+echo -n '[NORDVPNTOKEN]' > nordvpn_token.txt
 
 kubectl create secret generic pihole-webpassword --from-file=password=pihole_password.txt
 kubectl create secret generic picsync-sshpassword --from-file=password=ssh_password.txt
-kubectl create secret generic vikunja-password --from-file=password=vikunja_password.txt
+kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.txt
 ```
 
 ## Deployments
@@ -129,6 +129,8 @@ The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 kubectl apply -f ./coredns-custom/coredns-custom.yaml
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
+
+kubectl apply -f ./nordvpn/nordvpn.yaml
 
 kubectl apply -f ./pihole/pihole.yaml
 
