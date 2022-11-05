@@ -16,9 +16,9 @@ spec:
         app: nordvpn
     spec:
       containers:
-        - image: plexinc/pms-docker:latest
+        - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
-          name: plex
+          name: nordvpn
           env:
             - name: NORDVPN_TOKEN
               valueFrom:
@@ -28,6 +28,7 @@ spec:
             - name: COUNTRY
               value: "IRELAND"
           securityContext:
+            privileged: true
             capabilities:
               add:
                 - NET_ADMIN
