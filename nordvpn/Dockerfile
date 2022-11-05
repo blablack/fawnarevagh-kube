@@ -25,4 +25,6 @@ RUN echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf && \
 COPY nordvpn.sh ./ 
 RUN chmod +x nordvpn.sh
 
-CMD ["./nordvpn.sh"]
+CMD systemctl start nordvpn && sleep 2s && nordvpn login --token $NORDVPN_TOKEN && nordvpn set technology nordlynx && nordvpn connect $COUNTRY && sleep 365d
+
+
