@@ -9,4 +9,6 @@ RUN apt update \
 COPY script.sh ./ 
 COPY nucio_registry.conf /etc/containers/registries.conf.d/
 
+RUN chmod +x script.sh
+
 CMD ["script.sh"]
