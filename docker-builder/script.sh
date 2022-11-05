@@ -9,6 +9,13 @@ else
 fi
 
 (
+    cd fawnarevagh-kube/docker-builder 
+    docker build -t kublicity . 
+    docker tag docker-builder:latest nucio.nowhere:30038/docker-builder:latest
+    docker push nucio.nowhere:30038/docker-builder:latest
+)
+
+(
     cd fawnarevagh-kube/kublicity 
     docker build -t kublicity . 
     docker tag kublicity:latest nucio.nowhere:30038/kublicity:latest
