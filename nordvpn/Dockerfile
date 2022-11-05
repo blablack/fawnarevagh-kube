@@ -3,11 +3,11 @@ FROM ubuntu:22.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt update -y && \
-    apt install -y curl iputils-ping libc6 wireguard && \
+    apt install -y curl && \
     curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/nordvpn-release_1.0.0_all.deb --output /tmp/nordrepo.deb && \
     apt install -y /tmp/nordrepo.deb && \
     apt update -y && \
-    apt install -y nordvpn && \
+    apt install -y systemctl nordvpn && \
     apt remove -y nordvpn-release && \
     apt autoremove -y && \
     apt autoclean -y && \
@@ -15,11 +15,14 @@ RUN apt update -y && \
 		/tmp/* \
 		/var/cache/apt/archives/* \
 		/var/lib/apt/lists/* \
-		/var/tmp/*
+		/var/tmp/* 
 
-COPY /rootfs /
-ENV S6_CMD_WAIT_FOR_SERVICES=1
+RUN echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf && \
+    echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf && \
+    echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf && \
+    echo 'net.ipv6.conf.tun0.disable_ipv6 = 1' >> /etc/sysctl.conf 
 
-RUN chmod +x /usr/bin/nord_login
+COPY nordvpn.sh ./ 
+RUN chmod +x nordvpn.sh
 
-CMD nord_login && nord_config && nord_connect && nord_migrate && nord_watch
+CMD ["./nordvpn.sh"]

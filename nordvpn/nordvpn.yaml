@@ -20,7 +20,7 @@ spec:
           imagePullPolicy: Always
           name: nordvpn
           env:
-            - name: TOKEN
+            - name: NORDVPN_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: nordvpn-token
