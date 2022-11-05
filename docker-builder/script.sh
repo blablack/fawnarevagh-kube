@@ -8,9 +8,11 @@ else
     (cd /data/ ; git clone https://github.com/blablack/fawnarevagh-kube.git)
 fi
 
+mkdir -p /data/podman
+
 (
     cd /data/fawnarevagh-kube/docker-builder 
-    podman --root /data/podman build -t kublicity . 
+    podman --root /data/podman build -t docker-builder . 
     podman tag docker-builder:latest nucio.nowhere:30038/docker-builder:latest
     podman push nucio.nowhere:30038/docker-builder:latest
 )
