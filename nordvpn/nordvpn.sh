@@ -1,7 +1,7 @@
 #!/bin/bash
 
 echo "Start NordVPN"
-systemctl start nordvpn &
+systemctl start nordvpn
 
 echo "Login to NordVPN"
 nordvpn login --token $NORDVPN_TOKEN 
