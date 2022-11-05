@@ -135,8 +135,6 @@ kubectl apply -f ./pihole/pihole.yaml
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
 
-kubectl apply -f ./vikunja/vikunja.yaml
-
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
