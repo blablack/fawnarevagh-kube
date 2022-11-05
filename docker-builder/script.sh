@@ -28,3 +28,10 @@ fi
     podman tag picsync:latest nucio.nowhere:30038/picsync:latest
     podman push nucio.nowhere:30038/picsync:latest
 )
+
+(
+    cd nordvpn/nordvpn
+    podman build -t nordvpn . 
+    podman tag nordvpn:latest nucio.nowhere:30038/nordvpn:latest
+    podman push nucio.nowhere:30038/nordvpn:latest
+)
