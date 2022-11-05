@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/usr/sbin/nordvpnd &
+systemctl start nordvpn &
 
 sleep 15s
 
