@@ -149,8 +149,9 @@ kubectl apply -f ./picsync/picsync.yaml
 
 ## Debug
 
-A Ubuntu pod can be created to debug from inside the cluster
+Ubuntu and Podman pods can be created to debug from inside the cluster.
 
+For example:
 ```
 kubectl apply -f ./debug_ubuntu_pod.yaml
 kubectl exec --stdin --tty ubuntu -- /bin/bash
