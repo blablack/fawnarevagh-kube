@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nordvpn
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: nordvpn
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nordvpn
+    spec:
+      containers:
+        - image: plexinc/pms-docker:latest
+          imagePullPolicy: Always
+          name: plex
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "IRELAND"
+          securityContext:
+            capabilities:
+              add:
+                - NET_ADMIN
+                - NET_RAW
+          ports:
+            - containerPort: 80
+              name: pihole-http
+              protocol: TCP
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.200
