@@ -5,8 +5,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt update \
     && apt -y dist-upgrade \
 	&& apt install -y podman-docker git \
-    && apt-get autoremove -y \
-    && apt-get autoclean -y \
+    && apt autoremove -y \
+    && apt autoclean -y \
     && rm -rf \
 	    /tmp/* \
 		/var/cache/apt/archives/* \
