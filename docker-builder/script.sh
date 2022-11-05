@@ -10,21 +10,21 @@ fi
 
 (
     cd fawnarevagh-kube/docker-builder 
-    docker build -t kublicity . 
-    docker tag docker-builder:latest nucio.nowhere:30038/docker-builder:latest
-    docker push nucio.nowhere:30038/docker-builder:latest
+    podman build -t kublicity . 
+    podman tag docker-builder:latest nucio.nowhere:30038/docker-builder:latest
+    podman push nucio.nowhere:30038/docker-builder:latest
 )
 
 (
     cd fawnarevagh-kube/kublicity 
-    docker build -t kublicity . 
-    docker tag kublicity:latest nucio.nowhere:30038/kublicity:latest
-    docker push nucio.nowhere:30038/kublicity:latest
+    podman build -t kublicity . 
+    podman tag kublicity:latest nucio.nowhere:30038/kublicity:latest
+    podman push nucio.nowhere:30038/kublicity:latest
 )
 
 (
     cd fawnarevagh-kube/picsync 
-    docker build -t picsync . 
-    docker tag picsync:latest nucio.nowhere:30038/picsync:latest
-    docker push nucio.nowhere:30038/picsync:latest
+    podman build -t picsync . 
+    podman tag picsync:latest nucio.nowhere:30038/picsync:latest
+    podman push nucio.nowhere:30038/picsync:latest
 )
