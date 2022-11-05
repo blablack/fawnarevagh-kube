@@ -15,6 +15,7 @@ spec:
         spec:
           containers:
             - image: nucio.nowhere:30038/docker-builder:latest
+              name: docker-builder
               imagePullPolicy: Always
               securityContext:
                 privileged: true
