@@ -1,0 +1,25 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: docker-builder
+spec:
+  schedule: "0 0 1 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: docker-builder
+        spec:
+          containers:
+            - image: nucio.nowhere:30038/docker-builder:latest
+              imagePullPolicy: Always
+              securityContext:
+                privileged: true
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.200

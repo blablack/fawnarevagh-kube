@@ -132,6 +132,8 @@ kubectl apply -f ./registry/registry.yaml
 
 kubectl apply -f ./pihole/pihole.yaml
 
+kubectl apply -f ./docker-builder/docker-builder.yaml
+
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
 
@@ -149,4 +151,5 @@ A Ubuntu pod can be created to debug from inside the cluster
 
 ```
 kubectl apply -f ./debug_ubuntu_pod.yaml
+kubectl exec --stdin --tty ubuntu -- /bin/bash
 ```
