@@ -1,4 +1,4 @@
-#!/usr/bin/with-contenv bash
+#!/bin/bash
 
 if ! iptables -L > /dev/null 2>&1; then
   echo "FATAL: iptables is not functional. Ensure your container config adds --cap-add=NET_ADMIN,NET_RAW" 1>&2
