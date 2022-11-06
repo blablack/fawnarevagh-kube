@@ -150,6 +150,6 @@ spec:
   selector:
     app: deluge-nordvpn
   ports:
-    - port: 80
+    - port: 8112
       targetPort: 8112
   type: LoadBalancer
