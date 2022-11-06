@@ -106,7 +106,7 @@ spec:
             - name: PLEX_GID
               value: "100"
             - name: ADVERTISE_IP
-              value: "http://192.168.2.4:32400"
+              value: "http://192.168.2.204:32400"
             - name: HOSTNAME
               value: "nucio.nowhere"
             - name: TZ

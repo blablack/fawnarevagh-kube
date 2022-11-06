@@ -26,6 +26,6 @@ RUN echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf && \
 COPY run_nordvpn.sh ./ 
 RUN chmod +x run_nordvpn.sh
 
-CMD ["run_nordvpn.sh"]
+CMD ./run_nordvpn.sh
 
 
