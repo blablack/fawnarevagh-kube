@@ -67,6 +67,8 @@ metadata:
 spec:
   selector:
     app: unbound
+  externalTrafficPolicy: Local
+  loadBalancerIP: 192.168.2.201
   ports:
     - protocol: TCP
       port: 5335
@@ -76,4 +78,4 @@ spec:
       port: 5335
       targetPort: 53  
       name: udpport
-  type: ClusterIP
+  type: LoadBalancer

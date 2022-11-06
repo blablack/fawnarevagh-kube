@@ -11,7 +11,7 @@ Pi-Hole being used as the DNS can be a problem for Kubernetes to pull Pi-Hole do
 The router will be setup with external DNS as upstream (ISP, Cloudflare, Google, etc.).
 It will as well advertise Pi-Hole IP as the DNS for client getting their IP address through DHCP.
 
-Pi-Hole's upstream will be other external DNS (ISP, Cloudflare, Google, etc.).
+Pi-Hole's upstream Unbound IP address.
 In addition it will conditionally forward to the router's IP for local queries.
 
 All clients (DHCP and fixed IP) should be configured to have Pi-Hole as DNS.
@@ -84,6 +84,13 @@ network:
 sudo apt install nfs-common
 ```
 
+### Install k3s
+
+Use this command to install/configure k3s.
+```bash
+curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere -disable servicelb --disable traefik --disable metrics-server" sh -s 
+```
+
 ### Docker registry
 
 Create/edit file `/etc/rancher/k3s/registries.yaml`
@@ -95,16 +102,10 @@ mirrors:
       - "http://nucio.nowhere:30038"
 ```
 
-### k3s service
+And restart k3s after this change.
 
-Modify the SystemD k3s service file (`/etc/systemd/system/k3s.service`) and change the ExecStart to read:
-
-```
-ExecStart=/usr/local/bin/k3s \
-    server \
-    --disable servicelb \
-    --disable traefik \
-    --disable metrics-server \
+```bash 
+systemctl restart k3s
 ```
 
 ### Deployments
@@ -126,12 +127,10 @@ kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.t
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
-kubectl apply -f ./coredns-custom/coredns-custom.yaml
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
-kubectl apply -f ./nordvpn/nordvpn.yaml
-
+kubectl apply -f ./unbound/unbound.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
 kubectl apply -f ./docker-builder/docker-builder.yaml
@@ -142,6 +141,7 @@ kubectl apply -f ./node-red/node-red.yaml
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
+kubectl apply -f ./deluge-nordvpn/deluge-nordvpn.yaml
 
 kubectl apply -f ./kublicity/kublicity.yaml
 kubectl apply -f ./picsync/picsync.yaml

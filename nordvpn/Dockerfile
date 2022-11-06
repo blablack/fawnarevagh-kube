@@ -20,7 +20,8 @@ RUN apt update -y && \
 RUN echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf && \
     echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf && \
     echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf && \
-    echo 'net.ipv6.conf.tun0.disable_ipv6 = 1' >> /etc/sysctl.conf 
+    echo 'net.ipv6.conf.tun0.disable_ipv6 = 1' >> /etc/sysctl.conf && \
+    echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.conf 
 
 CMD systemctl start nordvpn && sleep 2s && \
     nordvpn login --token $NORDVPN_TOKEN && \

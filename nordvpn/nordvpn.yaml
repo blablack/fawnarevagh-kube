@@ -32,11 +32,6 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
-                - NET_RAW
-          ports:
-            - containerPort: 80
-              name: pihole-http
-              protocol: TCP
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
