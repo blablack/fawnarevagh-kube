@@ -7,7 +7,7 @@ RUN apt update -y && \
     curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/nordvpn-release_1.0.0_all.deb --output /tmp/nordrepo.deb && \
     apt install -y /tmp/nordrepo.deb && \
     apt update -y && \
-    apt install -y systemctl nordvpn && \
+    apt install -y nordvpn && \
     apt remove -y nordvpn-release && \
     apt autoremove -y && \
     apt autoclean -y && \
@@ -16,12 +16,6 @@ RUN apt update -y && \
 		/var/cache/apt/archives/* \
 		/var/lib/apt/lists/* \
 		/var/tmp/* 
-
-RUN echo 'net.ipv6.conf.all.disable_ipv6 = 1' >> /etc/sysctl.conf && \
-    echo 'net.ipv6.conf.default.disable_ipv6 = 1' >> /etc/sysctl.conf && \
-    echo 'net.ipv6.conf.lo.disable_ipv6 = 1' >> /etc/sysctl.conf && \
-    echo 'net.ipv6.conf.tun0.disable_ipv6 = 1' >> /etc/sysctl.conf 
-
 
 COPY run_nordvpn.sh ./ 
 RUN chmod +x run_nordvpn.sh
