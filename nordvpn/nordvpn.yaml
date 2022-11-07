@@ -27,6 +27,12 @@ spec:
                   key: password
             - name: COUNTRY
               value: "Ireland"
+            - name: NETWORK
+              value: "192.168.2.0/24"
+            - name: PORTS
+              value: "8080,8112,6881"
+            - name: DNS
+              value: "192.168.2.200"
           securityContext:
             privileged: true
             capabilities:
