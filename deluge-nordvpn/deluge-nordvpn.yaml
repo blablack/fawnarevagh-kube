@@ -101,7 +101,7 @@ spec:
             - name: NETWORK
               value: "192.168.2.0/24"
             - name: PORTS
-              value: "8080,8112,6881"
+              value: "8080,8112,6881,58846"
             - name: DNS
               value: "192.168.2.200"
           securityContext:
@@ -114,6 +114,8 @@ spec:
           name: deluge
           ports:
             - containerPort: 8112
+              protocol: TCP
+            - containerPort: 58846
               protocol: TCP
             - containerPort: 6881
               protocol: TCP
@@ -151,4 +153,8 @@ spec:
   ports:
     - port: 8112
       targetPort: 8112
+      name: deluge-web
+    - port: 58846
+      targetPort: 58846
+      name: deluge-daemon
   type: LoadBalancer
