@@ -98,18 +98,17 @@ spec:
                   key: password
             - name: COUNTRY
               value: "Ireland"
+            - name: NETWORK
+              value: "192.168.2.0/24"
+            - name: PORTS
+              value: "8080,8112,6881"
+            - name: DNS
+              value: "192.168.2.200"
           securityContext:
             privileged: true
             capabilities:
               add:
                 - NET_ADMIN
-          ports:
-            - containerPort: 8112
-              protocol: TCP
-            - containerPort: 6881
-              protocol: TCP
-            - containerPort: 6881
-              protocol: UDP
         - image: lscr.io/linuxserver/deluge:latest
           imagePullPolicy: Always
           name: deluge
