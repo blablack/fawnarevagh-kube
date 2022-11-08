@@ -90,6 +90,11 @@ spec:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
           name: nordvpn
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /wait_for_nordvpn.sh
           env:
             - name: NORDVPN_TOKEN
               valueFrom:
