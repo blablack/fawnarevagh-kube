@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+[[ -n ${DEBUG} ]] && set -x
 
 [[ -n ${COUNTRY} && -z ${CONNECT} ]] && CONNECT=${COUNTRY}
 
