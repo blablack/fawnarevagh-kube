@@ -32,13 +32,7 @@ CoreDNS in k3s will be configured to use PiHole as the DNS server.
 Create the following file `/opt/k3dvol/resolv.conf`
 
 ```
-nameserver 192.168.2.200
-```
-
-and modify the service env file (`/etc/systemd/system/k3s.service.env`)
-
-```
-K3S_RESOLV_CONF=/opt/k3dvol/resolv.conf
+nameserver 192.168.2.201
 ```
 
 ## Netplan
@@ -87,8 +81,9 @@ sudo apt install nfs-common
 ### Install k3s
 
 Use this command to install/configure k3s.
+
 ```bash
-curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere -disable servicelb --disable traefik --disable metrics-server" sh -s 
+curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --disable traefik --disable metrics-server" sh -s
 ```
 
 ### Docker registry
@@ -104,7 +99,7 @@ mirrors:
 
 And restart k3s after this change.
 
-```bash 
+```bash
 systemctl restart k3s
 ```
 
@@ -152,6 +147,7 @@ kubectl apply -f ./picsync/picsync.yaml
 Ubuntu and Podman pods can be created to debug from inside the cluster.
 
 For example:
+
 ```
 kubectl apply -f ./debug_ubuntu_pod.yaml
 kubectl exec --stdin --tty ubuntu -- /bin/bash

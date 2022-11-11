@@ -118,7 +118,14 @@ spec:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
               command: ["duplicity"]
-              args: ["full", "/data", "file:///backup/DejaDupNucio", "--no-encryption", "--allow-source-mismatch"]
+              args:
+                [
+                  "full",
+                  "/data",
+                  "file:///backup/DejaDupNucio",
+                  "--no-encryption",
+                  "--allow-source-mismatch",
+                ]
               name: kublicity-full
               volumeMounts:
                 - mountPath: "/data"
@@ -131,7 +138,7 @@ spec:
           dnsPolicy: "None"
           dnsConfig:
             nameservers:
-              - 192.168.2.200
+              - 192.168.2.201
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -162,7 +169,13 @@ spec:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
               command: ["duplicity"]
-              args: ["remove-all-but-n-full", "3", "file:///backup/DejaDupNucio", "--force"]
+              args:
+                [
+                  "remove-all-but-n-full",
+                  "3",
+                  "file:///backup/DejaDupNucio",
+                  "--force",
+                ]
               name: kublicity-clean
               volumeMounts:
                 - mountPath: "/data"
@@ -175,7 +188,7 @@ spec:
           dnsPolicy: "None"
           dnsConfig:
             nameservers:
-              - 192.168.2.200
+              - 192.168.2.201
 ---
 apiVersion: batch/v1
 kind: CronJob
@@ -206,7 +219,14 @@ spec:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
               command: ["duplicity"]
-              args: ["incr", "/data", "file:///backup/DejaDupNucio", "--no-encryption", "--allow-source-mismatch"]
+              args:
+                [
+                  "incr",
+                  "/data",
+                  "file:///backup/DejaDupNucio",
+                  "--no-encryption",
+                  "--allow-source-mismatch",
+                ]
               name: kublicity-incr
               volumeMounts:
                 - mountPath: "/data"
@@ -219,4 +239,4 @@ spec:
           dnsPolicy: "None"
           dnsConfig:
             nameservers:
-              - 192.168.2.200
+              - 192.168.2.201
