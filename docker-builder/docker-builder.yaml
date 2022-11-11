@@ -41,15 +41,15 @@ spec:
             app: docker-builder
         spec:
           volumes:
-          - name: docker-builder-storage
-            persistentVolumeClaim:
-              claimName: docker-builder-pv-claim
+            - name: docker-builder-storage
+              persistentVolumeClaim:
+                claimName: docker-builder-pv-claim
           containers:
             - image: nucio.nowhere:30038/docker-builder:latest
               name: docker-builder
               volumeMounts:
-              - mountPath: "/data"
-                name: docker-builder-storage
+                - mountPath: "/data"
+                  name: docker-builder-storage
               imagePullPolicy: Always
               securityContext:
                 privileged: true
@@ -57,4 +57,4 @@ spec:
           dnsPolicy: "None"
           dnsConfig:
             nameservers:
-              - 192.168.2.200
+              - 192.168.2.201
