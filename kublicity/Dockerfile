@@ -13,4 +13,4 @@ RUN apt update \
 		/var/lib/apt/lists/* \
 		/var/tmp/*
 
-CMD ["duplicity", "/data", "file:///backup/DejaDupNucio", "--no-encryption", "--allow-source-mismatch"]
+CMD duplicity /data file:///backup/DejaDupNucio --no-encryption --allow-source-mismatch

@@ -15,4 +15,4 @@ RUN apt update \
 
 COPY picsync.py ./ 
 
-CMD ["python3", "picsync.py"]
+CMD python3 picsync.py
