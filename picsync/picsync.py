@@ -36,7 +36,6 @@ def sync(hostname, username, source, target):
 
     try:
         subprocess.run(bashCommand, 
-                       capture_output=True,
                        check=True)
     except subprocess.CalledProcessError as err:
         print(
