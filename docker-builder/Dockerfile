@@ -19,4 +19,4 @@ COPY storage.conf /etc/containers/
 
 RUN chmod +x script.sh
 
-CMD ["./script.sh"]
+CMD ./script.sh
