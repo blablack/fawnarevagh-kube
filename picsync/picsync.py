@@ -22,16 +22,16 @@ def sync(hostname, username, source, target):
     password = os.environ.get('SSHPASS_PASSWORD')
     bashCommand = ['sshpass', 
                    '-p', 
-                   f'"{password}"', 
+                   f'{password}', 
                    'rsync', 
+                   '-e',
+                   'ssh -o StrictHostKeyChecking=no',
                    '-hazL', 
                    '--progress', 
                    '--delete', 
                    '-v', 
                    source, 
-                   f'{username}@{hostname}:{target}',
-                   '-e',
-                   '"ssh -o StrictHostKeyChecking=no"'
+                   f'{username}@{hostname}:{target}'
     ]
 
     try:
