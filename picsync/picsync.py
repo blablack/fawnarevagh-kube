@@ -22,7 +22,7 @@ def sync(hostname, username, source, target):
     password = os.environ.get('SSHPASS_PASSWORD')
     bashCommand = ['sshpass', 
                    '-p', 
-                   '"{password}"', 
+                   f'"{password}"', 
                    'rsync', 
                    '-hazL', 
                    '--progress', 
