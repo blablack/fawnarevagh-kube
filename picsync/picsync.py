@@ -20,13 +20,23 @@ def sync(hostname, username, source, target):
     print(f'Target: {hostname}:{target}')
 
     password = os.environ.get('SSHPASS_PASSWORD')
-    bashCommand = f'sshpass -p "{password}" rsync -hazL --progress --delete -v {source} {username}@{hostname}:{target} -e "ssh -o StrictHostKeyChecking=no"'
+    bashCommand = ['sshpass', 
+                   '-p', 
+                   '"{password}"', 
+                   'rsync', 
+                   '-hazL', 
+                   '--progress', 
+                   '--delete', 
+                   '-v', 
+                   source, 
+                   f'{username}@{hostname}:{target}',
+                   '-e',
+                   '"ssh -o StrictHostKeyChecking=no"'
+    ]
 
     try:
         subprocess.run(bashCommand, 
-                       shell=True, 
-                       stderr=subprocess.STDOUT, 
-                       stdout=subprocess.STDOUT,
+                       capture_output=True,
                        check=True)
     except subprocess.CalledProcessError as err:
         print(err.output)
