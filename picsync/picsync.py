@@ -39,7 +39,10 @@ def sync(hostname, username, source, target):
                        capture_output=True,
                        check=True)
     except subprocess.CalledProcessError as err:
-        print(err.output)
+        print(
+        f"Process failed because did not return a successful return code. "
+        f"Returned {err.returncode}\n{err}"
+    )
         raise
 
     print('Sync completed!')
