@@ -14,14 +14,25 @@ def machine_up(hostname):
     return response_bool
 
 def sync(hostname, username, source, target):
+    print('Starting sync...')
+
+    print(f'Source: {source}')
+    print(f'Target: {hostname}:{target}')
+
     password = os.environ.get('SSHPASS_PASSWORD')
     bashCommand = f'sshpass -p "{password}" rsync -hazL --progress --delete -v {source} {username}@{hostname}:{target} -e "ssh -o StrictHostKeyChecking=no"'
 
     try:
-        subprocess.check_output(bashCommand, stderr=subprocess.STDOUT, shell=True).decode(sys.stdout.encoding)
+        subprocess.run(bashCommand, 
+                       shell=True, 
+                       stderr=subprocess.STDOUT, 
+                       stdout=subprocess.STDOUT,
+                       check=True)
     except subprocess.CalledProcessError as err:
         print(err.output)
         raise
+
+    print('Sync completed!')
 
 def main(argv):
     hostname = ''
