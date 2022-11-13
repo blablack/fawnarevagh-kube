@@ -147,6 +147,7 @@ while nordvpn status | grep -q 'Status: Connected' ;
 		let COUNTER=0
 		nordvpn disconnect
 		nordvpn connect ${CONNECT} || exit 1
+		nordvpn status
 	fi
 done
 
