@@ -140,6 +140,9 @@ COUNTER=0
 
 while nordvpn status | grep -q 'Status: Connected' ; 
     do sleep 5m ; 
+
+	ping -c 1 nordvpn.com
+
 	let COUNTER++
 	if test $COUNTER -eq 72
 	then
