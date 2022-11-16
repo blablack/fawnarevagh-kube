@@ -110,6 +110,8 @@ setup_nordvpn() {
     nordvpn login --token $NORDVPN_TOKEN &&
 
     nordvpn set technology nordlynx && 
+	nordvpn set killswitch on &&
+	nordvpn set cybersec off &&
 	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
 	[[ -n ${NETWORK} ]] && for net in ${NETWORK//[;,]/ };  do nordvpn whitelist add subnet "${net}";  done

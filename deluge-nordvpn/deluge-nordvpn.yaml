@@ -106,7 +106,7 @@ spec:
             - name: NETWORK
               value: "192.168.2.0/24"
             - name: PORTS
-              value: "8112,58846"
+              value: "8112,58846,6881"
             - name: DNS
               value: "192.168.2.201"
           securityContext:
@@ -139,7 +139,7 @@ spec:
             - name: TZ
               value: "EU/Dublin"
             - name: DELUGE_LOGLEVEL
-              value: "debug"
+              value: "info"
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
