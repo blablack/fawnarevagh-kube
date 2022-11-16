@@ -138,6 +138,8 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
+            - name: DELUGE_LOGLEVEL
+              value: "debug"
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
