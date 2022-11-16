@@ -136,21 +136,21 @@ nordvpn connect ${CONNECT} || exit 1
 
 nordvpn status
 
-COUNTER=0
+#COUNTER=0
 
 while nordvpn status | grep -q 'Status: Connected' ; 
     do sleep 5m ; 
 
 	ping -c 1 nordvpn.com
 
-	let COUNTER++
-	if test $COUNTER -eq 72
-	then
-		echo 'Reconnect NordVPN after 6 hours'
-		let COUNTER=0
-		nordvpn disconnect
-		nordvpn connect ${CONNECT} || exit 1
-		nordvpn status
-	fi
+	#let COUNTER++
+	#if test $COUNTER -eq 72
+	#then
+	#	echo 'Reconnect NordVPN after 6 hours'
+	#	let COUNTER=0
+	#	nordvpn disconnect
+	#	nordvpn connect ${CONNECT} || exit 1
+	#	nordvpn status
+	#fi
 done
 
