@@ -35,7 +35,7 @@ spec:
   volumeMode: Filesystem
   accessModes:
     - ReadWriteMany
-  persistentVolumeReclaimPolicy: Recycle
+  persistentVolumeReclaimPolicy: Retain
   storageClassName: nfs
   mountOptions:
     - hard
@@ -106,7 +106,7 @@ spec:
             - name: NETWORK
               value: "192.168.2.0/24"
             - name: PORTS
-              value: "8112,58846,6881"
+              value: "8112,58846"
             - name: DNS
               value: "192.168.2.201"
           securityContext:
