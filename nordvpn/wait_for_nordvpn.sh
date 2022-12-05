@@ -6,4 +6,10 @@ while ! nordvpn status | grep -q 'Status: Connected' ;
     do sleep 10s ; 
 done
 
-sleep 10s
+echo `date`
+echo "NordVPN is connected"
+
+sleep 5m
+
+echo "NordVPN is initialized"
+echo `date`

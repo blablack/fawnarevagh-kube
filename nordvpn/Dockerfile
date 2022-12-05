@@ -20,12 +20,12 @@ RUN apt update -y && \
 		/var/lib/apt/lists/* \
 		/var/tmp/* 
 
-COPY run_nordvpn.sh ./ 
+COPY run_nordvpn.sh / 
 RUN chmod +x run_nordvpn.sh
 
-COPY wait_for_nordvpn.sh ./ 
+COPY wait_for_nordvpn.sh / 
 RUN chmod +x wait_for_nordvpn.sh
 
-CMD ./run_nordvpn.sh
+CMD /run_nordvpn.sh
 
 
