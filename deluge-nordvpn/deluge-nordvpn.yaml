@@ -94,7 +94,7 @@ spec:
             postStart:
               exec:
                 command:
-                  - /wait_for_nordvpn.sh
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
           env:
             - name: NORDVPN_TOKEN
               valueFrom:

@@ -9,7 +9,9 @@ done
 echo `date`
 echo "NordVPN is connected"
 
-sleep 5m
+sleep 1m
+
+nordvpn status
 
 echo "NordVPN is initialized"
 echo `date`
