@@ -106,7 +106,7 @@ spec:
             - name: NETWORK
               value: "192.168.2.0/24"
             - name: PORTS
-              value: "8112,6881"
+              value: "8112,6881,8080"
             - name: DNS
               value: "192.168.2.201"
           securityContext:
