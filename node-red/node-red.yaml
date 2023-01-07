@@ -1,30 +1,3 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: node-red-pv-volume
-  labels:
-    type: local
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/opt/k3dvol/node-red"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: node-red-pv-claim
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,13 +18,14 @@ spec:
       volumes:
         - name: node-red-storage
           persistentVolumeClaim:
-            claimName: node-red-pv-claim
+            claimName: config-pv-claim
       containers:
         - image: nodered/node-red
           imagePullPolicy: Always
           name: node-red
           volumeMounts:
             - mountPath: "/data"
+              subPath: "node-red"
               name: node-red-storage
           resources: {}
           env:

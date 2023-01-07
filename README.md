@@ -125,6 +125,9 @@ The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
+kubectl apply -f ./persistent-volumes/nfs-persistent-volume.yaml
+kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
+
 kubectl apply -f ./unbound/unbound.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
@@ -136,7 +139,8 @@ kubectl apply -f ./node-red/node-red.yaml
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
-kubectl apply -f ./deluge-nordvpn/deluge-nordvpn.yaml
+kubectl apply -f ./tdarr/tdarr.yaml
+kubectl apply -f ./qbittorrent-nordvpn/qbittorrent-nordvpn.yaml
 
 kubectl apply -f ./kublicity/kublicity.yaml
 kubectl apply -f ./picsync/picsync.yaml
