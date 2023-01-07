@@ -103,9 +103,23 @@ And restart k3s after this change.
 systemctl restart k3s
 ```
 
-### Deployments
+## Deployments
 
-## Secrets for PiHole
+### Intel GPU
+
+```bash
+kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin?ref=main'
+```
+
+To share the device between pods, use the ``-shared-dev-nul`` argument.
+```
+KUBE_EDITOR=nano kubectl edit ds/intel-gpu-plugin
+```
+and add ``args: ["-shared-dev-num","5"]`` to the container section.
+Change the number '5' to the amount necessary.
+
+
+### Secrets
 
 ```bash
 echo -n '[MYPASSWORD]' > pihole_password.txt
@@ -117,7 +131,7 @@ kubectl create secret generic picsync-sshpassword --from-file=password=ssh_passw
 kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.txt
 ```
 
-## Deployments
+### Deployments
 
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
