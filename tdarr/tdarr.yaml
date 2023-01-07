@@ -22,10 +22,16 @@ spec:
         - name: tdarr-nfs
           persistentVolumeClaim:
             claimName: nfs-pv-claim
+        - name: dshm
+          emptyDir:
+            medium: Memory
       containers:
         - image: haveagitgat/tdarr:latest
           imagePullPolicy: Always
           name: tdarr
+          resources:
+            limits:
+              gpu.intel.com/i915: 1
           env:
             - name: TZ
               value: "EU/Dublin"
@@ -54,6 +60,8 @@ spec:
               name: tdarr-config
             - mountPath: /nasio
               name: tdarr-nfs
+            - mountPath: /dev/shm
+              name: dshm
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
