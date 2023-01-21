@@ -125,10 +125,14 @@ Change the number '5' to the amount necessary.
 echo -n '[MYPASSWORD]' > pihole_password.txt
 echo -n '[MYOTHERPASSWORD]' > ssh_password.txt
 echo -n '[NORDVPNTOKEN]' > nordvpn_token.txt
+echo -n '[KEELUSERNAME]' > keel_username.txt
+echo -n '[KEELPASSWORD]' > keel_password.txt
 
 kubectl create secret generic pihole-webpassword --from-file=password=pihole_password.txt
 kubectl create secret generic picsync-sshpassword --from-file=password=ssh_password.txt
 kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.txt
+
+kubectl create secret generic keel -n kube-system --from-file=password=keel_password.txt --from-file=username=keel_username.txt
 ```
 
 ### Deployments
@@ -136,11 +140,13 @@ kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.t
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
+kubectl apply -f ./persistent-volumes/nfs-persistent-volume.yaml
+kubectl apply -f ./persistent-volumes/kube-system-config-persistent-colume.yaml
+kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
+
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
-
-kubectl apply -f ./persistent-volumes/nfs-persistent-volume.yaml
-kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
+kubectl apply -f ./keel/keel.yaml
 
 kubectl apply -f ./unbound/unbound.yaml
 kubectl apply -f ./pihole/pihole.yaml

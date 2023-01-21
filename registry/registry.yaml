@@ -1,38 +1,13 @@
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: registry-pv-volume
-  labels:
-    type: local
-  namespace: kube-system
-spec:
-  storageClassName: manual
-  capacity:
-    storage: 1Gi
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: "/opt/k3dvol/registry"
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: registry-pv-claim
-  namespace: kube-system
-spec:
-  storageClassName: manual
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 1Gi
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-registry
   labels:
     app: docker-registry
+  annotations:
+    keel.sh/policy: force
+    keel.sh/trigger: poll
+    keel.sh/pollSchedule: "@every 1m"
   namespace: kube-system
 spec:
   replicas: 1
@@ -55,6 +30,7 @@ spec:
           volumeMounts:
             - name: registry-storage
               mountPath: /data
+              subPath: "registry"
           env:
             - name: REGISTRY_HTTP_ADDR
               value: :5000
@@ -63,7 +39,7 @@ spec:
       volumes:
         - name: registry-storage
           persistentVolumeClaim:
-            claimName: registry-pv-claim
+            claimName: config-pv-claim
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
