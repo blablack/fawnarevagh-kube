@@ -122,17 +122,11 @@ Change the number '5' to the amount necessary.
 ### Secrets
 
 ```bash
-echo -n '[MYPASSWORD]' > pihole_password.txt
-echo -n '[MYOTHERPASSWORD]' > ssh_password.txt
-echo -n '[NORDVPNTOKEN]' > nordvpn_token.txt
-echo -n '[KEELUSERNAME]' > keel_username.txt
-echo -n '[KEELPASSWORD]' > keel_password.txt
+kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
+kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
+kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
 
-kubectl create secret generic pihole-webpassword --from-file=password=pihole_password.txt
-kubectl create secret generic picsync-sshpassword --from-file=password=ssh_password.txt
-kubectl create secret generic nordvpn-token --from-file=password=nordvpn_token.txt
-
-kubectl create secret generic keel -n kube-system --from-file=password=keel_password.txt --from-file=username=keel_username.txt
+kubectl create secret generic keel -n kube-system --from-literal username=MYUSERNAME --from-literal password=MYPASSWORD
 ```
 
 ### Deployments
