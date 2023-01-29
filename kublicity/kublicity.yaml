@@ -64,15 +64,12 @@ spec:
             app: kublicity
         spec:
           volumes:
-            - name: kublicity-storage
+            - name: cluster-config
               persistentVolumeClaim:
-                claimName: kublicity-pv-claim
+                claimName: config-pv-claim
             - name: kublicity-nfs
               persistentVolumeClaim:
                 claimName: nfs-pv-claim
-            - name: kublicity-home
-              persistentVolumeClaim:
-                claimName: kublicity-home-pv-claim
           containers:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
@@ -87,12 +84,13 @@ spec:
               name: kublicity-clean
               volumeMounts:
                 - mountPath: "/data"
-                  name: kublicity-storage
+                  name: cluster-config
                 - mountPath: "/backup"
                   subPath: "MyBackup"
                   name: kublicity-nfs
                 - mountPath: "/root"
-                  name: kublicity-home
+                  subPath: "kublicity"
+                  name: cluster-config
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
@@ -115,15 +113,12 @@ spec:
             app: kublicity
         spec:
           volumes:
-            - name: kublicity-storage
+            - name: cluster-config
               persistentVolumeClaim:
-                claimName: kublicity-pv-claim
+                claimName: config-pv-claim
             - name: kublicity-nfs
               persistentVolumeClaim:
                 claimName: nfs-pv-claim
-            - name: kublicity-home
-              persistentVolumeClaim:
-                claimName: kublicity-home-pv-claim
           containers:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
@@ -139,12 +134,13 @@ spec:
               name: kublicity-incr
               volumeMounts:
                 - mountPath: "/data"
-                  name: kublicity-storage
+                  name: cluster-config
                 - mountPath: "/backup"
                   subPath: "MyBackup"
                   name: kublicity-nfs
                 - mountPath: "/root"
-                  name: kublicity-home
+                  subPath: "kublicity"
+                  name: cluster-config
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
