@@ -14,8 +14,6 @@ spec:
     metadata:
       labels:
         app: prowlarr
-      annotations:
-        diun.enable: "true"
     spec:
       volumes:
         - name: prowlarr-storage

@@ -15,8 +15,6 @@ spec:
     metadata:
       labels:
         app: docker-registry
-      annotations:
-        diun.enable: "true"
     spec:
       containers:
         - name: docker-registry
