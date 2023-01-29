@@ -4,10 +4,6 @@ metadata:
   name: docker-registry
   labels:
     app: docker-registry
-  annotations:
-    keel.sh/policy: force
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@monthly"
   namespace: kube-system
 spec:
   replicas: 1
@@ -19,6 +15,8 @@ spec:
     metadata:
       labels:
         app: docker-registry
+      annotations:
+        diun.enable: "true"
     spec:
       containers:
         - name: docker-registry
