@@ -4,10 +4,6 @@ metadata:
   name: pihole
   labels:
     app: pihole
-  annotations:
-    keel.sh/policy: force
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@monthly"
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -21,6 +17,8 @@ spec:
       labels:
         app: pihole
         name: pihole
+      annotations:
+        diun.enable: "true"
     spec:
       containers:
         - name: pihole

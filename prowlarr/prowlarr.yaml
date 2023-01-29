@@ -2,10 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prowlarr
-  annotations:
-    keel.sh/policy: force
-    keel.sh/trigger: poll
-    keel.sh/pollSchedule: "@monthly"
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -18,13 +14,15 @@ spec:
     metadata:
       labels:
         app: prowlarr
+      annotations:
+        diun.enable: "true"
     spec:
       volumes:
         - name: prowlarr-storage
           persistentVolumeClaim:
             claimName: config-pv-claim
       containers:
-        - image: lscr.io/linuxserver/prowlarr:develop
+        - image: linuxserver/prowlarr:latest
           imagePullPolicy: Always
           name: prowlarr
           volumeMounts:
