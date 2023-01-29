@@ -125,8 +125,6 @@ Change the number '5' to the amount necessary.
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
-
-kubectl create secret generic keel -n kube-system --from-literal username=MYUSERNAME --from-literal password=MYPASSWORD
 ```
 
 ### Deployments
@@ -140,7 +138,6 @@ kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
-kubectl apply -f ./keel/keel.yaml
 
 kubectl apply -f ./unbound/unbound.yaml
 kubectl apply -f ./pihole/pihole.yaml

@@ -14,8 +14,6 @@ spec:
     metadata:
       labels:
         app: sonarr
-      annotations:
-        diun.enable: "true"
     spec:
       volumes:
         - name: sonarr-storage

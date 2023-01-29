@@ -17,8 +17,6 @@ spec:
       labels:
         app: pihole
         name: pihole
-      annotations:
-        diun.enable: "true"
     spec:
       containers:
         - name: pihole
