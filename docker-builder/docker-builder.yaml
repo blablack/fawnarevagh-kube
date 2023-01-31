@@ -13,17 +13,9 @@ spec:
           labels:
             app: docker-builder
         spec:
-          volumes:
-            - name: docker-builder-storage
-              persistentVolumeClaim:
-                claimName: config-pv-claim
           containers:
             - image: nucio.nowhere:30038/docker-builder:latest
               name: docker-builder
-              volumeMounts:
-                - mountPath: "/data"
-                  subPath: "docker-builder"
-                  name: docker-builder-storage
               imagePullPolicy: Always
               securityContext:
                 privileged: true

@@ -1,20 +1,14 @@
 #!/bin/bash
 
+mkdir -p /docker_storage
+
 dockerd&
 
-# clone or pull repo
-if [ -d "/data/fawnarevagh-kube" ] 
-then
-    (cd /data/fawnarevagh-kube ; git pull)
-else
-    (cd /data/ ; git clone https://github.com/blablack/fawnarevagh-kube.git)
-fi
-
-#mkdir -p /data/podman
+(cd /opt/ ; git clone https://github.com/blablack/fawnarevagh-kube.git)
 
 build_container () {
   (
-    cd /data/fawnarevagh-kube/$1
+    cd /opt/fawnarevagh-kube/$1
     echo "Build image $1"
     docker build -t $1 . 
 
