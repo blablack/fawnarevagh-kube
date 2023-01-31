@@ -10,6 +10,8 @@ spec:
       image: ubuntu:latest
       imagePullPolicy: Always
       command: ["/bin/sleep", "3650d"]
+      securityContext:
+        privileged: true
   restartPolicy: Always
   dnsPolicy: "None"
   dnsConfig:
