@@ -10,30 +10,16 @@ fi
 
 mkdir -p /data/podman
 
-(
-    cd /data/fawnarevagh-kube/docker-builder 
-    podman build --format docker -t docker-builder . 
-    podman tag docker-builder:latest nucio.nowhere:30038/docker-builder:latest
-    podman push nucio.nowhere:30038/docker-builder:latest
-)
+build_container () {
+  (
+    cd /data/fawnarevagh-kube/$1
+    podman build --format docker -t $1 . 
+    podman tag $1:latest nucio.nowhere:30038/$1:latest
+    podman push nucio.nowhere:30038/$1:latest
+  )
+}
 
-(
-    cd /data/fawnarevagh-kube/kublicity 
-    podman build --format docker -t kublicity . 
-    podman tag kublicity:latest nucio.nowhere:30038/kublicity:latest
-    podman push nucio.nowhere:30038/kublicity:latest
-)
-
-(
-    cd /data/fawnarevagh-kube/picsync 
-    podman build --format docker -t picsync . 
-    podman tag picsync:latest nucio.nowhere:30038/picsync:latest
-    podman push nucio.nowhere:30038/picsync:latest
-)
-
-(
-    cd /data/fawnarevagh-kube/nordvpn
-    podman build --format docker -t nordvpn . 
-    podman tag nordvpn:latest nucio.nowhere:30038/nordvpn:latest
-    podman push nucio.nowhere:30038/nordvpn:latest
-)
+build_container "docker-builder"
+build_container "kublicity"
+build_container "picsync"
+build_container "nordvpn"
