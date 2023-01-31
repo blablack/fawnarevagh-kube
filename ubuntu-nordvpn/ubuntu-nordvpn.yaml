@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-nordvpn
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: ubuntu-nordvpn
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ubuntu-nordvpn
+    spec:
+      volumes:
+        - name: qbittorrent-storage
+          persistentVolumeClaim:
+            claimName: config-pv-claim
+        - name: torrent-nfs
+          persistentVolumeClaim:
+            claimName: nfs-pv-claim
+      containers:
+        - image: nucio.nowhere:30038/nordvpn:latest
+          imagePullPolicy: Always
+          name: nordvpn
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "P2P"
+            - name: NETWORK
+              value: "192.168.2.0/24"
+            - name: PORTS
+              value: "8080"
+            - name: DNS
+              value: "192.168.2.201"
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+        - image: ubuntu:latest
+          imagePullPolicy: Always
+          name: ubuntu
+          command: ["/bin/sleep", "3650d"]
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.201
