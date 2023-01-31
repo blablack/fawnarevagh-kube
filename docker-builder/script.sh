@@ -13,8 +13,13 @@ mkdir -p /data/podman
 build_container () {
   (
     cd /data/fawnarevagh-kube/$1
+    echo "Build image $1"
     podman build --format docker -t $1 . 
+
+    echo "Tag image"
     podman tag $1:latest nucio.nowhere:30038/$1:latest
+
+    echo "Push image"
     podman push nucio.nowhere:30038/$1:latest
   )
 }
