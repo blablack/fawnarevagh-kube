@@ -3,7 +3,7 @@ FROM ubuntu:22.10
 ARG DEBIAN_FRONTEND=noninteractive
 
 HEALTHCHECK --interval=30m --timeout=20s --start-period=1m \
-	CMD if test $( curl --interface nordlynx -m 10 -s https://api.nordvpn.com/v1/helpers/ips/insights | jq -r '.["protected"]' ) == "true" ; then exit 0; else nordvpn disconnect; nordvpn connect ${CONNECT} ; exit $?; fi
+	CMD if test $( curl --interface nordlynx -m 10 -s https://api.nordvpn.com/v1/helpers/ips/insights | jq -r '.["protected"]' ) == "true" ; then exit 0; else exit 1; fi
 
 RUN apt-get update -y 
 RUN apt-get install -y curl
