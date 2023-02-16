@@ -1,8 +1,12 @@
 #!/bin/bash
 
+export DOCKER_BUILDKIT=1
+
 mkdir -p /docker_storage
 
 dockerd&
+
+docker buildx create --use
 
 (cd /opt/ ; git clone https://github.com/blablack/fawnarevagh-kube.git)
 
