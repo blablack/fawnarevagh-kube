@@ -24,8 +24,6 @@ RUN apt-get autoclean -y
 RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
 
 COPY build.sh ./ 
-#COPY daemon.json /etc/docker/
-#COPY storage.conf /etc/containers/
 COPY buildkitd.toml /etc/buildkitd.toml
 
 RUN chmod +x build.sh
