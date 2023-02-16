@@ -75,6 +75,8 @@ spec:
             - containerPort: 32414
               name: gdm-32414
               protocol: UDP
+      nodeSelector:
+        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

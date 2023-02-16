@@ -20,7 +20,7 @@ spec:
           persistentVolumeClaim:
             claimName: config-pv-claim
       containers:
-        - image: mvance/unbound:latest
+        - image: mvance/unbound-rpi:latest
           imagePullPolicy: Always
           name: unbound
           securityContext:
@@ -29,6 +29,8 @@ spec:
             - mountPath: "/opt/unbound/etc/unbound/"
               subPath: "unbound"
               name: unbound-storage
+      nodeSelector:
+        cputype: arm
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

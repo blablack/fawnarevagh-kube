@@ -45,6 +45,8 @@ spec:
                 - mountPath: "/source"
                   subPath: "Our Pictures"
                   name: picsync-nfs
+          nodeSelector:
+            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:

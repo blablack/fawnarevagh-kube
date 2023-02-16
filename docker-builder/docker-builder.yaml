@@ -19,6 +19,8 @@ spec:
               imagePullPolicy: Always
               securityContext:
                 privileged: true
+          nodeSelector:
+            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
