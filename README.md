@@ -147,6 +147,7 @@ kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
+kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
 kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
