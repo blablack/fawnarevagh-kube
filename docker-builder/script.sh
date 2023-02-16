@@ -9,8 +9,8 @@ dockerd&
 build_container () {
   (
     cd /opt/fawnarevagh-kube/$1
-    echo "Build image $1"
-    docker build -t $1 . 
+    echo "Build image $1 for platfrom $2"
+    docker build --platform $2 -t $1 . 
 
     echo "Tag image"
     docker tag $1:latest nucio.nowhere:30038/$1:latest
@@ -20,7 +20,8 @@ build_container () {
   )
 }
 
-build_container "docker-builder"
-build_container "kublicity"
-build_container "picsync"
-build_container "nordvpn"
+build_container "docker-builder" "linux/amd64"
+build_container "kublicity" "linux/amd64"
+build_container "picsync" "linux/amd64"
+build_container "nordvpn" "linux/amd64"
+build_container "download-root-hints" "linux/arm64"
