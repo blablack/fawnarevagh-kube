@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: kublicity-full
+  name: kublicity-full-nucio
 spec:
   schedule: "0 0 16 * *"
   successfulJobsHistoryLimit: 1
@@ -33,7 +33,7 @@ spec:
                   "--no-encryption",
                   "--allow-source-mismatch",
                 ]
-              name: kublicity-full
+              name: kublicity-full-nucio
               volumeMounts:
                 - mountPath: "/data"
                   name: cluster-config

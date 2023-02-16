@@ -19,7 +19,7 @@ spec:
               name: build-kublicity
               imagePullPolicy: Always
               command: ["./build.sh"]
-              args: ["kublicity", "linux/amd64"]
+              args: ["kublicity", "linux/amd64,linux/arm64"]
               securityContext:
                 privileged: true
           nodeSelector:

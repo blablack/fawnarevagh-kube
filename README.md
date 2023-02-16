@@ -29,7 +29,7 @@ Netplan will be configured to not use the DNS server advertised by the router bu
 
 CoreDNS in k3s will be configured to use PiHole as the DNS server.
 
-Create the following file `/opt/k3dvol/resolv.conf`
+Create the following file `/opt/k3dvol/resolv.conf` on each node.
 
 ```
 nameserver 192.168.2.201
@@ -88,7 +88,7 @@ curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL
 
 ### Docker registry
 
-Create/edit file `/etc/rancher/k3s/registries.yaml`
+Create/edit file `/etc/rancher/k3s/registries.yaml` for each node.
 
 ```yaml
 mirrors:
@@ -164,9 +164,12 @@ kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
 kubectl apply -f ./qbittorrent-nordvpn/qbittorrent-nordvpn.yaml
 
-kubectl apply -f ./kublicity/kublicity_full.yaml
-kubectl apply -f ./kublicity/kublicity_clean.yaml
-kubectl apply -f ./kublicity/kublicity_incr.yaml
+kubectl apply -f ./kublicity/kublicity_full_nucio.yaml
+kubectl apply -f ./kublicity/kublicity_clean_nucio.yaml
+kubectl apply -f ./kublicity/kublicity_incr_nucio.yaml
+kubectl apply -f ./kublicity/kublicity_full_raspio.yaml
+kubectl apply -f ./kublicity/kublicity_clean_raspio.yaml
+kubectl apply -f ./kublicity/kublicity_incr_raspio.yaml
 kubectl apply -f ./picsync/picsync.yaml
 ```
 

@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: kublicity-incr
+  name: kublicity-full-raspio
 spec:
-  schedule: "0 2 * * 0"
+  schedule: "0 0 16 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -27,13 +27,13 @@ spec:
               command: ["duplicity"]
               args:
                 [
-                  "incr",
+                  "full",
                   "/data",
-                  "file:///backup/DejaDupNucio",
+                  "file:///backup/DejaDupRaspio",
                   "--no-encryption",
                   "--allow-source-mismatch",
                 ]
-              name: kublicity-incr
+              name: kublicity-full-raspio
               volumeMounts:
                 - mountPath: "/data"
                   name: cluster-config
@@ -44,7 +44,7 @@ spec:
                   subPath: "kublicity"
                   name: cluster-config
           nodeSelector:
-            cputype: x86
+            cputype: arm
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
