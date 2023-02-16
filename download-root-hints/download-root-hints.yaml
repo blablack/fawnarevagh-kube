@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: download-root-hints
+spec:
+  schedule: "0 0 16 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            app: download-root-hints
+        spec:
+          volumes:
+            - name: cluster-config
+              persistentVolumeClaim:
+                claimName: config-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/download-root-hints:latest
+              imagePullPolicy: Always
+              name: download-root-hints
+              volumeMounts:
+                - mountPath: "/tmp/unbound_config"
+                  subPath: "unbound"
+                  name: cluster-config
+          nodeSelector:
+            cputype: arm
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.201
