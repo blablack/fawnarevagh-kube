@@ -149,7 +149,11 @@ kubectl apply -f ./registry/registry.yaml
 
 kubectl apply -f ./pihole/pihole.yaml
 
-kubectl apply -f ./docker-builder/docker-builder.yaml
+kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
+kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
+kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
+kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
+kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
 
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
