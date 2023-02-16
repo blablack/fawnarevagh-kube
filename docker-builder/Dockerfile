@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update 
 RUN apt-get -y dist-upgrade 
 
-RUN apt-get install ca-certificates curl gnupg lsb-release
+RUN apt-get install -y ca-certificates curl gnupg lsb-release
 
 RUN mkdir -m 0755 -p /etc/apt/keyrings
 RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg

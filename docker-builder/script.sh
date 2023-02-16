@@ -14,7 +14,7 @@ build_container () {
   (
     cd /opt/fawnarevagh-kube/$1
     echo "Build image $1 for platfrom $2"
-    docker build --platform $2 -t $1 . 
+    docker buildx build --platform $2 -t $1 . 
 
     echo "Tag image"
     docker tag $1:latest nucio.nowhere:30038/$1:latest
