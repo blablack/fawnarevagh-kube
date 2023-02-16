@@ -111,14 +111,17 @@ systemctl restart k3s
 kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin?ref=main'
 ```
 
-To share the device between pods, use the ``-shared-dev-nul`` argument.
+To share the device between pods, use the `-shared-dev-nul` argument.
+
 ```
 KUBE_EDITOR=nano kubectl edit ds/intel-gpu-plugin
 ```
-and add ``args: ["-shared-dev-num","5"]`` to the container section.
+
+and add `args: ["-shared-dev-num","5"]` to the container section.
 Change the number '5' to the amount necessary.
 
 ### Label nodes
+
 ```bash
 kubectl label nodes nucio cputype=x86
 kubectl label nodes raspio cputype=arm
@@ -144,7 +147,6 @@ kubectl apply -f ./persistent-volumes/config-persistent-volume.yaml
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
-kubectl apply -f ./unbound/unbound.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
 kubectl apply -f ./docker-builder/docker-builder.yaml
@@ -157,7 +159,9 @@ kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
 kubectl apply -f ./qbittorrent-nordvpn/qbittorrent-nordvpn.yaml
 
-kubectl apply -f ./kublicity/kublicity.yaml
+kubectl apply -f ./kublicity/kublicity_full.yaml
+kubectl apply -f ./kublicity/kublicity_clean.yaml
+kubectl apply -f ./kublicity/kublicity_incr.yaml
 kubectl apply -f ./picsync/picsync.yaml
 ```
 

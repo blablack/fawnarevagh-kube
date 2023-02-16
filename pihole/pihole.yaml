@@ -60,8 +60,17 @@ spec:
             - name: config-volume
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
+        - image: mvance/unbound-rpi:latest
+          imagePullPolicy: Always
+          name: unbound
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/opt/unbound/etc/unbound/"
+              subPath: "unbound"
+              name: config-volume
       nodeSelector:
-        cputype: x86
+        cputype: arm
       volumes:
         - name: config-volume
           persistentVolumeClaim:

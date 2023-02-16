@@ -12,6 +12,8 @@ spec:
       command: ["/bin/sleep", "3650d"]
       securityContext:
         privileged: true
+  nodeSelector:
+    cputype: arm
   restartPolicy: Always
   dnsPolicy: "None"
   dnsConfig:
