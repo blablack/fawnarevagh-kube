@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: build-download-root-hints
 spec:
-  schedule: "0 0 1 * *"
+  schedule: "0 0 2 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -19,7 +19,7 @@ spec:
               name: build-download-root-hints
               imagePullPolicy: Always
               command: ["./build.sh"]
-              args: ["download-root-hints", "linux/amd64"]
+              args: ["download-root-hints", "linux/arm64"]
               securityContext:
                 privileged: true
           nodeSelector:

@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: build-nordvpn
 spec:
-  schedule: "0 0 1 * *"
+  schedule: "0 0 4 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
