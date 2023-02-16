@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: kublicity-clean
+  name: kublicity-incr-nucio
 spec:
-  schedule: "0 4 1 * *"
+  schedule: "0 2 * * 0"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -27,12 +27,13 @@ spec:
               command: ["duplicity"]
               args:
                 [
-                  "remove-all-but-n-full",
-                  "3",
+                  "incr",
+                  "/data",
                   "file:///backup/DejaDupNucio",
-                  "--force",
+                  "--no-encryption",
+                  "--allow-source-mismatch",
                 ]
-              name: kublicity-clean
+              name: kublicity-incr-nucio
               volumeMounts:
                 - mountPath: "/data"
                   name: cluster-config

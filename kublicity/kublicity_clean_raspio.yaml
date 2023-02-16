@@ -1,0 +1,51 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: kublicity-clean-raspio
+spec:
+  schedule: "0 4 1 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: kublicity
+        spec:
+          volumes:
+            - name: cluster-config
+              persistentVolumeClaim:
+                claimName: config-pv-claim
+            - name: kublicity-nfs
+              persistentVolumeClaim:
+                claimName: nfs-pv-claim
+          containers:
+            - image: nucio.nowhere:30038/kublicity:latest
+              imagePullPolicy: Always
+              command: ["duplicity"]
+              args:
+                [
+                  "remove-all-but-n-full",
+                  "3",
+                  "file:///backup/DejaDupRaspio",
+                  "--force",
+                ]
+              name: kublicity-clean-raspio
+              volumeMounts:
+                - mountPath: "/data"
+                  name: cluster-config
+                - mountPath: "/backup"
+                  subPath: "MyBackup"
+                  name: kublicity-nfs
+                - mountPath: "/root"
+                  subPath: "kublicity"
+                  name: cluster-config
+          nodeSelector:
+            cputype: arm
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.201
