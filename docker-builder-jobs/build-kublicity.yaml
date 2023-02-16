@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: build-kublicity
+spec:
+  schedule: "0 0 1 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: build-kublicity
+        spec:
+          containers:
+            - image: nucio.nowhere:30038/docker-builder:latest
+              name: build-kublicity
+              imagePullPolicy: Always
+              command: ["./build.sh"]
+              args: ["kublicity", "linux/amd64"]
+              securityContext:
+                privileged: true
+          nodeSelector:
+            cputype: x86
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.201

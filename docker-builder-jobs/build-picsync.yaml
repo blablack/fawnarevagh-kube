@@ -1,22 +1,25 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: docker-builder
+  name: build-picsync
 spec:
   schedule: "0 0 1 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
+      backoffLimit: 1
       template:
         metadata:
           labels:
-            app: docker-builder
+            app: build-picsync
         spec:
           containers:
             - image: nucio.nowhere:30038/docker-builder:latest
-              name: docker-builder
+              name: build-picsync
               imagePullPolicy: Always
+              command: ["./build.sh"]
+              args: ["picsync", "linux/amd64"]
               securityContext:
                 privileged: true
           nodeSelector:
@@ -26,4 +29,3 @@ spec:
           dnsConfig:
             nameservers:
               - 192.168.2.201
-      backoffLimit: 1
