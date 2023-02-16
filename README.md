@@ -118,6 +118,11 @@ KUBE_EDITOR=nano kubectl edit ds/intel-gpu-plugin
 and add ``args: ["-shared-dev-num","5"]`` to the container section.
 Change the number '5' to the amount necessary.
 
+### Label nodes
+```bash
+kubectl label nodes nucio cputype=x86
+kubectl label nodes raspio cputype=arm
+```
 
 ### Secrets
 
@@ -150,7 +155,6 @@ kubectl apply -f ./node-red/node-red.yaml
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
-kubectl apply -f ./tdarr/tdarr.yaml
 kubectl apply -f ./qbittorrent-nordvpn/qbittorrent-nordvpn.yaml
 
 kubectl apply -f ./kublicity/kublicity.yaml

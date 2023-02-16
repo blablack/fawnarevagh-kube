@@ -54,6 +54,8 @@ spec:
           imagePullPolicy: Always
           name: ubuntu
           command: ["/bin/sleep", "3650d"]
+      nodeSelector:
+        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

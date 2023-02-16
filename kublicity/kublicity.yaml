@@ -42,6 +42,8 @@ spec:
                 - mountPath: "/root"
                   subPath: "kublicity"
                   name: cluster-config
+          nodeSelector:
+            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
@@ -91,6 +93,8 @@ spec:
                 - mountPath: "/root"
                   subPath: "kublicity"
                   name: cluster-config
+          nodeSelector:
+            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:
@@ -141,6 +145,8 @@ spec:
                 - mountPath: "/root"
                   subPath: "kublicity"
                   name: cluster-config
+          nodeSelector:
+            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:

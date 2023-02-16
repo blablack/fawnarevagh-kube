@@ -64,5 +64,7 @@ spec:
         - --policy=upsert-only
         - --provider=pihole
         - --pihole-server=http://pihole.nowhere
+      nodeSelector:
+        cputype: x86
       securityContext:
         fsGroup: 65534 # For ExternalDNS to be able to read Kubernetes token files

@@ -32,6 +32,8 @@ spec:
               value: :5000
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: /data
+      nodeSelector:
+        cputype: x86
       volumes:
         - name: registry-storage
           persistentVolumeClaim:

@@ -39,6 +39,8 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
+      nodeSelector:
+        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
