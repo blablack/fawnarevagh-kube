@@ -2,11 +2,11 @@
 
 export DOCKER_BUILDKIT=1
 
-mkdir -p /docker_storage
+#mkdir -p /docker_storage
 
 dockerd&
 
-docker buildx create --use
+docker buildx create --use --config /etc/buildkitd.toml
 
 (cd /opt/ ; git clone https://github.com/blablack/fawnarevagh-kube.git)
 
@@ -14,13 +14,7 @@ build_container () {
   (
     cd /opt/fawnarevagh-kube/$1
     echo "Build image $1 for platfrom $2"
-    docker buildx build --platform $2 -t $1 . 
-
-    echo "Tag image"
-    docker tag $1:latest nucio.nowhere:30038/$1:latest
-
-    echo "Push image"
-    docker push nucio.nowhere:30038/$1:latest
+    docker buildx build --platform $2 --push --tag nucio.nowhere:30038/$1:latest .
   )
 }
 
