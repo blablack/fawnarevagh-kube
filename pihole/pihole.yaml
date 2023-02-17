@@ -75,7 +75,7 @@ spec:
         - name: config-volume
           persistentVolumeClaim:
             claimName: config-pv-claim
-      dnsPolicy: "None"
+      dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
           - 192.168.2.201
