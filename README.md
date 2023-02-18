@@ -80,10 +80,17 @@ sudo apt install nfs-common
 
 ### Install k3s
 
-Use this command to install/configure k3s.
+Use this command to install/configure k3s Server.
 
 ```bash
 curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --disable traefik --disable metrics-server" sh -s
+```
+
+Use this command to install/configure k3s Agent.
+The token can be found on the server in this file: `/var/lib/rancher/k3s/server/node-token`
+
+```bash
+curl -sfL https://get.k3s.io | K3S_URL=https://nucio.nowhere:6443 K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" K3S_TOKEN=XXXTOKEN sh -s
 ```
 
 ### Docker registry
