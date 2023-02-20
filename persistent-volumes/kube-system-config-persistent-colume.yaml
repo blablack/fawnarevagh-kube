@@ -21,6 +21,7 @@ metadata:
   namespace: kube-system
 spec:
   storageClassName: manual
+  volumeName: kube-system-config-pv-volume
   accessModes:
     - ReadWriteOnce
   resources:

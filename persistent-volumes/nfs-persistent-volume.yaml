@@ -29,6 +29,7 @@ metadata:
   name: nfs-pv-claim
 spec:
   storageClassName: nfs
+  volumeName: nfs-pv-volume
   accessModes:
     - ReadWriteMany
   resources:

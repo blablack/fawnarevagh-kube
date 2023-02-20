@@ -19,6 +19,7 @@ metadata:
   name: config-pv-claim
 spec:
   storageClassName: manual
+  volumeName: config-pv-volume
   accessModes:
     - ReadWriteOnce
   resources:
