@@ -20,57 +20,25 @@ stop()
   exit
 }
 
-# This loop runs till until we've started up successfully
-while true; do
+echo "Displaying /etc/exports contents:"
+cat /etc/exports
+echo ""
 
-  # Check if NFS is running by recording it's PID (if it's not running $pid will be null):
-  pid=`pidof rpc.mountd`
+# Normally only required if v3 will be used
+# But currently enabled to overcome an NFS bug around opening an IPv6 socket
+echo "Starting rpcbind..."
+/sbin/rpcbind -w
+echo "Displaying rpcbind status..."
+/sbin/rpcinfo
 
-  # If $pid is null, do this to start or restart NFS:
-  while [ -z "$pid" ]; do
-    echo "Displaying /etc/exports contents:"
-    cat /etc/exports
-    echo ""
+echo "Starting NFS in the background..."
+/usr/sbin/rpc.nfsd --debug 8 --no-udp --no-nfs-version 3
 
-    # Normally only required if v3 will be used
-    # But currently enabled to overcome an NFS bug around opening an IPv6 socket
-    echo "Starting rpcbind..."
-    /sbin/rpcbind -w
-    echo "Displaying rpcbind status..."
-    /sbin/rpcinfo
+echo "Exporting File System..."
+/usr/sbin/exportfs
 
-    # Only required if v3 will be used
-    # /usr/sbin/rpc.idmapd
-    # /usr/sbin/rpc.gssd -v
-    # /usr/sbin/rpc.statd
-
-    echo "Starting NFS in the background..."
-    /usr/sbin/rpc.nfsd --debug 8 --no-udp --no-nfs-version 3
-
-    echo "Exporting File System..."
-    /usr/sbin/exportfs
-
-    echo "Starting Mountd in the background..."These
-    /usr/sbin/rpc.mountd --debug all --no-udp --no-nfs-version 3
-
-    # Check if NFS is now running by recording it's PID (if it's not running $pid will be null):
-    pid=`pidof rpc.mountd`
-
-    # If $pid is null, startup failed; log the fact and sleep for 2s
-    # We'll then automatically loop through and try again
-    if [ -z "$pid" ]; then
-      echo "Startup of NFS failed, sleeping for 2s, then retrying..."
-      sleep 2
-    fi
-
-  done
-
-  # Break this outer loop once we've started up successfully
-  # Otherwise, we'll silently restart and Docker won't know
-  echo "Startup successful."
-  break
-
-done
+echo "Starting Mountd in the background..."These
+/usr/sbin/rpc.mountd --debug all --no-udp --no-nfs-version 3
 
 while true; do
 
