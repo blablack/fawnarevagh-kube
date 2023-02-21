@@ -34,11 +34,20 @@ echo "Displaying rpcbind status..."
 echo "Starting NFS in the background..."
 /usr/sbin/rpc.nfsd --debug 8 --no-udp --no-nfs-version 3
 
-echo "Exporting File System..."
-/usr/sbin/exportfs
+#echo "Exporting File System..."
+#/usr/sbin/exportfs
 
 echo "Starting Mountd in the background..."These
 /usr/sbin/rpc.mountd --debug all --no-udp --no-nfs-version 3
+
+sleep 5
+
+echo "Exporting File System..."
+/usr/sbin/exportfs -a
+
+echo "List of share..."
+/usr/sbin/showmount -e localhost
+
 
 while true; do
 
