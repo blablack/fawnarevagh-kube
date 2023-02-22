@@ -16,9 +16,9 @@ spec:
             app: picsync
         spec:
           volumes:
-            - name: picsync-nfs
+            - name: nasio-nfs-pvc
               persistentVolumeClaim:
-                claimName: nfs-pv-claim
+                claimName: nasio-nfs-pvc
           containers:
             - image: nucio.nowhere:30038/picsync:latest
               imagePullPolicy: Always
@@ -45,7 +45,7 @@ spec:
               volumeMounts:
                 - mountPath: "/source"
                   subPath: "Our Pictures"
-                  name: picsync-nfs
+                  name: nasio-nfs-pvc
           nodeSelector:
             cputype: x86
           restartPolicy: Never

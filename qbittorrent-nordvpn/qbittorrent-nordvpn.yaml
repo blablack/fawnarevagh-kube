@@ -16,12 +16,12 @@ spec:
         app: qbitorrent-vpn
     spec:
       volumes:
-        - name: qbittorrent-storage
+        - name: storage-localpath-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
-        - name: torrent-nfs
+            claimName: storage-localpath-pvc
+        - name: nasio-nfs-pvc
           persistentVolumeClaim:
-            claimName: nfs-pv-claim
+            claimName: nasio-nfs-pvc
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
@@ -63,10 +63,10 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "qbittorrent"
-              name: qbittorrent-storage
+              name: storage-localpath-pvc
             - mountPath: "/volume1/public/Torrent Downloads"
               subPath: "Torrent Downloads"
-              name: torrent-nfs
+              name: nasio-nfs-pvc
           env:
             - name: PUID
               value: "1026"

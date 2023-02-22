@@ -16,12 +16,12 @@ spec:
         app: sonarr
     spec:
       volumes:
-        - name: sonarr-storage
+        - name: storage-localpath-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
-        - name: sonarr-nfs
+            claimName: storage-localpath-pvc
+        - name: nasio-nfs-pvc
           persistentVolumeClaim:
-            claimName: nfs-pv-claim
+            claimName: nasio-nfs-pvc
       containers:
         - image: linuxserver/sonarr:latest
           imagePullPolicy: Always
@@ -29,9 +29,9 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "sonarr"
-              name: sonarr-storage
+              name: storage-localpath-pvc
             - mountPath: "/volume1/public"
-              name: sonarr-nfs
+              name: nasio-nfs-pvc
           env:
             - name: PUID
               value: "1026"
