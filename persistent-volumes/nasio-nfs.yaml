@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: nfs-pv-volume
+  name: nasio-nfs-pv
 spec:
   capacity:
     storage: 10Gi
@@ -19,6 +19,7 @@ spec:
     - nocto
     - noatime
     - nodiratime
+    - async
   nfs:
     path: /volume1/public
     server: 192.168.2.3
@@ -26,10 +27,10 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: nfs-pv-claim
+  name: nasio-nfs-pvc
 spec:
   storageClassName: nfs
-  volumeName: nfs-pv-volume
+  volumeName: nasio-nfs-pv
   accessModes:
     - ReadWriteMany
   resources:

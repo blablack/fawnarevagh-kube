@@ -24,7 +24,7 @@ spec:
             - containerPort: 5000
               protocol: TCP
           volumeMounts:
-            - name: registry-storage
+            - name: storage-localpath-pvc
               mountPath: /data
               subPath: "registry"
           env:
@@ -35,9 +35,9 @@ spec:
       nodeSelector:
         cputype: x86
       volumes:
-        - name: registry-storage
+        - name: storage-localpath-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
+            claimName: storage-localpath-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

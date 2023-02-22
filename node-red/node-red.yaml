@@ -16,9 +16,9 @@ spec:
         app: node-red
     spec:
       volumes:
-        - name: node-red-storage
+        - name: storage-localpath-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
+            claimName: storage-localpath-pvc
       containers:
         - image: nodered/node-red
           imagePullPolicy: Always
@@ -26,7 +26,7 @@ spec:
           volumeMounts:
             - mountPath: "/data"
               subPath: "node-red"
-              name: node-red-storage
+              name: storage-localpath-pvc
           resources: {}
           env:
             - name: NODE_RED_ENABLE_PROJECTS

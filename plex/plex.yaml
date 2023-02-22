@@ -16,12 +16,12 @@ spec:
         app: plex
     spec:
       volumes:
-        - name: plex-storage
+        - name: storage-localpath-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
-        - name: plex-nfs
+            claimName: storage-localpath-pvc
+        - name: nasio-nfs-pvc
           persistentVolumeClaim:
-            claimName: nfs-pv-claim
+            claimName: nasio-nfs-pvc
         - name: dshm
           emptyDir:
             medium: Memory
@@ -35,9 +35,9 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "plex"
-              name: plex-storage
+              name: storage-localpath-pvc
             - mountPath: "/data"
-              name: plex-nfs
+              name: nasio-nfs-pvc
             - mountPath: /dev/shm
               name: dshm
           env:

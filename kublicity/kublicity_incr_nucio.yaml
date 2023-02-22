@@ -15,12 +15,12 @@ spec:
             app: kublicity
         spec:
           volumes:
-            - name: cluster-config
+            - name: storage-localpath-pvc
               persistentVolumeClaim:
-                claimName: config-pv-claim
-            - name: kublicity-nfs
+                claimName: storage-localpath-pvc
+            - name: nasio-nfs-pvc
               persistentVolumeClaim:
-                claimName: nfs-pv-claim
+                claimName: nasio-nfs-pvc
           containers:
             - image: nucio.nowhere:30038/kublicity:latest
               imagePullPolicy: Always
@@ -36,13 +36,13 @@ spec:
               name: kublicity-incr-nucio
               volumeMounts:
                 - mountPath: "/data"
-                  name: cluster-config
+                  name: storage-localpath-pvc
                 - mountPath: "/backup"
                   subPath: "MyBackup"
-                  name: kublicity-nfs
+                  name: nasio-nfs-pvc
                 - mountPath: "/root"
                   subPath: "kublicity"
-                  name: cluster-config
+                  name: storage-localpath-pvc
           nodeSelector:
             cputype: x86
           restartPolicy: Never

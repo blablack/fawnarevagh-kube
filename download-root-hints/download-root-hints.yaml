@@ -15,9 +15,9 @@ spec:
             app: download-root-hints
         spec:
           volumes:
-            - name: cluster-config
+            - name: storage-localpath-pvc
               persistentVolumeClaim:
-                claimName: config-pv-claim
+                claimName: storage-localpath-pvc
           containers:
             - image: nucio.nowhere:30038/download-root-hints:latest
               imagePullPolicy: Always
@@ -25,7 +25,7 @@ spec:
               volumeMounts:
                 - mountPath: "/tmp/unbound_config"
                   subPath: "unbound"
-                  name: cluster-config
+                  name: storage-localpath-pvc
           nodeSelector:
             cputype: arm
           restartPolicy: Never
