@@ -156,8 +156,6 @@ kubectl apply -f ./registry/registry.yaml
 kubectl apply -f ./prometheus/namespace.yaml
 kubectl create -f ./prometheus/prometheus-crd.yaml
 kubectl apply -f ./prometheus/node-exporter.yaml
-kubectl apply -f ./prometheus/kube-stats-metrics.yaml
-kubectl apply -f ./prometheus/kubelet.yaml
 kubectl apply -f ./prometheus/prometheus.yaml
 kubectl apply -f ./grafana/grafana.yaml
 
