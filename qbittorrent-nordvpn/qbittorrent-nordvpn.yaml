@@ -16,9 +16,9 @@ spec:
         app: qbitorrent-vpn
     spec:
       volumes:
-        - name: storage-localpath-pvc
+        - name: storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: storage-localpath-pvc
+            claimName: storage-local-path-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -63,7 +63,7 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "qbittorrent"
-              name: storage-localpath-pvc
+              name: storage-local-path-pvc
             - mountPath: "/volume1/public/Torrent Downloads"
               subPath: "Torrent Downloads"
               name: nasio-nfs-pvc

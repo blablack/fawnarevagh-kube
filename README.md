@@ -148,10 +148,18 @@ The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
-kubectl apply -f ./persistent-volumes/storage-localpath.yaml
+kubectl apply -f ./persistent-volumes/storage-local-path.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
+
+kubectl apply -f ./prometheus/namespace.yaml
+kubectl create -f ./prometheus/prometheus-crd.yaml
+kubectl apply -f ./prometheus/node-exporter.yaml
+kubectl apply -f ./prometheus/kube-stats-metrics.yaml
+kubectl apply -f ./prometheus/kubelet.yaml
+kubectl apply -f ./prometheus/prometheus.yaml
+kubectl apply -f ./grafana/grafana.yaml
 
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml

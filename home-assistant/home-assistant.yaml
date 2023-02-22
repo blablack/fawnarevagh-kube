@@ -16,9 +16,9 @@ spec:
         app: home-assistant
     spec:
       volumes:
-        - name: storage-localpath-pvc
+        - name: storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: storage-localpath-pvc
+            claimName: storage-local-path-pvc
       hostNetwork: true
       containers:
         - image: homeassistant/home-assistant:stable
@@ -27,7 +27,7 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "home-assistant"
-              name: storage-localpath-pvc
+              name: storage-local-path-pvc
       nodeSelector:
         cputype: x86
       dnsPolicy: "None"

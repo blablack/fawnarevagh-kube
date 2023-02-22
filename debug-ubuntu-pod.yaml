@@ -5,6 +5,10 @@ metadata:
   labels:
     app: ubuntu
 spec:
+  volumes:
+    - name: storage-local-path-pvc
+      persistentVolumeClaim:
+        claimName: test-pvc
   containers:
     - name: ubuntu
       image: ubuntu:latest
@@ -12,8 +16,11 @@ spec:
       command: ["/bin/sleep", "3650d"]
       securityContext:
         privileged: true
+      volumeMounts:
+        - mountPath: "/opt/test2"
+          name: storage-local-path-pvc
   nodeSelector:
-    cputype: arm
+    cputype: x86
   restartPolicy: Always
   dnsPolicy: "None"
   dnsConfig:

@@ -16,9 +16,9 @@ spec:
         app: plex
     spec:
       volumes:
-        - name: storage-localpath-pvc
+        - name: storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: storage-localpath-pvc
+            claimName: storage-local-path-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -35,7 +35,7 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "plex"
-              name: storage-localpath-pvc
+              name: storage-local-path-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
             - mountPath: /dev/shm
