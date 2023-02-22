@@ -15,9 +15,9 @@ spec:
             app: kublicity
         spec:
           volumes:
-            - name: storage-localpath-pvc
+            - name: storage-local-path-pvc
               persistentVolumeClaim:
-                claimName: storage-localpath-pvc
+                claimName: storage-local-path-pvc
             - name: nasio-nfs-pvc
               persistentVolumeClaim:
                 claimName: nasio-nfs-pvc
@@ -36,13 +36,13 @@ spec:
               name: kublicity-incr-nucio
               volumeMounts:
                 - mountPath: "/data"
-                  name: storage-localpath-pvc
+                  name: storage-local-path-pvc
                 - mountPath: "/backup"
                   subPath: "MyBackup"
                   name: nasio-nfs-pvc
                 - mountPath: "/root"
                   subPath: "kublicity"
-                  name: storage-localpath-pvc
+                  name: storage-local-path-pvc
           nodeSelector:
             cputype: x86
           restartPolicy: Never

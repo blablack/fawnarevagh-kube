@@ -16,9 +16,9 @@ spec:
         app: prowlarr
     spec:
       volumes:
-        - name: storage-localpath-pvc
+        - name: storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: storage-localpath-pvc
+            claimName: storage-local-path-pvc
       containers:
         - image: linuxserver/prowlarr:latest
           imagePullPolicy: Always
@@ -26,7 +26,7 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               subPath: "prowlarr"
-              name: storage-localpath-pvc
+              name: storage-local-path-pvc
           env:
             - name: PUID
               value: "1026"

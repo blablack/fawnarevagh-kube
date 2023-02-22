@@ -54,10 +54,10 @@ spec:
             - name: DNSMASQ_LISTENING
               value: "all"
           volumeMounts:
-            - name: storage-localpath-pvc
+            - name: storage-local-path-pvc
               subPath: "pihole"
               mountPath: "/etc/pihole"
-            - name: storage-localpath-pvc
+            - name: storage-local-path-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
         - image: mvance/unbound-rpi:latest
@@ -68,13 +68,13 @@ spec:
           volumeMounts:
             - mountPath: "/opt/unbound/etc/unbound/"
               subPath: "unbound"
-              name: storage-localpath-pvc
+              name: storage-local-path-pvc
       nodeSelector:
         cputype: arm
       volumes:
-        - name: storage-localpath-pvc
+        - name: storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: storage-localpath-pvc
+            claimName: storage-local-path-pvc
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
