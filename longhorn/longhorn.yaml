@@ -4164,7 +4164,7 @@ metadata:
   name: longhorn-ui
   namespace: longhorn-system
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: longhorn-ui
@@ -4213,6 +4213,8 @@ spec:
               value: "http://longhorn-backend:9500"
             - name: LONGHORN_UI_PORT
               value: "8000"
+      nodeSelector:
+        cputype: x86
       volumes:
         - emptyDir: {}
           name: nginx-cache
