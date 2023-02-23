@@ -50,6 +50,13 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: linuxserver/qbittorrent:latest
           imagePullPolicy: Always
           name: qbitorrent
@@ -76,6 +83,13 @@ spec:
               value: "EU/Dublin"
             - name: WEBUI_PORT
               value: "8112"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       nodeSelector:
         cputype: x86
       dnsPolicy: "None"

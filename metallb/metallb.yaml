@@ -323,6 +323,13 @@ spec:
               drop:
                 - ALL
             readOnlyRootFilesystem: true
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       hostNetwork: true
       nodeSelector:
         kubernetes.io/os: linux
