@@ -1,28 +1,37 @@
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: ubuntu
   labels:
     app: ubuntu
+  namespace: default
 spec:
-  volumes:
-    - name: storage-local-path-pvc
-      persistentVolumeClaim:
-        claimName: test-pvc
-  containers:
-    - name: ubuntu
-      image: ubuntu:latest
-      imagePullPolicy: Always
-      command: ["/bin/sleep", "3650d"]
-      securityContext:
-        privileged: true
-      volumeMounts:
-        - mountPath: "/opt/test2"
-          name: storage-local-path-pvc
-  nodeSelector:
-    cputype: x86
-  restartPolicy: Always
-  dnsPolicy: "None"
-  dnsConfig:
-    nameservers:
-      - 192.168.2.201
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: ubuntu
+  template:
+    metadata:
+      labels:
+        app: ubuntu
+    spec:
+      containers:
+        - name: ubuntu
+          image: ubuntu:latest
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          securityContext:
+            privileged: true
+          resources:
+            limits:
+              cpu: 200m
+            requests:
+              cpu: 100m
+      nodeSelector:
+        cputype: arm
+      restartPolicy: Always
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.201
