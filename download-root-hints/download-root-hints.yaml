@@ -26,6 +26,13 @@ spec:
                 - mountPath: "/tmp/unbound_config"
                   subPath: "unbound"
                   name: storage-local-path-pvc
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 100m
+                  memory: 100Mi
           nodeSelector:
             cputype: arm
           restartPolicy: Never

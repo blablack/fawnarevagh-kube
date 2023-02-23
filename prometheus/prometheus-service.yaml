@@ -7,8 +7,12 @@ spec:
   replicas: 1
   retention: 7d
   resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
     requests:
-      memory: 400Mi
+      cpu: 100m
+      memory: 100Mi
   nodeSelector:
     cputype: x86
   securityContext:
@@ -21,9 +25,7 @@ spec:
       - key: name
         operator: In
         values:
-          - kube-state-metrics
           - node-exporter
-          - kubelet
   storage:
     volumeClaimTemplate:
       spec:

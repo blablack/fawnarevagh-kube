@@ -37,37 +37,21 @@ nameserver 192.168.2.201
 
 ## Netplan
 
-Our server will use ethernet and wifi as a backup network.
-In addition, it will override the DNS IP advertised by the router.
+Our servers use Netplan for the network configuration.
+Let's update it to override the DNS IP advertised by the router.
 
-Update the configuration file in `/etc/netplan/`
+Here is an example of a configuration file found in `/etc/netplan/`
 
 ```
 network:
   version: 2
   ethernets:
     eno1:
-      dhcp4: no
-  wifis:
-    wlp2s0:
-      dhcp4: no
-      access-points:
-        "MYSSID":
-          password: "MYWIFIPASSORD"
-  bonds:
-    bond0:
       dhcp4: yes
-      interfaces: [ eno1, wlp2s0 ]
       dhcp4-overrides:
         use-dns: false
       nameservers:
         addresses: [ 192.168.2.1 ]
-      parameters:
-        primary: eno1
-        mode: active-backup
-        transmit-hash-policy: layer3+4
-        mii-monitor-interval: 1
-
 ```
 
 ## Setup
@@ -93,6 +77,13 @@ The token can be found on the server in this file: `/var/lib/rancher/k3s/server/
 curl -sfL https://get.k3s.io | K3S_URL=https://nucio.nowhere:6443 K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" K3S_TOKEN=XXXTOKEN sh -s
 ```
 
+### Label nodes
+
+```bash
+kubectl label nodes nucio cputype=x86
+kubectl label nodes raspio cputype=arm
+```
+
 ### Docker registry
 
 Create/edit file `/etc/rancher/k3s/registries.yaml` for each node.
@@ -108,6 +99,12 @@ And restart k3s after this change.
 
 ```bash
 systemctl restart k3s
+```
+
+or
+
+```bash
+systemctl restart k3s-agent
 ```
 
 ## Deployments
@@ -127,11 +124,14 @@ KUBE_EDITOR=nano kubectl edit ds/intel-gpu-plugin
 and add `args: ["-shared-dev-num","5"]` to the container section.
 Change the number '5' to the amount necessary.
 
-### Label nodes
+### Prometheus Operator
 
-```bash
-kubectl label nodes nucio cputype=x86
-kubectl label nodes raspio cputype=arm
+Install the Promethus Operator in the `monitoring` namespace.
+
+```
+kubectl create namespace monitoring
+LATEST=$(curl -s https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest | jq -cr .tag_name)
+curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml | sed 's/namespace: default/namespace: monitoring/g' | kubectl create -f -
 ```
 
 ### Secrets
@@ -147,16 +147,16 @@ kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
+kubectl apply -f ./longhorn/longhorn.yaml
+
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/storage-local-path.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
-kubectl apply -f ./prometheus/namespace.yaml
-kubectl create -f ./prometheus/prometheus-crd.yaml
 kubectl apply -f ./prometheus/node-exporter.yaml
-kubectl apply -f ./prometheus/prometheus.yaml
+kubectl apply -f ./prometheus/prometheus-service.yaml
 kubectl apply -f ./grafana/grafana.yaml
 
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
