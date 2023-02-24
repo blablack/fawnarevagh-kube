@@ -6,13 +6,6 @@ metadata:
 spec:
   replicas: 1
   retention: 7d
-  resources:
-    limits:
-      cpu: 200m
-      memory: 200Mi
-    requests:
-      cpu: 100m
-      memory: 100Mi
   nodeSelector:
     cputype: x86
   securityContext:
@@ -27,6 +20,7 @@ spec:
         values:
           - node-exporter
           - kube-state-metrics
+          - kubelet
   storage:
     volumeClaimTemplate:
       spec:

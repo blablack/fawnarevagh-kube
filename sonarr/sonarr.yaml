@@ -39,13 +39,6 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
-          resources:
-            limits:
-              cpu: 400m
-              memory: 400Mi
-            requests:
-              cpu: 200m
-              memory: 200Mi
       nodeSelector:
         cputype: x86
       dnsPolicy: "None"

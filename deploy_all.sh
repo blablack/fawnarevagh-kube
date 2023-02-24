@@ -2,12 +2,12 @@
 
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/storage-local-path.yaml
-kubectl apply -f ./persistent-volumes/nfs-local-path.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
 
 kubectl apply -f ./prometheus/node-exporter.yaml
+kubectl apply -f ./prometheus/kubelet-servicemonitor.yaml
 kubectl apply -f ./prometheus/kube-state-metrics.yaml
 kubectl apply -f ./prometheus/prometheus-service.yaml
 kubectl apply -f ./grafana/grafana.yaml
@@ -20,7 +20,6 @@ kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
 kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
 kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
 kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
-kubectl apply -f ./docker-builder-jobs/build-nfs-server.yaml
 
 kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-qbittorrent-vpn.yaml

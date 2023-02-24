@@ -27,15 +27,7 @@ spec:
             privileged: true
           volumeMounts:
             - mountPath: "/mnt/nfs_share"
-              subPath: "nfs_share"
               name: nfs-local-path-pvc
-          resources:
-            limits:
-              cpu: 200m
-              memory: 200Mi
-            requests:
-              cpu: 100m
-              memory: 100Mi
       nodeSelector:
         cputype: arm
       dnsPolicy: "None"
