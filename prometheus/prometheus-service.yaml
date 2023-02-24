@@ -26,6 +26,7 @@ spec:
         operator: In
         values:
           - node-exporter
+          - kube-state-metrics
   storage:
     volumeClaimTemplate:
       spec:
