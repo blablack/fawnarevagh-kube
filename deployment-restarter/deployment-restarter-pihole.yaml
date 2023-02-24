@@ -1,0 +1,27 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: deployment-restarter-pihole
+  namespace: default
+spec:
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  schedule: "0 0 1 * *"
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 600
+      template:
+        spec:
+          serviceAccountName: deployment-restarter
+          restartPolicy: Never
+          containers:
+            - name: deployment-restarter-pihole
+              image: bitnami/kubectl
+              command:
+                - bash
+                - -c
+                - >-
+                  kubectl rollout restart deployment/pihole &&
+                  kubectl rollout status deployment/pihole

@@ -32,7 +32,7 @@ spec:
             - name: PORTS
               value: "8080,8112,6881"
             - name: DNS
-              value: "192.168.2.201"
+              value: "10.43.0.22"
           securityContext:
             privileged: true
             capabilities:
@@ -41,4 +41,4 @@ spec:
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
-          - 192.168.2.201
+          - 10.43.0.22

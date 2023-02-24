@@ -147,42 +147,7 @@ kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
-kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
-kubectl apply -f ./persistent-volumes/storage-local-path.yaml
-kubectl apply -f ./persistent-volumes/nfs-local-path.yaml
-
-kubectl apply -f ./metallb/metallb.yaml
-kubectl apply -f ./registry/registry.yaml
-
-kubectl apply -f ./prometheus/node-exporter.yaml
-kubectl apply -f ./prometheus/prometheus-service.yaml
-kubectl apply -f ./grafana/grafana.yaml
-
-kubectl apply -f ./download-root-hints/download-root-hints.yaml
-kubectl apply -f ./pihole/pihole.yaml
-
-kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
-kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
-kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
-kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
-kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
-kubectl apply -f ./docker-builder-jobs/build-nfs-server.yaml
-
-kubectl apply -f ./home-assistant/home-assistant.yaml
-kubectl apply -f ./node-red/node-red.yaml
-
-kubectl apply -f ./plex/plex.yaml
-kubectl apply -f ./sonarr/sonarr.yaml
-kubectl apply -f ./prowlarr/prowlarr.yaml
-kubectl apply -f ./qbittorrent-nordvpn/qbittorrent-nordvpn.yaml
-
-kubectl apply -f ./kublicity/kublicity_full_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_clean_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_incr_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_full_raspio.yaml
-kubectl apply -f ./kublicity/kublicity_clean_raspio.yaml
-kubectl apply -f ./kublicity/kublicity_incr_raspio.yaml
-kubectl apply -f ./picsync/picsync.yaml
+./deploy_all.sh
 ```
 
 ## Debug
