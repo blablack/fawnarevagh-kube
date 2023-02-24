@@ -1,0 +1,38 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: build-nfs-server
+spec:
+  schedule: "0 0 6 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: build-nfs-server
+        spec:
+          containers:
+            - image: nucio.nowhere:30038/docker-builder:latest
+              name: build-nfs-server
+              imagePullPolicy: Always
+              command: ["./build.sh"]
+              args: ["nfs-server", "linux/amd64,linux/arm64"]
+              securityContext:
+                privileged: true
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 100m
+                  memory: 100Mi
+          nodeSelector:
+            cputype: x86
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 192.168.2.201

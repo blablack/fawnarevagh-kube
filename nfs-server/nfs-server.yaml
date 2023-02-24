@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nfs-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: nfs-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nfs-server
+    spec:
+      volumes:
+        - name: local-storage
+          persistentVolumeClaim:
+            claimName: config-pv-claim
+      containers:
+        - image: nucio.nowhere:30038/nfs-server:latest
+          imagePullPolicy: Always
+          name: nfs-server
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/mnt/nfs_share"
+              subPath: "nfs_share"
+              name: local-storage
+      nodeSelector:
+        cputype: x86
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 192.168.2.201
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nfs-server
+spec:
+  selector:
+    app: nfs-server
+  ports:
+    - port: 2049
+      targetPort: 2049
+      protocol: TCP
+  type: ClusterIP
