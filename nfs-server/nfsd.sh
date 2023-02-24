@@ -20,12 +20,6 @@ stop()
   exit
 }
 
-# This loop runs till until we've started up successfully
-while true; do
-
-  # Check if NFS is running by recording it's PID (if it's not running $pid will be null):
-  pid=`pidof rpc.mountd`
-
 echo "Displaying /etc/exports contents:"
 cat /etc/exports
 echo ""
