@@ -147,8 +147,6 @@ kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
 The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ```bash
-kubectl apply -f ./longhorn/longhorn.yaml
-
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/storage-local-path.yaml
 
@@ -167,6 +165,7 @@ kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
 kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
 kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
 kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
+kubectl apply -f ./docker-builder-jobs/build-nfs-server.yaml
 
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
