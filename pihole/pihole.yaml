@@ -60,11 +60,6 @@ spec:
             - name: storage-local-path-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
-          resources:
-            limits:
-              cpu: 200m
-            requests:
-              cpu: 100m
         - image: mvance/unbound-rpi:latest
           imagePullPolicy: Always
           name: unbound
@@ -74,11 +69,6 @@ spec:
             - mountPath: "/opt/unbound/etc/unbound/"
               subPath: "unbound"
               name: storage-local-path-pvc
-          resources:
-            limits:
-              cpu: 200m
-            requests:
-              cpu: 100m
       nodeSelector:
         cputype: arm
       volumes:

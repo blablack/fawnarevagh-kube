@@ -27,13 +27,6 @@ spec:
             httpGet:
               path: /api/health
               port: http
-          resources:
-            limits:
-              cpu: 200m
-              memory: 200Mi
-            requests:
-              cpu: 100m
-              memory: 100Mi
           volumeMounts:
             - mountPath: /var/lib/grafana
               subPath: "grafana"
