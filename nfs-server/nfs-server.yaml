@@ -16,9 +16,9 @@ spec:
         app: nfs-server
     spec:
       volumes:
-        - name: local-storage
+        - name: nfs-local-path-pvc
           persistentVolumeClaim:
-            claimName: config-pv-claim
+            claimName: nfs-local-path-pvc
       containers:
         - image: nucio.nowhere:30038/nfs-server:latest
           imagePullPolicy: Always
@@ -28,9 +28,16 @@ spec:
           volumeMounts:
             - mountPath: "/mnt/nfs_share"
               subPath: "nfs_share"
-              name: local-storage
+              name: nfs-local-path-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       nodeSelector:
-        cputype: x86
+        cputype: arm
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

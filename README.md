@@ -149,6 +149,7 @@ The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 ```bash
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/storage-local-path.yaml
+kubectl apply -f ./persistent-volumes/nfs-local-path.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./registry/registry.yaml
