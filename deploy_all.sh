@@ -4,6 +4,7 @@ kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/storage-local-path.yaml
 
 kubectl apply -f ./metallb/metallb.yaml
+kubectl apply -f ./metallb/metallb-config.yaml
 kubectl apply -f ./registry/registry.yaml
 
 kubectl apply -f ./prometheus/node-exporter.yaml
@@ -25,6 +26,8 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-qbittorrent-vpn.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-pihole.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-plex.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
 
 kubectl apply -f ./home-assistant/home-assistant.yaml
