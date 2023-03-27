@@ -26,6 +26,11 @@ spec:
         - image: jupyter/minimal-notebook:latest
           imagePullPolicy: Always
           name: jupyter
+          resources:
+            limits:
+              cpu: "2"
+            requests:
+              cpu: "1"
           volumeMounts:
             - mountPath: "/home/jovyan"
               subPath: "jupyter"
