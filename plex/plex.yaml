@@ -53,6 +53,18 @@ spec:
               value: "nucio.nowhere"
             - name: TZ
               value: "Europe/Dublin"
+          readinessProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           ports:
             - containerPort: 32400
               name: pms-web
