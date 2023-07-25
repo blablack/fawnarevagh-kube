@@ -113,7 +113,7 @@ setup_nordvpn() {
 	nordvpn set killswitch on &&
 	nordvpn set cybersec off &&
 
-	[[ -n ${MESHNET} ]] nordvpn set meshnet on
+	[[ -n ${MESHNET} ]] && nordvpn set meshnet on
 
 	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
