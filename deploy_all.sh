@@ -7,11 +7,11 @@ kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./metallb/metallb-config.yaml
 kubectl apply -f ./registry/registry.yaml
 
-kubectl apply -f ./prometheus/node-exporter.yaml
-kubectl apply -f ./prometheus/kubelet-servicemonitor.yaml
-kubectl apply -f ./prometheus/kube-state-metrics.yaml
-kubectl apply -f ./prometheus/prometheus-service.yaml
-kubectl apply -f ./grafana/grafana.yaml
+#kubectl apply -f ./prometheus/node-exporter.yaml
+#kubectl apply -f ./prometheus/kubelet-servicemonitor.yaml
+#kubectl apply -f ./prometheus/kube-state-metrics.yaml
+#kubectl apply -f ./prometheus/prometheus-service.yaml
+#kubectl apply -f ./grafana/grafana.yaml
 
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
