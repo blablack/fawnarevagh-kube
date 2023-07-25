@@ -125,10 +125,12 @@ setup_nordvpn() {
 
 setup_meshnet() {
 	echo "Setting up Meshnet"
-	sleep 2m;
+	sleep 1m;
 	nordvpn set meshnet on
-	sleep 2m;
+	sleep 1m;
 	nordvpn connect ${CONNECT} || exit 1
+	sleep 1m;
+	nordvpn set meshnet on
 	echo "Meshnet done"
 }
 
