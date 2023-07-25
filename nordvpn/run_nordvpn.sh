@@ -136,6 +136,8 @@ setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
 
+[[ -n ${MESHNET} ]] && nordvpn set meshnet on
+
 nordvpn status
 
 while nordvpn status | grep -q 'Status: Connected' ; 
