@@ -112,6 +112,9 @@ setup_nordvpn() {
     nordvpn set technology nordlynx && 
 	nordvpn set killswitch on &&
 	nordvpn set cybersec off &&
+
+	[[ -n ${MESHNET} ]] nordvpn set meshnet on
+
 	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
 	[[ -n ${NETWORK} ]] && for net in ${NETWORK//[;,]/ };  do nordvpn whitelist add subnet "${net}";  done
@@ -121,17 +124,6 @@ setup_nordvpn() {
 
 	mkdir -p /dev/net
 	[[ -c /dev/net/tun ]] || mknod -m 0666 /dev/net/tun c 10 200
-}
-
-setup_meshnet() {
-	echo "Setting up Meshnet"
-	sleep 1m;
-	nordvpn set meshnet on
-	sleep 1m;
-	nordvpn connect ${CONNECT} || exit 1
-	sleep 1m;
-	nordvpn set meshnet on
-	echo "Meshnet done"
 }
 
 cleanup() {
@@ -146,8 +138,6 @@ kill_switch
 setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
-
-[[ -n ${MESHNET} ]] && setup_meshnet
 
 nordvpn status
 
