@@ -111,9 +111,9 @@ setup_nordvpn() {
 
 	[[ -n ${MESHNET} ]] && nordvpn set meshnet on
 
-    nordvpn set technology nordlynx && 
-	nordvpn set killswitch on &&
-	nordvpn set cybersec off &&
+    nordvpn set technology nordlynx 
+	[[ -n ${KILLSWITCH} ]] && nordvpn set killswitch on 
+	nordvpn set cybersec off 
 
 	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
@@ -134,10 +134,8 @@ cleanup() {
 }
 trap cleanup SIGTERM SIGINT EXIT
 
+[[ -n ${KILLSWITCH} ]] && kill_switch
 setup_nordvpn
-kill_switch
-
-nordvpn connect ${CONNECT} || exit 1
 
 nordvpn status
 
