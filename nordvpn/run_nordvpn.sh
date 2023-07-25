@@ -123,6 +123,13 @@ setup_nordvpn() {
 	[[ -c /dev/net/tun ]] || mknod -m 0666 /dev/net/tun c 10 200
 }
 
+setup_meshnet() {
+	echo "Setting up Meshnet"
+	do sleep 2m;
+	nordvpn set meshnet on
+	nordvpn connect ${CONNECT} || exit 1
+}
+
 cleanup() {
 	nordvpn disconnect
 	pkill nordvpnd
@@ -136,7 +143,7 @@ setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
 
-[[ -n ${MESHNET} ]] && nordvpn set meshnet on
+[[ -n ${MESHNET} ]] && setup_meshnet
 
 nordvpn status
 
