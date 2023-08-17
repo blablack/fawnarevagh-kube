@@ -30,6 +30,8 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
 
+kubectl apply -f ./docker-builder-jobs/nordvpn-meshnet.yaml
+
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
 
