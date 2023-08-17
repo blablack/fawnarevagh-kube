@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: radarr
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: radarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: radarr
+    spec:
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: linuxserver/radarr:latest
+          imagePullPolicy: Always
+          name: radarr
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "radarr"
+              name: storage-local-path-pvc
+            - mountPath: "/volume1/public"
+              name: nasio-nfs-pvc
+          env:
+            - name: PUID
+              value: "1026"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: "EU/Dublin"
+      nodeSelector:
+        cputype: x86
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: radarr
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: radarr-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.202
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: radarr
+  ports:
+    - port: 80
+      targetPort: 7878
+  type: LoadBalancer

@@ -27,6 +27,7 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-qbittorrent-vpn.yam
 kubectl apply -f ./deployment-restarter/deployment-restarter-pihole.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-plex.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
 
@@ -37,6 +38,7 @@ kubectl apply -f ./node-red/node-red.yaml
 
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
+kubectl apply -f ./radarr/radarr.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
 kubectl apply -f ./qbittorrent-vpn/qbittorrent-vpn.yaml
 
