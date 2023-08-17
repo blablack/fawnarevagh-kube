@@ -32,6 +32,8 @@ spec:
               value: :5000
             - name: REGISTRY_STORAGE_FILESYSTEM_ROOTDIRECTORY
               value: /data
+            - name: REGISTRY_STORAGE_DELETE_ENABLED
+              value: "true"
           resources:
             limits:
               cpu: 200m
