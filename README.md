@@ -130,6 +130,7 @@ Change the number '5' to the amount necessary.
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
+kubectl create secret generic sshpassword --from-literal password=SSHPASSWORD
 ```
 
 ### Deployments
