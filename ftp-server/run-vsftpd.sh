@@ -47,13 +47,6 @@ export LOG_FILE=`grep xferlog_file /etc/vsftpd/vsftpd.conf|cut -d= -f2`
 # stdout server info:
 if [ ! $LOG_STDOUT ]; then
 cat << EOB
-	*************************************************
-	*                                               *
-	*    Docker image: fauria/vsftpd                *
-	*    https://github.com/fauria/docker-vsftpd    *
-	*                                               *
-	*************************************************
-
 	SERVER SETTINGS
 	---------------
 	· FTP User: $FTP_USER
@@ -66,4 +59,4 @@ else
 fi
 
 # Run vsftpd:
-&>/dev/null /usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
