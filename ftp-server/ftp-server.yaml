@@ -46,39 +46,25 @@ spec:
         app: ftp-server
     spec:
       volumes:
-        - name: storage-local-path-pvc
-          persistentVolumeClaim:
-            claimName: storage-local-path-pvc
         - name: ftp-storage-local-path-pvc
           persistentVolumeClaim:
             claimName: ftp-storage-local-path-pvc
-      dnsPolicy: "ClusterFirst"
+      containers:
+        - image: delfer/alpine-ftp-server:latest
+          imagePullPolicy: Always
+          name: ftp-server
+          volumeMounts:
+            - mountPath: "/storage"
+              name: ftp-storage-local-path-pvc
+          env:
+            - name: USERS
+              value: "admin|admin|/storage"
+      nodeSelector:
+        cputype: arm
+      dnsPolicy: "None"
       dnsConfig:
         nameservers:
           - 10.43.0.22
-      containers:
-        - name: ftp-server
-          image: nucio.nowhere:30038/ftp-server:latest
-          ports:
-          - containerPort: 21
-            protocol: TCP
-            name: "ftp-server"
-          volumeMounts:
-            - name: storage-local-path-pvc
-              subPath: "vsftpd"
-              mountPath: "/home/vsftpd"
-            - name: ftp-storage-local-path-pvc
-              mountPath: "/mnt/storage"
-          env:
-          - name: FTP_USER
-            value: "blablack"
-          - name: FTP_PASS
-            valueFrom:
-              secretKeyRef:
-                key: password
-                name: pihole-webpassword
-      nodeSelector:
-        cputype: arm
 ---
 apiVersion: v1
 kind: Service
