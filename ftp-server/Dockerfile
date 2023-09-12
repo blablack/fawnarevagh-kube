@@ -3,7 +3,7 @@ FROM ubuntu:23.04
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y 
-RUN apt-get install -y vsftpd iproute2
+RUN apt-get install -y vsftpd iproute2 db-util
 RUN apt-get dist-upgrade -y 
 RUN apt-get autoremove -y 
 RUN apt-get autoclean -y 
