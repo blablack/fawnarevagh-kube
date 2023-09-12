@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: kublicity-clean-raspio
 spec:
-  schedule: "0 4 1 * *"
+  schedule: "0 6 1 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
