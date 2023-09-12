@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: build-ftp-server
 spec:
-  schedule: "0 0 5 * *"
+  schedule: "0 0 6 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
