@@ -21,8 +21,8 @@ fi
 mkdir -p "/home/vsftpd/${FTP_USER}"
 chown -R ftp:ftp /home/vsftpd/
 
-echo -e "${FTP_USER}\n${FTP_PASS}" > /etc/vsftpd_virtual_users.txt
-/usr/bin/db_load -T -t hash -f /etc/vsftpd_virtual_users.txt /etc/vsftpd_virtual_users.db
+echo -e "${FTP_USER}\n${FTP_PASS}" > /etc/vsftpd/virtual_users.txt
+/usr/bin/db_load -T -t hash -f /etc/vsftpd/virtual_users.txt /etc/vsftpd/virtual_users.db
 
 # Set passive mode parameters:
 if [ "$PASV_ADDRESS" = "**IPv4**" ]; then
@@ -59,4 +59,4 @@ else
 fi
 
 # Run vsftpd:
-/usr/sbin/vsftpd /etc/vsftpd.conf
+/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
