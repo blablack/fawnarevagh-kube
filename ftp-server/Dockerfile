@@ -24,7 +24,7 @@ ENV REVERSE_LOOKUP_ENABLE YES
 ENV PASV_PROMISCUOUS NO
 ENV PORT_PROMISCUOUS NO
 
-COPY vsftpd.conf /etc/vsftpd/
+COPY vsftpd.conf /etc/
 COPY vsftpd_virtual /etc/pam.d/
 COPY run-vsftpd.sh /usr/sbin/
 
