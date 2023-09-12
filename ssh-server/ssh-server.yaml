@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: ftp-storage-local-path-pv
+  name: ssh-server-storage-local-path-pv
   labels:
     type: local
 spec:
@@ -17,11 +17,11 @@ spec:
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: ftp-storage-local-path-pvc
+  name: ssh-server-storage-local-path-pvc
   namespace: default
 spec:
   storageClassName: local-path
-  volumeName: ftp-storage-local-path-pv
+  volumeName: ssh-server-storage-local-path-pv
   accessModes:
     - ReadWriteOnce
   resources:
@@ -31,34 +31,50 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ftp-server
+  name: ssh-server
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: ftp-server
+      app: ssh-server
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: ftp-server
+        app: ssh-server
     spec:
       volumes:
-        - name: ftp-storage-local-path-pvc
+        - name: ssh-server-storage-local-path-pvc
           persistentVolumeClaim:
-            claimName: ftp-storage-local-path-pvc
+            claimName: ssh-server-storage-local-path-pvc
       containers:
-        - image: delfer/alpine-ftp-server:latest
-          imagePullPolicy: Always
-          name: ftp-server
+        - image: lscr.io/linuxserver/openssh-server:latest
+          ports:
+            - containerPort: 2222
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "EU/Dublin"
+            - name: USER_NAME
+              value: "admin"
+            - name: USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: sshpassword
+            - name: PASSWORD_ACCESS
+              value: "true"
+            - name: SUDO_ACCESS
+              value: "true"          
+          name: ssh-server
           volumeMounts:
             - mountPath: "/storage"
-              name: ftp-storage-local-path-pvc
-          env:
-            - name: USERS
-              value: "admin|admin|/storage"
+              name: ssh-server-storage-local-path-pvc
       nodeSelector:
         cputype: arm
       dnsPolicy: "None"
@@ -69,16 +85,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ftp-server
+  name: ssh-server
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: ftp-server-svc
+    metallb.universe.tf/allow-shared-ip: ssh-server-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.209
 spec:
   externalTrafficPolicy: Local
   selector:
-    app: ftp-server
+    app: ssh-server
   ports:
-    - port: 21
-      targetPort: 21
+    - port: 2222
   type: LoadBalancer
