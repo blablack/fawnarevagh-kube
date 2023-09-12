@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ftp-storage-local-path-pv
+  labels:
+    type: local
+spec:
+  storageClassName: local-path
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/storage/"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ftp-storage-local-path-pvc
+  namespace: default
+spec:
+  storageClassName: local-path
+  volumeName: ftp-storage-local-path-pv
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ftp-server
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: ftp-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: ftp-server
+    spec:
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+        - name: ftp-storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: ftp-storage-local-path-pvc
+      dnsPolicy: "ClusterFirst"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+      containers:
+        - name: ftp-server
+          image: nucio.nowhere:30038/ftp-server:latest
+          ports:
+          - containerPort: 21
+            protocol: TCP
+            name: "ftp-server"
+          volumeMounts:
+            - name: storage-local-path-pvc
+              subPath: "vsftpd"
+              mountPath: "/home/vsftpd"
+            - name: ftp-storage-local-path-pvc
+              mountPath: "/mnt/storage"
+          env:
+          - name: FTP_USER
+            value: "blablack"
+          - name: FTP_PASS
+            valueFrom:
+              secretKeyRef:
+                key: password
+                name: pihole-webpassword
+      nodeSelector:
+        cputype: arm
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ftp-server
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: ftp-server-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.209
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: ftp-server
+  ports:
+    - port: 21
+      targetPort: 21
+  type: LoadBalancer
