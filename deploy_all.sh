@@ -7,12 +7,6 @@ kubectl apply -f ./metallb/metallb.yaml
 kubectl apply -f ./metallb/metallb-config.yaml
 kubectl apply -f ./registry/registry.yaml
 
-#kubectl apply -f ./prometheus/node-exporter.yaml
-#kubectl apply -f ./prometheus/kubelet-servicemonitor.yaml
-#kubectl apply -f ./prometheus/kube-state-metrics.yaml
-#kubectl apply -f ./prometheus/prometheus-service.yaml
-#kubectl apply -f ./grafana/grafana.yaml
-
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
@@ -21,6 +15,7 @@ kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
 kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
 kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
 kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
+kubectl apply -f ./docker-builder-jobs/build-ftp-server.yaml
 
 kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-qbittorrent-vpn.yaml
@@ -30,6 +25,8 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
+
+kubectl apply -f ./ftp-server/ftp-server.yaml
 
 kubectl apply -f ./nordvpn-meshnet/nordvpn-meshnet.yaml
 

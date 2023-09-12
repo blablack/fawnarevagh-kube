@@ -124,16 +124,6 @@ KUBE_EDITOR=nano kubectl edit ds/intel-gpu-plugin
 and add `args: ["-shared-dev-num","5"]` to the container section.
 Change the number '5' to the amount necessary.
 
-### Prometheus Operator
-
-Install the Promethus Operator in the `monitoring` namespace.
-
-```
-kubectl create namespace monitoring
-LATEST=$(curl -s https://api.github.com/repos/prometheus-operator/prometheus-operator/releases/latest | jq -cr .tag_name)
-curl -sL https://github.com/prometheus-operator/prometheus-operator/releases/download/${LATEST}/bundle.yaml | sed 's/namespace: default/namespace: monitoring/g' | kubectl create -f -
-```
-
 ### Secrets
 
 ```bash

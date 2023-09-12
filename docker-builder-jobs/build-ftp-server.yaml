@@ -1,9 +1,9 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: build-nfs-server
+  name: build-ftp-server
 spec:
-  schedule: "0 0 6 * *"
+  schedule: "0 0 5 * *"
   successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
   jobTemplate:
@@ -12,14 +12,14 @@ spec:
       template:
         metadata:
           labels:
-            app: build-nfs-server
+            app: build-ftp-server
         spec:
           containers:
             - image: nucio.nowhere:30038/docker-builder:latest
-              name: build-nfs-server
+              name: build-ftp-server
               imagePullPolicy: Always
               command: ["./build.sh"]
-              args: ["nfs-server", "linux/amd64,linux/arm64"]
+              args: ["ftp-server", "linux/arm64"]
               securityContext:
                 privileged: true
               resources:
