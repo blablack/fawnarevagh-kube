@@ -1,8 +1,5 @@
 FROM ubuntu:23.04
 
-ARG USER_ID=14
-ARG GROUP_ID=50
-
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y 
@@ -11,9 +8,6 @@ RUN apt-get dist-upgrade -y
 RUN apt-get autoremove -y 
 RUN apt-get autoclean -y 
 RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/* 
-
-RUN usermod -u ${USER_ID} ftp
-RUN groupmod -g ${GROUP_ID} ftp
 
 ENV FTP_USER **String**
 ENV FTP_PASS **Random**
