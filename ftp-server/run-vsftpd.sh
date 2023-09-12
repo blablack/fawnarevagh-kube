@@ -21,8 +21,8 @@ fi
 mkdir -p "/home/vsftpd/${FTP_USER}"
 chown -R ftp:ftp /home/vsftpd/
 
-echo -e "${FTP_USER}\n${FTP_PASS}" > /etc/vsftpd/virtual_users.txt
-/usr/bin/db_load -T -t hash -f /etc/vsftpd/virtual_users.txt /etc/vsftpd/virtual_users.db
+echo -e "${FTP_USER}\n${FTP_PASS}" > /etc/vsftpd_virtual_users.txt
+/usr/bin/db_load -T -t hash -f /etc/vsftpd_virtual_users.txt /etc/vsftpd_virtual_users.db
 
 # Set passive mode parameters:
 if [ "$PASV_ADDRESS" = "**IPv4**" ]; then
@@ -42,7 +42,7 @@ echo "pasv_promiscuous=${PASV_PROMISCUOUS}" >> /etc/vsftpd/vsftpd.conf
 echo "port_promiscuous=${PORT_PROMISCUOUS}" >> /etc/vsftpd/vsftpd.conf
 
 # Get log file path
-export LOG_FILE=`grep xferlog_file /etc/vsftpd/vsftpd.conf|cut -d= -f2`
+export LOG_FILE=`grep xferlog_file /etc/vsftpd.conf|cut -d= -f2`
 
 # stdout server info:
 if [ ! $LOG_STDOUT ]; then
@@ -59,4 +59,4 @@ else
 fi
 
 # Run vsftpd:
-/usr/sbin/vsftpd /etc/vsftpd/vsftpd.conf
+/usr/sbin/vsftpd /etc/vsftpd.conf
