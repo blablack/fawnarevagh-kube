@@ -29,9 +29,9 @@ spec:
         - image: plexinc/pms-docker:latest
           imagePullPolicy: Always
           name: plex
-          resources:
-            limits:
-              gpu.intel.com/i915: 1
+          #resources:
+          #  limits:
+          #    gpu.intel.com/i915: 1
           volumeMounts:
             - mountPath: "/config"
               subPath: "plex"
