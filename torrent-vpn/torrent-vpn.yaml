@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: qbittorrent-vpn
+  name: torrent-vpn
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: qbittorrent-vpn
+      app: torrent-vpn
   strategy:
     type: Recreate
   template:
     metadata:
       labels:
-        app: qbittorrent-vpn
+        app: torrent-vpn
     spec:
       volumes:
         - name: storage-local-path-pvc
@@ -100,15 +100,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: qbittorrent-vpn
+  name: torrent-vpn
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: qbittorrent-vpn-svc
+    metallb.universe.tf/allow-shared-ip: torrent-vpn-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.207
 spec:
   externalTrafficPolicy: Local
   selector:
-    app: qbittorrent-vpn
+    app: torrent-vpn
   ports:
     - port: 8112
       targetPort: 8112
