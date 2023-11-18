@@ -1,0 +1,128 @@
+- name: Setup network on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+  - name: Disable cloud network config
+    ansible.builtin.copy:
+      src: all/99-disable-network-config.cfg
+      dest: /etc/cloud/cloud.cfg.d/
+  - name: Empty /etc/netplan
+    ansible.builtin.shell:
+      cmd: rm -rf /etc/netplan/*
+  - name: Copy Netplan configuration
+    ansible.builtin.copy:
+      src: nucio/00-myconfig.yaml
+      dest: /etc/netplan/
+
+- name: Setup network on Raspio
+  hosts: raspio
+  become: true
+
+  tasks:
+  - name: Disable cloud network config
+    ansible.builtin.copy:
+      src: all/99-disable-network-config.cfg
+      dest: /etc/cloud/cloud.cfg.d/
+  - name: Empty /etc/netplan
+    ansible.builtin.shell:
+      cmd: rm -rf /etc/netplan/*
+  - name: Copy Netplan configuration
+    ansible.builtin.copy:
+      src: raspio/00-myconfig.yaml
+      dest: /etc/netplan/
+  - name: Copy resolved.conf
+    ansible.builtin.copy:
+      src: raspio/resolved.conf
+      dest: /etc/systemd/
+  - name: Create symlink
+    ansible.builtin.shell:
+      cmd: ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+
+- name: Install linux-modules-extra-raspi
+  hosts: raspio
+  become: true
+  
+  tasks: 
+  - name: Install package
+    ansible.builtin.apt:
+      name: linux-modules-extra-raspi
+
+- name: Install nfs-common
+  hosts: all
+  become: true
+  
+  tasks: 
+  - name: Install package
+    ansible.builtin.apt:
+      name: nfs-common
+
+- name: Reboot all machines
+  hosts: all
+  become: true
+
+  tasks: 
+  - name: Reboot
+    ansible.builtin.reboot:
+
+- name: Install k3s on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+  - name: Install
+    ansible.builtin.shell:
+      cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --disable metrics-server" sh -s
+
+  - name: Get token
+    ansible.builtin.slurp:
+      src: /var/lib/rancher/k3s/server/node-token
+    register: master_node_token
+
+  - name: Debug token
+    ansible.builtin.debug:
+      msg: Token {{ master_node_token.content }} 
+
+- name: Install k3s on Raspio
+  hosts: raspio
+  become: true
+
+  tasks:
+  - name: Install
+    ansible.builtin.shell:
+      cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" K3S_TOKEN={{hostvars['192.168.2.2'].master_node_token.content}} sh -s
+
+- name: Setup Docker registry
+  hosts: all
+  become: true
+
+  tasks:
+  - name: Creates directory
+    ansible.builtin.file:
+      path: /etc/rancher/k3s/
+      state: directory
+
+  - name: Copy registries.yaml
+    ansible.builtin.copy:
+      src: all/registries.yaml
+      dest: /etc/rancher/k3s/
+
+- name: Restart k3s on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+  - name: Restart master
+    ansible.builtin.service:
+      name: k3s
+      state: restarted
+
+- name: Restart k3s on Raspio
+  hosts: raspio
+  become: true
+
+  tasks:
+  - name: Restart agent
+    ansible.builtin.service:
+      name: k3s-agent
+      state: restarted

@@ -1,0 +1,10 @@
+[nucio]
+192.168.2.2
+
+[raspio]
+192.168.2.3
+
+[all:vars]
+ansible_connection=ssh
+
+
