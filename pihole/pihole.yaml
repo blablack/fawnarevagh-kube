@@ -18,6 +18,7 @@ spec:
         app: pihole
         name: pihole
     spec:
+      hostNetwork: true
       containers:
         - name: pihole
           image: pihole/pihole:latest
@@ -43,7 +44,7 @@ spec:
               protocol: UDP
           env:
             - name: ServerIP
-              value: 192.168.2.4
+              value: 192.168.2.3
             - name: TZ
               value: "EU/Dublin"
             - name: WEBPASSWORD

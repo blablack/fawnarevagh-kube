@@ -22,7 +22,7 @@ spec:
     - async
   nfs:
     path: /volume1/public
-    server: 192.168.2.3
+    server: 192.168.2.4
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim

@@ -62,6 +62,16 @@ network:
 sudo apt install nfs-common
 ```
 
+### Setup resolved.conf
+Edit /etc/systemd/resolved.conf 
+- change the DNS= value to 1.1.1.1
+- change the value of the DNSStubListener= to no
+
+then:
+```
+sudo ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
+```
+
 ### Install k3s
 
 Use this command to install/configure k3s Server.
