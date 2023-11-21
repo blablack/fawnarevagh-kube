@@ -35,26 +35,22 @@ spec:
               value: "True"
             - name: DEBUG
               value: "True"
+          livenessProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 300
+            periodSeconds: 600
+            timeoutSeconds: 30
+          initialDelaySeconds: 5
+          periodSeconds: 5
           securityContext:
             privileged: true
             capabilities:
               add:
                 - NET_ADMIN
-        #- image: mvance/unbound:latest
-        #  imagePullPolicy: Always
-        #  name: unbound
-        #  securityContext:
-        #    privileged: true
-        #  volumeMounts:
-        #    - mountPath: "/opt/unbound/etc/unbound/"
-        #      subPath: "unbound-meshnet"
-        #      name: storage-local-path-pvc
       nodeSelector:
         cputype: x86
-      #volumes:
-      #  - name: storage-local-path-pvc
-      #    persistentVolumeClaim:
-      #      claimName: storage-local-path-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
