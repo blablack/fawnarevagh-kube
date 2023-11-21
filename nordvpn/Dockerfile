@@ -23,7 +23,7 @@ RUN chmod +x wait_for_nordvpn.sh
 COPY add_to_meshnet.sh / 
 RUN chmod +x add_to_meshnet.sh
 
-COPY check_nordvpn_connection.sh.sh / 
-RUN chmod +x check_nordvpn_connection.sh.sh
+COPY check_nordvpn_connection.sh / 
+RUN chmod +x check_nordvpn_connection.sh
 
 CMD /run_nordvpn.sh
