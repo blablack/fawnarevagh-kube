@@ -134,14 +134,14 @@ cleanup() {
 }
 trap cleanup SIGTERM SIGINT EXIT
 
-#kill_switch
+kill_switch
 setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
 
 nordvpn status
 
-sleep 5m; 
+sleep 30s; 
 
 while nordvpn status | grep -q 'Status: Connected' ; do
     [[ -n ${MESHNET} ]] && /add_to_meshnet.sh
