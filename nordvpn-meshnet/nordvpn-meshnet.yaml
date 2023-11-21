@@ -39,11 +39,9 @@ spec:
             exec:
               command:
                 - /check_nordvpn_connection.sh
-            initialDelaySeconds: 300
+            initialDelaySeconds: 30
             periodSeconds: 600
             timeoutSeconds: 30
-          initialDelaySeconds: 5
-          periodSeconds: 5
           securityContext:
             privileged: true
             capabilities:
