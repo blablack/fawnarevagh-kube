@@ -134,7 +134,7 @@ cleanup() {
 }
 trap cleanup SIGTERM SIGINT EXIT
 
-#kill_switch
+kill_switch
 setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
