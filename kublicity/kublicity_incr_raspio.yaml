@@ -4,7 +4,7 @@ metadata:
   name: kublicity-incr-raspio
 spec:
   schedule: "0 2 * * 0"
-  successfulJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
   jobTemplate:
     spec:
