@@ -12,6 +12,5 @@ echo "Build image $1 for platfrom $2"
 
 (
   cd /opt/fawnarevagh-kube/docker/$1
-  echo "Build image $1 for platfrom $2"
   docker buildx build --platform $2 --push --tag nucio.nowhere:30038/$1:latest .
 )
