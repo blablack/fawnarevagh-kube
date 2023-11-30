@@ -10,12 +10,6 @@ kubectl apply -f ./registry/registry.yaml
 kubectl apply -f ./docker-builder-init-jobs/build-first-docker-builder.yaml
 kubectl wait --timeout=-1s --for=condition=Complete job/build-first-docker-builder
 
-kubectl apply -f ./docker-builder-init-jobs/build-pod-gateway.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-pod-gateway
-
-kubectl apply -f ./docker-builder-init-jobs/build-gateway-admision-controller.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-gateway-admision-controller
-
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
