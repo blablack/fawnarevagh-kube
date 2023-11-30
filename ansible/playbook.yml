@@ -61,6 +61,64 @@
       ansible.builtin.apt:
         name: nfs-common
 
+- name: Remove snapd
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install
+      ansible.builtin.shell:
+        cmd: snap remove --purge $(snap list | awk '!/^Name|^core/ {print $1}')
+
+    - name: Remove snapd
+      ansible.builtin.apt:
+        name: snapd
+        state: absent
+
+- name: Remove packages
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Remove avahi
+      ansible.builtin.apt:
+        name: avahi-daemon
+        state: absent
+
+- name: Stop unnecessary services
+  hosts: all
+  become: true
+  gather_facts: false
+  vars:
+    stop_services:
+      - wpa_supplicant.service
+      - ModemManager.service
+
+  tasks:
+    - service_facts:
+
+    - name: stop and disable a service
+      service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+      when: "item in service_names"
+      loop: "{{ stop_services }}"
+      vars:
+        service_names: "{{ services|dict2items|map(attribute='value.name')|list }}"
+
+- name: Cleanup
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Remove useless packages from the cache
+      ansible.builtin.apt:
+        autoclean: yes
+    - name: Remove dependencies that are no longer required
+      ansible.builtin.apt:
+        autoremove: yes
+
 - name: Reboot all machines
   hosts: all
   become: true
@@ -76,7 +134,7 @@
   tasks:
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --disable metrics-server" sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --disable metrics-server --flannel-backend=host-gw" sh -s
 
     - name: Get token
       ansible.builtin.slurp:
