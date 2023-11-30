@@ -42,7 +42,7 @@ spec:
               name: https-443
               protocol: TCP
       nodeSelector:
-        cputype: x86
+        cputype: arm
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
