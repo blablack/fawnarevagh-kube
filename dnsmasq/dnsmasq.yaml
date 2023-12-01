@@ -37,6 +37,9 @@ spec:
             - name: storage-local-path-pvc
               subPath: "dnsmasq/dnsmasq.conf"
               mountPath: "/etc/dnsmasq.conf"
+            - name: storage-local-path-pvc
+              subPath: "dnsmasq/dnsmasq.leases"
+              mountPath: "/var/lib/misc/dnsmasq.leases"
       nodeSelector:
         cputype: arm
       volumes:
