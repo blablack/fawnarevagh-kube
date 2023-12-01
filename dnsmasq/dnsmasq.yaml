@@ -35,8 +35,8 @@ spec:
               protocol: UDP
           volumeMounts:
             - name: storage-local-path-pvc
-              subPath: "dnsmasq"
-              mountPath: "/etc/dnsmasq"
+              subPath: "dnsmasq/dnsmasq.conf"
+              mountPath: "/etc/dnsmasq.conf"
       nodeSelector:
         cputype: arm
       volumes:
@@ -47,45 +47,3 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dnsmasq-external
-  annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: dnsmasq-svc
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.208
-spec:
-  externalTrafficPolicy: Local
-  ports:
-    - port: 53
-      targetPort: 53
-      protocol: UDP
-      name: port53-udp
-    - port: 67
-      targetPort: 67
-      protocol: UDP
-      name: port67-udp
-  selector:
-    app: dnsmasq
-  type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dnsmasq-internal
-spec:
-  clusterIP: 10.43.0.23
-  ports:
-    - port: 53
-      targetPort: 53
-      protocol: UDP
-      name: port53-udp
-    - port: 67
-      targetPort: 67
-      protocol: UDP
-      name: port67-udp
-  selector:
-    app: dnsmasq
-  type: ClusterIP
