@@ -66,9 +66,15 @@
   become: true
 
   tasks:
-    - name: Install
+    - name: Check if snap binary present
+      stat:
+        path: "/usr/bin/snap"
+      register: snap_exist
+
+    - name: Uninstall snap packages
       ansible.builtin.shell:
         cmd: snap remove --purge $(snap list | awk '!/^Name|^core/ {print $1}')
+      when: snap_exist.stat.exists
 
     - name: Remove snapd
       ansible.builtin.apt:
