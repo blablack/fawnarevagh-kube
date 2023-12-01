@@ -14,5 +14,5 @@ RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
 
 EXPOSE 53 53/udp 67/udp
 
-ENTRYPOINT ["/bin/dnsmasq"]
+ENTRYPOINT ["/usr/sbin/dnsmasq"]
 CMD ["--keep-in-foreground"]
