@@ -18,7 +18,7 @@ spec:
         app: pihole
         name: pihole
     spec:
-      hostNetwork: true
+      hostNetwork: false
       containers:
         - name: pihole
           image: pihole/pihole:latest
@@ -44,7 +44,7 @@ spec:
               protocol: UDP
           env:
             - name: ServerIP
-              value: 192.168.2.3
+              value: 192.168.2.201
             - name: TZ
               value: "EU/Dublin"
             - name: WEBPASSWORD
@@ -76,7 +76,7 @@ spec:
         - name: storage-local-path-pvc
           persistentVolumeClaim:
             claimName: storage-local-path-pvc
-      dnsPolicy: "ClusterFirstWithHostNet"
+      dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
           - 10.43.0.22
