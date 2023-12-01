@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dns
+  labels:
+    app: dnsmasq
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: dnsmasq
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dnsmasq
+        name: dnsmasq
+    spec:
+      hostNetwork: true
+      containers:
+        - name: dnsmasq
+          image: nucio.nowhere:30038/dnsmasq:latest
+          imagePullPolicy: Always
+          securityContext:
+            capabilities:
+              add: ["NET_ADMIN"]
+          ports:
+            - containerPort: 53
+              name: dns-udp
+              protocol: UDP
+            - containerPort: 67
+              name: client-udp
+              protocol: UDP
+          volumeMounts:
+            - name: storage-local-path-pvc
+              subPath: "dnsmasq"
+              mountPath: "/etc/dnsmasq"
+      nodeSelector:
+        cputype: arm
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+      dnsPolicy: "ClusterFirstWithHostNet"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq-external
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: dnsmasq-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.208
+spec:
+  externalTrafficPolicy: Local
+  ports:
+    - port: 53
+      targetPort: 53
+      protocol: UDP
+      name: port53-udp
+    - port: 67
+      targetPort: 67
+      protocol: UDP
+      name: port67-udp
+  selector:
+    app: dnsmasq
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq-internal
+spec:
+  clusterIP: 10.43.0.23
+  ports:
+    - port: 53
+      targetPort: 53
+      protocol: UDP
+      name: port53-udp
+    - port: 67
+      targetPort: 67
+      protocol: UDP
+      name: port67-udp
+  selector:
+    app: dnsmasq
+  type: ClusterIP
