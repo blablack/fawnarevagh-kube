@@ -76,7 +76,7 @@ spec:
         - name: storage-local-path-pvc
           persistentVolumeClaim:
             claimName: storage-local-path-pvc
-      dnsPolicy: "ClusterFirst"
+      dnsPolicy: "ClusterFirstWithHostNet"
       dnsConfig:
         nameservers:
           - 10.43.0.22
