@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ubuntu-gateway
+  labels:
+    app: ubuntu-gateway
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: ubuntu-gateway
+  template:
+    metadata:
+      labels:
+        app: ubuntu-gateway
+    spec:
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+      containers:
+        - name: ubuntu
+          image: ubuntu:mantic
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          securityContext:
+            privileged: true
+        - image: nucio.nowhere:30038/pod-gateway:latest
+          imagePullPolicy: Always
+          name: pod-gateway
+          command: ["bin/client_sidecar.sh"]
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "pod-gateway"
+              name: storage-local-path-pvc
+      initContainers:
+        - image: nucio.nowhere:30038/pod-gateway:latest
+          imagePullPolicy: Always
+          name: pod-gateway-init
+          command: ["/bin/client_init.sh"]
+          env:
+            - name: gateway
+              value: "pod-gateway.default.svc.cluster.local"
+            - name: K8S_DNS_ips
+              value: "10.42.0.139"
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "pod-gateway"
+              name: storage-local-path-pvc
+      nodeSelector:
+        cputype: x86
+      restartPolicy: Always
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22

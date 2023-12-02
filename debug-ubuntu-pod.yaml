@@ -26,7 +26,7 @@ spec:
       nodeSelector:
         cputype: x86
       restartPolicy: Always
-      dnsPolicy: "None"
+      dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
           - 10.43.0.22
