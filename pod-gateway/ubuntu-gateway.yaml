@@ -1,3 +1,64 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ubuntu-gateway
+data:
+  settings.sh: |
+    #!/bin/bash
+
+    # hostname of the gateway - it must accept vxlan and DHCP traffic
+    # clients get it as env variable
+    GATEWAY_NAME="$gateway"
+    # K8S DNS IP address
+    # clients get it as env variable
+    K8S_DNS_IPS="$K8S_DNS_ips"
+    # Blank  sepated IPs not sent to the POD gateway but to the default K8S
+    # This is needed, for example, in case your CNI does
+    # not add a non-default rule for the K8S addresses (Flannel does)
+    NOT_ROUTED_TO_GATEWAY_CIDRS=""
+
+    # Vxlan ID to use
+    VXLAN_ID="42"
+    # VXLAN need an /24 IP range not conflicting with K8S and local IP ranges
+    VXLAN_IP_NETWORK="172.16.0"
+    # Keep a range of IPs for static assignment in nat.conf
+    VXLAN_GATEWAY_FIRST_DYNAMIC_IP=20
+
+    # If using a VPN, interface name created by it
+    VPN_INTERFACE=nordlynx
+    # Prevent non VPN traffic to leave the gateway
+    VPN_BLOCK_OTHER_TRAFFIC=false
+    # If VPN_BLOCK_OTHER_TRAFFIC is true, allow VPN traffic over this port
+    VPN_TRAFFIC_PORT=443
+    # Traffic to these IPs will be send through the K8S gateway
+    VPN_LOCAL_CIDRS="10.0.0.0/8 192.168.2.0/16"
+
+    # DNS queries to these domains will be resolved by K8S DNS instead of
+    # the default (typcally the VPN client changes it)
+    DNS_LOCAL_CIDRS="local"
+
+    # dnsmasq monitors directories. /etc/resolv.conf in a container is in another
+    # file system so it does not work. To circumvent this a copy is made using
+    # inotifyd
+    RESOLV_CONF_COPY=/etc/resolv_copy.conf
+
+    # ICMP heartbeats are used to ensure the pod-gateway is connectable from the clients.
+    # The following value can be used to to provide more stability in an unreliable network connection.
+    CONNECTION_RETRY_COUNT=1
+
+    # If you use nftables for iptables you need to set this to yes
+    IPTABLES_NFT=no
+
+  nat.conf: |
+    # Configure client PODs with static IP addresses
+    # and ports exposed through NAT
+    # static IPs must be bellow VXLAN_GATEWAY_FIRST_DYNAMIC_IP
+    #
+    # hostname IP ports(coma separated)
+    # Example:
+    # transmission 10 tcp:18289,udp:18289
+    ubuntu-gateway 10 tcp:80,udp:80,tcp:443,udp:433
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -16,10 +77,11 @@ spec:
       labels:
         app: ubuntu-gateway
     spec:
+      hostname: ubuntu-gateway
       volumes:
-        - name: storage-local-path-pvc
-          persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+        - configMap:
+            name: ubuntu-gateway
+          name: confmap-vol
       containers:
         - name: ubuntu
           image: ubuntu:mantic
@@ -30,7 +92,7 @@ spec:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
-          command: ["bin/client_sidecar.sh"]
+          command: ["/bin/client_sidecar.sh"]
           securityContext:
             privileged: true
             capabilities:
@@ -38,8 +100,7 @@ spec:
                 - NET_ADMIN
           volumeMounts:
             - mountPath: "/config"
-              subPath: "pod-gateway"
-              name: storage-local-path-pvc
+              name: confmap-vol
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
@@ -54,12 +115,11 @@ spec:
             privileged: true
           volumeMounts:
             - mountPath: "/config"
-              subPath: "pod-gateway"
-              name: storage-local-path-pvc
+              name: confmap-vol
       nodeSelector:
         cputype: x86
       restartPolicy: Always
-      dnsPolicy: "None"
+      dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
           - 10.43.0.22
