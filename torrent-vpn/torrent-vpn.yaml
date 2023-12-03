@@ -45,6 +45,13 @@ spec:
               value: "8112,6881,8080"
             - name: DNS
               value: "192.168.2.201"
+          livenessProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 30
           securityContext:
             privileged: true
             capabilities:
