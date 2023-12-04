@@ -2,7 +2,7 @@ FROM ubuntu:23.10
 
 ENV DEBIAN_FRONTEND noninteractive 
 
-COPY dnsmasq.leaseui /
+COPY dnsmasq.leaseui /dnsmasq.leaseui
 WORKDIR /dnsmasq.leaseui
 
 RUN apt-get update 

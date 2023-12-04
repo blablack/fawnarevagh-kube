@@ -101,3 +101,60 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dnsmasq-ui
+  labels:
+    app: dnsmasq-ui
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: dnsmasq-ui
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dnsmasq-ui
+        name: dnsmasq-ui
+    spec:
+      containers:
+        - name: dnsmasq-ui
+          image: nucio.nowhere:30038/dnsmasq-ui:latest
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          volumeMounts:
+            - name: storage-local-path-pvc
+              subPath: "dnsmasq/dnsmasq.leases"
+              mountPath: "/var/lib/misc/dnsmasq.leases"
+      nodeSelector:
+        cputype: arm
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq-ui
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: dnsmasq-ui-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.208
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: dnsmasq-ui
+  ports:
+    - port: 80
+      targetPort: 8989
+  type: LoadBalancer
