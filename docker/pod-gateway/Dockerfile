@@ -1,4 +1,4 @@
-FROM alpine:3.16.2@sha256:bc41182d7ef5ffc53a40b044e725193bc10142a1243f395ee852a8d9730fc2ad
+FROM alpine:latest
 WORKDIR /
 
 # iproute2 -> bridge
@@ -14,7 +14,3 @@ COPY config /default_config
 COPY config /config
 COPY bin /bin
 CMD [ "/bin/entry.sh" ]
-
-ARG IMAGE_SOURCE
-#https://github.com/k8s-at-home/template-container-image
-LABEL org.opencontainers.image.source $IMAGE_SOURCE
