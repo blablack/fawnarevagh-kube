@@ -19,6 +19,11 @@ spec:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
           name: nordvpn
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
           env:
             - name: NORDVPN_TOKEN
               valueFrom:
