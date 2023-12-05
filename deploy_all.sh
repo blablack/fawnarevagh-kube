@@ -15,6 +15,10 @@ kubectl delete configmap init-docker-builder-scripts
 kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
 kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
 
+kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
+kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
+
+kubectl apply -f ./dnsmasq/dnsmasq.yaml
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
 

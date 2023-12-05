@@ -1,17 +1,17 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: build-dnsmasq-ui
+  name: build-dnsmasq
 spec:
   ttlSecondsAfterFinished: 300
   template:
     spec:
       containers:
         - image: nucio.nowhere:30038/docker-builder:latest
-          name: build-dnsmasq-ui
+          name: build-dnsmasq
           imagePullPolicy: Always
           command: ["./build.sh"]
-          args: ["dnsmasq-ui", "linux/arm64"]
+          args: ["dnsmasq", "linux/arm64"]
           securityContext:
             privileged: true
       nodeSelector:
