@@ -15,14 +15,17 @@ data:
     except-interface=none
 
     # To enable dnsmasq's DHCP server functionality.
-    dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,12h
-    #dhcp-range=192.168.0.50,192.168.0.150,12h
+    dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,7d
+    dhcp-host=48:B0:2D:4F:77:69,192.168.2.186,shield,7d
+
+    dhcp-host=B4:75:0E:72:00:F5,192.168.2.20,wemo1,7d
+    dhcp-host=94:10:3E:69:D1:2D,192.168.2.21,wemo2,7d
+    dhcp-host=B4:75:0E:72:02:C5,192.168.2.22,wemo3,7d
 
     # Set gateway as Router. Following two lines are identical.
-    #dhcp-option=option:router,192.168.0.1
     dhcp-option=3,192.168.2.1
 
-    # Set DNS server as Router.
+    # Set DNS server as PiHole
     dhcp-option=6,192.168.2.201
 
     # dhcp v4 rapid commit
@@ -38,8 +41,6 @@ data:
     local=/nowhere/
 
     dhcp-authoritative
-
-    #server=1.1.1.1
 
     # Logging.
     log-async
@@ -101,54 +102,6 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dnsmasq
-data:
-  dnsmasq.conf: |
-    # Set the interface on which dnsmasq operates.
-    # If not set, all the interfaces is used.
-    #interface=eth0
-
-    # To disable dnsmasq's DNS server functionality.
-    #port=0
-
-    # listen to every interface
-    except-interface=none
-
-    # To enable dnsmasq's DHCP server functionality.
-    dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,12h
-    #dhcp-range=192.168.0.50,192.168.0.150,12h
-
-    # Set gateway as Router. Following two lines are identical.
-    #dhcp-option=option:router,192.168.0.1
-    dhcp-option=3,192.168.2.1
-
-    # Set DNS server as Router.
-    dhcp-option=6,192.168.2.201
-
-    # dhcp v4 rapid commit
-    dhcp-rapid-commit
-
-    domain-needed
-    bogus-priv
-    expand-hosts
-    no-resolv
-
-    # domain setup
-    domain=nowhere
-    local=/nowhere/
-
-    dhcp-authoritative
-
-    #server=1.1.1.1
-
-    # Logging.
-    log-async
-    log-queries # log queries.
-    log-dhcp    # log dhcp related messages.
 ---
 apiVersion: apps/v1
 kind: Deployment
