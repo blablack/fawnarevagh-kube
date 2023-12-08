@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . /app
 
 # Install Flask and other dependencies
-RUN pip3 install Flask
+RUN pip3 install --break-system-packages Flask
 
 # Expose the port on which Flask will run
 EXPOSE 5000
