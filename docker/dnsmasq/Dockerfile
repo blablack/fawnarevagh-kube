@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apt-get install -y dnsmasq
+RUN apk add --no-cache dnsmasq
 
 EXPOSE 53 53/udp 67/udp
 
