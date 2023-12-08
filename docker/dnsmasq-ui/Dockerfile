@@ -1,16 +1,12 @@
 FROM python:3.11.7-alpine
 
-RUN echo '* Installing OS dependencies' \
-  && apk add --update --no-cache build-base
+RUN apk add --update --no-cache build-base
 
 WORKDIR /app
 COPY ./requirements.txt ./
 
-RUN echo '* Installing Python dependencies' \
-  && pip install -r requirements.txt \
-  && echo '* Removing unneeded OS packages' \
-  && apk del build-base
-
+RUN pip install -r requirements.txt 
+RUN apk del build-base
 
 COPY ./templates ./templates
 COPY ./dnsmasq-leases-ui.py ./

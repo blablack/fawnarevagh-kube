@@ -31,7 +31,7 @@ data:
     # If VPN_BLOCK_OTHER_TRAFFIC is true, allow VPN traffic over this port
     VPN_TRAFFIC_PORT=443
     # Traffic to these IPs will be send through the K8S gateway
-    VPN_LOCAL_CIDRS="10.0.0.0/8 192.168.2.0/16"
+    VPN_LOCAL_CIDRS="10.0.0.0/8 192.168.2.0/24"
 
     # DNS queries to these domains will be resolved by K8S DNS instead of
     # the default (typcally the VPN client changes it)
@@ -77,7 +77,7 @@ spec:
     spec:
       volumes:
         - configMap:
-            name: pod-gateway-init
+            name: pod-gateway
           name: confmap-vol
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest

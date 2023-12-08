@@ -1,49 +1,61 @@
 <!DOCTYPE html>
 <html>
-	<head>
+
+<head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width,initial-scale=1">
 	<title>dnsmasq-web</title>
-	</head>
+	<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+	<script type="text/javascript" charset="utf8"
+		src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.js"></script>
 	<style>
 		body {
 			font-family: monospace;
 		}
-		th, td {
+
+		th,
+		td {
 			text-align: left;
 			padding-bottom: 5px;
 			padding-right: 30px;
 		}
+
 		tr:hover {
 			background: #ccc;
 		}
 	</style>
-	<body>
+</head>
+
+<body>
 	<table id="leases">
-		<tr>
-			<th>IP Address</th><th>Mac Address</th><th>Name</th><th>Static IP?</th><th>Lease ends on</th>
-		</tr>
+		<thead>
+			<tr>
+				<th>IP Address</th>
+				<th>Mac Address</th>
+				<th>Name</th>
+				<th>Lease ends on</th>
+			</tr>
+		</thead>
+		<tbody></tbody>
 	</table>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" type="text/javascript"></script>
 	<script>
-		$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
-		$(function() {
-			$.getJSON($SCRIPT_ROOT + '/leases',
-			function(data) {
-				$('#leases').append(
-					$.map(data.leases, function(ignore, index) {
-						return '<tr>' +
-							'<td>' + data.leases[index].ipAddress + '</td>' +
-							'<td>' + data.leases[index].macAddress + '</td>' +
-							'<td>' + data.leases[index].name + '</td>' +
-							'<td>' + ( (data.leases[index].staticIP) ? 'Yes' : 'No' ) + '</td>' +
-							'<td>' + ( (data.leases[index].staticIP) ? 'Never' : data.leases[index].leasetime ) + '</td>' +
-							'</tr>';
-						}).join());
+		$(document).ready(function () {
+			$SCRIPT_ROOT = {{ request.script_root | tojson | safe }
+		};
+		$.getJSON($SCRIPT_ROOT + '/leases', function (data) {
+			$('#leases').DataTable({
+				data: data.leases,
+				columns: [
+					{ data: 'ipAddress' },
+					{ data: 'macAddress' },
+					{ data: 'name' },
+					{ data: 'leasetime' }
+				]
 			});
-
-			return false;
 		});
+        });
 	</script>
-	</body>
+</body>
+
 </html>
