@@ -84,9 +84,8 @@ spec:
           name: confmap-vol
       containers:
         - name: hello-world
-          image: ubuntu:mantic
+          image: nucio.nowhere:30038/hello-world:latest
           imagePullPolicy: Always
-          command: ["/bin/sleep", "3650d"]
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway

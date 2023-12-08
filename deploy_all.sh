@@ -12,8 +12,8 @@ kubectl wait --timeout=-1s --for=condition=Complete job/build-first-docker-build
 
 kubectl delete configmap init-docker-builder-scripts
 
-kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
+kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq.yaml
+kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq
 
 kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
 kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
