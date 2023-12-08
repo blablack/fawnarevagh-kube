@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ubuntu-gateway
+  name: hello-world-gateway
 data:
   settings.sh: |
     #!/bin/bash
@@ -57,38 +57,36 @@ data:
     # hostname IP ports(coma separated)
     # Example:
     # transmission 10 tcp:18289,udp:18289
-    ubuntu-gateway 10 tcp:80,udp:80,tcp:443,udp:433
+    hello-world 11 tcp:80,udp:80,tcp:5000,udp:5000
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ubuntu-gateway
+  name: hello-world-gateway
   labels:
-    app: ubuntu-gateway
+    app: hello-world-gateway
   namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: ubuntu-gateway
+      app: hello-world-gateway
   template:
     metadata:
       labels:
-        app: ubuntu-gateway
+        app: hello-world-gateway
     spec:
-      hostname: ubuntu-gateway
+      hostname: hello-world
       volumes:
         - configMap:
-            name: ubuntu-gateway
+            name: hello-world-gateway
           name: confmap-vol
       containers:
-        - name: ubuntu
+        - name: hello-world
           image: ubuntu:mantic
           imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
-          securityContext:
-            privileged: true
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -123,3 +121,22 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: hello-world-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.215
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: hello-world-gateway
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
