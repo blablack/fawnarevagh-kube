@@ -17,6 +17,7 @@ data:
     # To enable dnsmasq's DHCP server functionality.
     dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,7d
     dhcp-host=48:B0:2D:4F:77:69,192.168.2.186,shield,7d
+    dhcp-host=DC:68:EB:10:78:77,192.168.2.86,switch,7d
 
     dhcp-host=B4:75:0E:72:00:F5,192.168.2.20,wemo1,7d
     dhcp-host=94:10:3E:69:D1:2D,192.168.2.21,wemo2,7d
