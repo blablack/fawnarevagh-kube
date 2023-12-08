@@ -29,8 +29,8 @@
 		<thead>
 			<tr>
 				<th>IP Address</th>
-				<th>Mac Address</th>
 				<th>Name</th>
+				<th>Mac Address</th>
 				<th>Lease Ends On</th>
 			</tr>
 		</thead>
@@ -43,8 +43,8 @@
 				$.map(data.leases, function (ignore, index) {
 					return '<tr>' +
 						'<td>' + data.leases[index].ipAddress + '</td>' +
-						'<td>' + data.leases[index].macAddress + '</td>' +
 						'<td>' + data.leases[index].name + '</td>' +
+						'<td>' + data.leases[index].macAddress + '</td>' +
 						'<td>' + data.leases[index].leasetime + '</td>' +
 						'</tr>';
 				}).join());
