@@ -15,10 +15,18 @@ spec:
       labels:
         app: nordvpn-meshnet
     spec:
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
           name: nordvpn
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "nordvpn-meshnet"
+              name: storage-local-path-pvc
           lifecycle:
             postStart:
               exec:
