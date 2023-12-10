@@ -140,6 +140,14 @@ clean_meshnet() {
 
 cleanup() {
 	nordvpn disconnect
+
+	if [ -n ${MESHNET} ]; then
+		output=$(nordvpn meshnet peer list)
+		hostname=$(echo "$output" | awk '/Hostname/{print $2; exit}')
+		echo "Remove mesh peer $hostname"
+		nordvpn mesh peer remove $hostname
+	fi
+
 	pkill nordvpnd
 	trap - SIGTERM SIGINT EXIT 
 	exit 0
@@ -155,7 +163,7 @@ nordvpn status
 
 sleep 30s; 
 
-clean_meshnet
+#clean_meshnet
 
 while nordvpn status | grep -q 'Status: Connected' ; do
     [[ -n ${MESHNET} ]] && /add_to_meshnet.sh
