@@ -126,6 +126,18 @@ setup_nordvpn() {
 	[[ -c /dev/net/tun ]] || mknod -m 0666 /dev/net/tun c 10 200
 }
 
+clean_meshnet() {
+	if [ -f "/config/mesh_peer_name" ]; then
+		echo "Removing meshnet peer:"
+		cat /config/mesh_peer_name
+		nordvpn mesh peer remove `cat /config/mesh_peer_name`
+	else 
+		echo "No mesh_peer_name found"
+	fi
+
+	[[ -n ${MESHNET} ]] && /get_mesh_name.sh
+}
+
 cleanup() {
 	nordvpn disconnect
 	pkill nordvpnd
@@ -142,6 +154,8 @@ nordvpn connect ${CONNECT} || exit 1
 nordvpn status
 
 sleep 30s; 
+
+clean_meshnet
 
 while nordvpn status | grep -q 'Status: Connected' ; do
     [[ -n ${MESHNET} ]] && /add_to_meshnet.sh
