@@ -167,5 +167,11 @@ sleep 30s;
 
 while nordvpn status | grep -q 'Status: Connected' ; do
     [[ -n ${MESHNET} ]] && /add_to_meshnet.sh
-	sleep 60m; 
+	
+	# Fake 60m
+	# This way every 5sec the trap should work
+
+	for ((i=1; i<=720; i++)); do
+  		sleep 5s;
+	done
 done
