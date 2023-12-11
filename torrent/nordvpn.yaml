@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: hello-world-gateway
+  name: nordvpn
 data:
   settings.sh: |
     #!/bin/bash
@@ -57,39 +57,67 @@ data:
     # hostname IP ports(coma separated)
     # Example:
     # transmission 10 tcp:18289,udp:18289
-    hello-world 11 tcp:80,udp:80,tcp:5000,udp:5000
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-world-gateway
-  labels:
-    app: hello-world-gateway
-  namespace: default
+  name: nordvpn
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: hello-world-gateway
+      app: nordvpn
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
-        app: hello-world-gateway
+        app: nordvpn
     spec:
-      hostname: hello-world
       volumes:
         - configMap:
-            name: hello-world-gateway
+            name: nordvpn
           name: confmap-vol
       containers:
-        - name: hello-world
-          image: nucio.nowhere:30038/hello-world:latest
+        - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
+          name: nordvpn
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "P2P"
+            - name: NETWORK
+              value: "192.168.2.0/24;172.16.0.0/24"
+            - name: PORTS
+              value: "67"
+            - name: DNS
+              value: "192.168.2.201"
+          livenessProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 30
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
-          command: ["/bin/client_sidecar.sh"]
+          command: ["/bin/gateway_sidecar.sh"]
           securityContext:
             privileged: true
             capabilities:
@@ -102,12 +130,7 @@ spec:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway-init
-          command: ["/bin/client_init.sh"]
-          env:
-            - name: gateway
-              value: "pod-gateway.default.svc.cluster.local"
-            - name: K8S_DNS_ips
-              value: "10.42.0.139"
+          command: ["/bin/gateway_init.sh"]
           securityContext:
             privileged: true
           volumeMounts:
@@ -115,8 +138,7 @@ spec:
               name: confmap-vol
       nodeSelector:
         cputype: x86
-      restartPolicy: Always
-      dnsPolicy: "ClusterFirst"
+      dnsPolicy: "None"
       dnsConfig:
         nameservers:
           - 10.43.0.22
@@ -124,18 +146,13 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-world
-  annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: hello-world-svc
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.215
+  name: nordvpn
 spec:
-  externalTrafficPolicy: Local
-  selector:
-    app: hello-world-gateway
+  clusterIP: None
   ports:
-    - name: http-80
-      protocol: TCP
-      port: 80
-      targetPort: 5000
-  type: LoadBalancer
+    - port: 4789
+      name: nordvpn-http
+      protocol: UDP
+  selector:
+    app: nordvpn
+  type: ClusterIP
