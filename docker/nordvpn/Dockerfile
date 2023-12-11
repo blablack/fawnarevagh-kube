@@ -26,8 +26,8 @@ RUN chmod +x add_to_meshnet.sh
 COPY check_nordvpn_connection.sh / 
 RUN chmod +x check_nordvpn_connection.sh
 
-#COPY get_mesh_name.sh / 
-#RUN chmod +x get_mesh_name.sh
-#RUN mkdir /config
+COPY get_mesh_name.sh / 
+RUN chmod +x get_mesh_name.sh
+RUN mkdir /config
 
 CMD /run_nordvpn.sh
