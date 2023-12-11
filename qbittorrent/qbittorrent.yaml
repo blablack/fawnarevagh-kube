@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: prowlarr
+  name: qbittorrent
 data:
   settings.sh: |
     #!/bin/bash
@@ -24,30 +24,9 @@ data:
     # Keep a range of IPs for static assignment in nat.conf
     VXLAN_GATEWAY_FIRST_DYNAMIC_IP=20
 
-    # If using a VPN, interface name created by it
-    VPN_INTERFACE=nordlynx
-    # Prevent non VPN traffic to leave the gateway
-    VPN_BLOCK_OTHER_TRAFFIC=false
-    # If VPN_BLOCK_OTHER_TRAFFIC is true, allow VPN traffic over this port
-    VPN_TRAFFIC_PORT=443
-    # Traffic to these IPs will be send through the K8S gateway
-    VPN_LOCAL_CIDRS="10.0.0.0/8 192.168.2.0/24"
-
-    # DNS queries to these domains will be resolved by K8S DNS instead of
-    # the default (typcally the VPN client changes it)
-    DNS_LOCAL_CIDRS="local"
-
-    # dnsmasq monitors directories. /etc/resolv.conf in a container is in another
-    # file system so it does not work. To circumvent this a copy is made using
-    # inotifyd
-    RESOLV_CONF_COPY=/etc/resolv_copy.conf
-
     # ICMP heartbeats are used to ensure the pod-gateway is connectable from the clients.
     # The following value can be used to to provide more stability in an unreliable network connection.
     CONNECTION_RETRY_COUNT=1
-
-    # If you use nftables for iptables you need to set this to yes
-    IPTABLES_NFT=no
 
   nat.conf: |
     # Configure client PODs with static IP addresses
@@ -57,42 +36,55 @@ data:
     # hostname IP ports(coma separated)
     # Example:
     # transmission 10 tcp:18289,udp:18289
-    prowlarr 11 tcp:80
+    qbittorrent 12 tcp:8112,tcp:6881,udp:6881
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: prowlarr
+  name: qbittorrent
   labels:
-    app: prowlarr
+    app: qbittorrent
   namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app: prowlarr
+      app: qbittorrent
   template:
     metadata:
       labels:
-        app: prowlarr
+        app: qbittorrent
     spec:
-      hostname: prowlarr
+      hostname: qbittorrent
       volumes:
         - name: confmap-vol
           configMap:
-            name: prowlarr
+            name: qbittorrent
         - name: storage-local-path-pvc
           persistentVolumeClaim:
             claimName: storage-local-path-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
       containers:
-        - image: linuxserver/prowlarr:latest
+        - image: linuxserver/qbittorrent:latest
           imagePullPolicy: Always
-          name: prowlarr
+          name: qbittorrent
+          ports:
+            - containerPort: 8112
+              protocol: TCP
+            - containerPort: 6881
+              protocol: TCP
+            - containerPort: 6881
+              protocol: UDP
           volumeMounts:
             - mountPath: "/config"
-              subPath: "prowlarr"
+              subPath: "qbittorrent"
               name: storage-local-path-pvc
+            - mountPath: "/volume1/public/Torrent Downloads"
+              subPath: "Torrent Downloads"
+              name: nasio-nfs-pvc
           env:
             - name: PUID
               value: "1026"
@@ -100,6 +92,8 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
+            - name: WEBUI_PORT
+              value: "8112"
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -138,17 +132,17 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: prowlarr
+  name: qbittorrent
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: prowlarr-svc
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.207
+    metallb.universe.tf/allow-shared-ip: qbittorrent-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.209
 spec:
   externalTrafficPolicy: Cluster
   selector:
-    app: prowlarr
+    app: qbittorrent
   ports:
-    - port: 80
-      targetPort: 9696
-      name: prowlarr-web
+    - port: 8112
+      targetPort: 8112
+      name: qbittorrent-web
   type: LoadBalancer

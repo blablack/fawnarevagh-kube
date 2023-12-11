@@ -12,15 +12,19 @@ kubectl wait --timeout=-1s --for=condition=Complete job/build-first-docker-build
 
 kubectl delete configmap init-docker-builder-scripts
 
+kubectl apply -f ./download-root-hints/download-root-hints.yaml
+kubectl apply -f ./pihole/pihole.yaml
+
 kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq.yaml
 kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq
 
 kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
 kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
 
+kubectl apply -f ./docker-builder-init-jobs/build-pod-gateway.yaml
+kubectl wait --timeout=-1s --for=condition=Complete job/build-pod-gateway
+
 kubectl apply -f ./dnsmasq/dnsmasq.yaml
-kubectl apply -f ./download-root-hints/download-root-hints.yaml
-kubectl apply -f ./pihole/pihole.yaml
 
 kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
 kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
@@ -37,7 +41,7 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
 
-kubectl apply -f ./nordvpn-meshnet/nordvpn-meshnet.yaml
+#kubectl apply -f ./nordvpn-meshnet/nordvpn-meshnet.yaml
 
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
@@ -45,7 +49,10 @@ kubectl apply -f ./node-red/node-red.yaml
 kubectl apply -f ./plex/plex.yaml
 kubectl apply -f ./sonarr/sonarr.yaml
 kubectl apply -f ./radarr/radarr.yaml
-kubectl apply -f ./torrent-vpn/torrent-vpn.yaml
+#kubectl apply -f ./torrent-vpn/torrent-vpn.yaml
+kubectl apply -f ./nordvpn/nordvpn.yaml
+kubectl apply -f ./qbittorrent/qbittorrent.yaml
+kubectl apply -f ./prowlarr/prowlarr.yaml
 
 kubectl apply -f ./kublicity/kublicity_full_nucio.yaml
 kubectl apply -f ./kublicity/kublicity_clean_nucio.yaml
