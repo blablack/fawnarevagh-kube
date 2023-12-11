@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-gateway
+  labels:
+    app: hello-world-gateway
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: hello-world-gateway
+  template:
+    metadata:
+      labels:
+        app: hello-world-gateway
+    spec:
+      hostname: hello-world
+      containers:
+        - name: hello-world
+          image: nucio.nowhere:30038/hello-world:latest
+          imagePullPolicy: Always
+      nodeSelector:
+        cputype: x86
+      restartPolicy: Always
+      dnsPolicy: "ClusterFirst"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hello-world
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: hello-world-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.215
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: hello-world-gateway
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
