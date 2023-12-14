@@ -161,3 +161,22 @@ spec:
       port: 80
       targetPort: 5000
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq-internal
+spec:
+  clusterIP: 10.43.0.23
+  ports:
+    - port: 53
+      targetPort: 53
+      protocol: TCP
+      name: port53
+    - port: 53
+      targetPort: 53
+      protocol: UDP
+      name: port53-udp
+  selector:
+    app: dnsmasq
+  type: ClusterIP
