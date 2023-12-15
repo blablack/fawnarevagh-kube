@@ -144,7 +144,7 @@
   tasks:
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --disable metrics-server --flannel-backend=host-gw" sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
 
     - name: Get token
       ansible.builtin.slurp:

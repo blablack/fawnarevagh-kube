@@ -1,0 +1,203 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immich
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: immich
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: immich
+    spec:
+      volumes:
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: postgres:latest
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: "immich"
+            - name: POSTGRES_PASSWORD
+              value: "immich"
+            - name: POSTGRES_DB
+              value: "immich"
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "immich/postgresql"
+              name: storage-local-path-pvc
+        - image: redis:latest
+          imagePullPolicy: IfNotPresent
+          name: redis
+        - image: typesense/typesense:0.24.1
+          imagePullPolicy: IfNotPresent
+          name: typesense
+          env:
+            - name: TYPESENSE_DATA_DIR
+              value: "/tsdata"
+            - name: TYPESENSE_API_KEY
+              value: "typesense"
+          ports:
+            - containerPort: 8108
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: "/tsdata"
+              subPath: "immich/tsdata"
+              name: storage-local-path-pvc
+        - image: ghcr.io/immich-app/immich-server:v1.90.2
+          imagePullPolicy: IfNotPresent
+          name: immich-server
+          command: ["./start-server.sh"]
+          env:
+            - name: DB_USERNAME
+              value: "immich"
+            - name: DB_PASSWORD
+              value: "immich"
+            - name: DB_DATABASE_NAME
+              value: "immich"
+            - name: TYPESENSE_API_KEY
+              value: "typesense"
+            - name: REDIS_HOSTNAME
+              value: "localhost"
+            - name: TYPESENSE_HOST
+              value: "localhost"
+          ports:
+            - containerPort: 3001
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /server-info/ping
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /server-info/ping
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: "/photos"
+              subPath: "Our Pictures"
+              name: nasio-nfs-pvc
+              readOnly: true
+            - mountPath: "/usr/src/app/upload"
+              subPath: "immich/upload"
+              name: storage-local-path-pvc
+        - image: ghcr.io/immich-app/immich-server:v1.90.2
+          imagePullPolicy: IfNotPresent
+          name: immich-microservices
+          command: ["./start-microservices.sh"]
+          env:
+            - name: DB_USERNAME
+              value: "immich"
+            - name: DB_PASSWORD
+              value: "immich"
+            - name: DB_DATABASE_NAME
+              value: "immich"
+            - name: TYPESENSE_API_KEY
+              value: "typesense"
+            - name: REDIS_HOSTNAME
+              value: "localhost"
+            - name: TYPESENSE_HOST
+              value: "localhost"
+            - name: REVERSE_GEOCODING_DUMP_DIRECTORY
+              value: "/geodata-cache"
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: "http://localhost:3003"
+          volumeMounts:
+            - mountPath: "/geodata-cache"
+              subPath: "immich/geodata-cache"
+              name: storage-local-path-pvc
+            - mountPath: "/photos"
+              subPath: "Our Pictures"
+              name: nasio-nfs-pvc
+              readOnly: true
+            - mountPath: "/usr/src/app/upload"
+              subPath: "immich/upload"
+              name: storage-local-path-pvc
+        - image: ghcr.io/immich-app/immich-machine-learning:v1.90.2
+          imagePullPolicy: IfNotPresent
+          name: immich-machine-learning
+          env:
+            - name: TRANSFORMERS_CACHE
+              value: "/cache"
+          ports:
+            - containerPort: 3003
+              name: http
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          volumeMounts:
+            - mountPath: "/cache"
+              subPath: "immich/ml-cache"
+              name: storage-local-path-pvc
+      nodeSelector:
+        cputype: x86
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: immich
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: immich-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.210
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: immich
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 3001
+      targetPort: 3001
+  type: LoadBalancer
