@@ -23,7 +23,7 @@ spec:
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
       containers:
-        - image: postgres:latest
+        - image: tensorchord/pgvecto-rs:pg16-v0.1.11
           imagePullPolicy: IfNotPresent
           name: postgres
           env:
@@ -40,38 +40,7 @@ spec:
         - image: redis:latest
           imagePullPolicy: IfNotPresent
           name: redis
-        - image: typesense/typesense:0.24.1
-          imagePullPolicy: IfNotPresent
-          name: typesense
-          env:
-            - name: TYPESENSE_DATA_DIR
-              value: "/tsdata"
-            - name: TYPESENSE_API_KEY
-              value: "typesense"
-          ports:
-            - containerPort: 8108
-              name: http
-          livenessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 0
-            periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 3
-          readinessProbe:
-            httpGet:
-              path: /health
-              port: http
-            initialDelaySeconds: 0
-            periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 3
-          volumeMounts:
-            - mountPath: "/tsdata"
-              subPath: "immich/tsdata"
-              name: storage-local-path-pvc
-        - image: ghcr.io/immich-app/immich-server:v1.90.2
+        - image: ghcr.io/immich-app/immich-server:v1.91.0
           imagePullPolicy: IfNotPresent
           name: immich-server
           command: ["./start-server.sh"]
@@ -82,11 +51,7 @@ spec:
               value: "immich"
             - name: DB_DATABASE_NAME
               value: "immich"
-            - name: TYPESENSE_API_KEY
-              value: "typesense"
             - name: REDIS_HOSTNAME
-              value: "localhost"
-            - name: TYPESENSE_HOST
               value: "localhost"
           ports:
             - containerPort: 3001
@@ -113,9 +78,9 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "immich/upload"
-              name: storage-local-path-pvc
-        - image: ghcr.io/immich-app/immich-server:v1.90.2
+              subPath: "Our Pictures/08 - Immich"
+              name: nasio-nfs-pvc
+        - image: ghcr.io/immich-app/immich-server:v1.91.0
           imagePullPolicy: IfNotPresent
           name: immich-microservices
           command: ["./start-microservices.sh"]
@@ -126,11 +91,7 @@ spec:
               value: "immich"
             - name: DB_DATABASE_NAME
               value: "immich"
-            - name: TYPESENSE_API_KEY
-              value: "typesense"
             - name: REDIS_HOSTNAME
-              value: "localhost"
-            - name: TYPESENSE_HOST
               value: "localhost"
             - name: REVERSE_GEOCODING_DUMP_DIRECTORY
               value: "/geodata-cache"
@@ -145,9 +106,9 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "immich/upload"
-              name: storage-local-path-pvc
-        - image: ghcr.io/immich-app/immich-machine-learning:v1.90.2
+              subPath: "Our Pictures/08 - Immich"
+              name: nasio-nfs-pvc
+        - image: ghcr.io/immich-app/immich-machine-learning:v1.91.0
           imagePullPolicy: IfNotPresent
           name: immich-machine-learning
           env:
@@ -198,6 +159,6 @@ spec:
   ports:
     - name: http-80
       protocol: TCP
-      port: 3001
+      port: 80
       targetPort: 3001
   type: LoadBalancer
