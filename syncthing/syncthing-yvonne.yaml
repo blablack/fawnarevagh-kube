@@ -19,14 +19,19 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: storage-local-path-pvc
+          persistentVolumeClaim:
+            claimName: storage-local-path-pvc
       containers:
         - image: syncthing/syncthing
           imagePullPolicy: Always
           name: syncthing-yvonne
           volumeMounts:
-            - mountPath: "/var/syncthing"
-              subPath: "SyncThing/Yvonne"
+            - mountPath: "/nasio"
               name: nasio-nfs-pvc
+            - mountPath: "/var/syncthing"
+              subPath: "syncthing/yvonne"
+              name: storage-local-path-pvc
           env:
             - name: PUID
               value: "1027"
