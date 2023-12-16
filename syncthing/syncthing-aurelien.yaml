@@ -23,7 +23,7 @@ spec:
           persistentVolumeClaim:
             claimName: storage-local-path-pvc
       containers:
-        - image: syncthing/syncthing
+        - image: syncthing/syncthing:latest
           imagePullPolicy: Always
           name: syncthing-aurelien
           volumeMounts:
