@@ -26,25 +26,33 @@ kubectl wait --timeout=-1s --for=condition=Complete job/build-pod-gateway
 
 kubectl apply -f ./dnsmasq/dnsmasq.yaml
 
+kubectl apply -f ./docker-builder-jobs/build-dnsmasq.yaml
 kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
 kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
 kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
 kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
 kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
 
-kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-torrent-vpn.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-nordvpn-meshnet.yaml
+
+kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-nordvpn.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-pihole.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-plex.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
+kubectl apply -f ./deployment-restarter/deployment-restarter-syncthing.yaml
+
+
+kubectl apply -f ./jenkins/jenkins.yaml
 
 kubectl apply -f ./syncthing/syncthing-aurelien.yaml
 kubectl apply -f ./syncthing/syncthing-yvonne.yaml
 
 kubectl apply -f ./immich/immich.yaml
+
+kubectl apply -f ./heimdall/heimdall.yaml
 
 kubectl apply -f ./home-assistant/home-assistant.yaml
 kubectl apply -f ./node-red/node-red.yaml
