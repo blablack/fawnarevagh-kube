@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: deployment-restarter-nordvpn-meshnet
+  name: deployment-restarter-prowlarr
   namespace: default
 spec:
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
-  schedule: "0 0 1 */6 *"
+  schedule: "0 0 1 * *"
   jobTemplate:
     spec:
       backoffLimit: 2
@@ -17,11 +17,11 @@ spec:
           serviceAccountName: deployment-restarter
           restartPolicy: Never
           containers:
-            - name: deployment-restarter-nordvpn-meshnet
+            - name: deployment-restarter-prowlarr
               image: bitnami/kubectl
               command:
                 - bash
                 - -c
                 - >-
-                  kubectl rollout restart deployment/nordvpn-meshnet &&
-                  kubectl rollout status deployment/nordvpn-meshnet
+                  kubectl rollout restart deployment/prowlarr &&
+                  kubectl rollout status deployment/prowlarr
