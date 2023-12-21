@@ -1,13 +1,13 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: deployment-restarter-torrent-vpn
+  name: deployment-restarter-nordvpn
   namespace: default
 spec:
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
-  schedule: "0 0 5 * *"
+  schedule: "0 0 1 * *"
   jobTemplate:
     spec:
       backoffLimit: 2
@@ -17,11 +17,11 @@ spec:
           serviceAccountName: deployment-restarter
           restartPolicy: Never
           containers:
-            - name: deployment-restarter-torrent-vpn
+            - name: deployment-restarter-nordvpn
               image: bitnami/kubectl
               command:
                 - bash
                 - -c
                 - >-
-                  kubectl rollout restart deployment/torrent-vpn &&
-                  kubectl rollout status deployment/torrent-vpn
+                  kubectl rollout restart deployment/nordvpn &&
+                  kubectl rollout status deployment/nordvpn
