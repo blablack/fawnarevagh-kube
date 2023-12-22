@@ -1,60 +1,102 @@
+- name: Setup network
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Disable cloud network config
+      ansible.builtin.copy:
+        src: all/99-disable-network-config.cfg
+        dest: /etc/cloud/cloud.cfg.d/
+    - name: Empty /etc/netplan
+      ansible.builtin.shell:
+        cmd: rm -rf /etc/netplan/*
+    
+
 - name: Setup network on Nucio
   hosts: nucio
   become: true
 
   tasks:
-    - name: Disable cloud network config
-      ansible.builtin.copy:
-        src: all/99-disable-network-config.cfg
-        dest: /etc/cloud/cloud.cfg.d/
-    - name: Empty /etc/netplan
-      ansible.builtin.shell:
-        cmd: rm -rf /etc/netplan/*
     - name: Copy Netplan configuration
       ansible.builtin.copy:
         src: nucio/00-myconfig.yaml
         dest: /etc/netplan/
-    - name: Disable ipv6
-      ansible.builtin.copy:
-        src: all/sysctl.conf
-        dest: /etc/
 
-- name: Setup network on Raspio
-  hosts: raspio
+
+- name: Setup network on Bedio
+  hosts: bedio
   become: true
 
   tasks:
-    - name: Disable cloud network config
-      ansible.builtin.copy:
-        src: all/99-disable-network-config.cfg
-        dest: /etc/cloud/cloud.cfg.d/
-    - name: Empty /etc/netplan
-      ansible.builtin.shell:
-        cmd: rm -rf /etc/netplan/*
     - name: Copy Netplan configuration
       ansible.builtin.copy:
-        src: raspio/00-myconfig.yaml
+        src: bedio/00-myconfig.yaml
         dest: /etc/netplan/
+
+
+- name: Setup network
+  hosts: all
+  become: true
+
+  tasks:
     - name: Disable ipv6
       ansible.builtin.copy:
         src: all/sysctl.conf
         dest: /etc/
     - name: Copy resolved.conf
       ansible.builtin.copy:
-        src: raspio/resolved.conf
+        src: all/resolved.conf
         dest: /etc/systemd/
     - name: Create symlink
       ansible.builtin.shell:
         cmd: ln -sf /run/systemd/resolve/resolv.conf /etc/resolv.conf
 
-- name: Install linux-modules-extra-raspi
-  hosts: raspio
+    - name: Add Nucio host to hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: 192.168.2.2 nucio.nowhere
+    - name: Add Bedio host to hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: 192.168.2.3 bedio.nowhere
+
+
+- name: Install basic packages
+  hosts: all
   become: true
 
   tasks:
     - name: Install package
       ansible.builtin.apt:
-        name: linux-modules-extra-raspi
+         pkg:
+          - nano
+          - htop
+          - bash-completion
+
+
+- name: Configure login info
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Remove packages
+      ansible.builtin.apt:
+        pkg:
+          - ubuntu-advantage-tools
+        state: absent
+        
+
+    - name: Install packages
+      ansible.builtin.apt:
+        pkg:
+          - landscape-common
+          - update-notifier-common
+
+    - name: Remove unminimize message
+      ansible.builtin.file:
+        state: absent
+        path: /etc/update-motd.d/60-unminimize
+
 
 - name: Install nfs-common
   hosts: all
@@ -64,6 +106,17 @@
     - name: Install package
       ansible.builtin.apt:
         name: nfs-common
+
+
+- name: Install open-iscsi
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        name: open-iscsi
+
 
 - name: Remove snapd
   hosts: all
@@ -75,15 +128,43 @@
         path: "/usr/bin/snap"
       register: snap_exist
 
+    - name: Debug if snap installed
+      debug:
+        msg: "snap is installed"
+      when: snap_exist.stat.exists
+
+    - name: Check if packages are present
+      ansible.builtin.shell:
+        cmd: snap list
+      register: snap_output
+      when: snap_exist.stat.exists
+
+    - name: Debug snap list
+      debug:
+        msg: "{{snap_output}}"
+      when: snap_exist.stat.exists
+
+    - name: Debug uninstall snap packages
+      debug:
+        msg: "Will uninstall packages"
+      when: 
+        - snap_exist.stat.exists 
+        - snap_output is defined 
+        - '"No snaps are installed yet" not in snap_output.stderr'
+
     - name: Uninstall snap packages
       ansible.builtin.shell:
         cmd: snap remove --purge $(snap list | awk '!/^Name|^core/ {print $1}')
-      when: snap_exist.stat.exists
+      when: 
+        - snap_exist.stat.exists 
+        - snap_output is defined 
+        - '"No snaps are installed yet" not in snap_output.stderr'
 
     - name: Remove snapd
       ansible.builtin.apt:
         name: snapd
         state: absent
+
 
 - name: Remove packages
   hosts: all
@@ -94,6 +175,7 @@
       ansible.builtin.apt:
         name: avahi-daemon
         state: absent
+
 
 - name: Stop unnecessary services
   hosts: all
@@ -117,6 +199,7 @@
       vars:
         service_names: "{{ services|dict2items|map(attribute='value.name')|list }}"
 
+
 - name: Cleanup
   hosts: all
   become: true
@@ -129,6 +212,7 @@
       ansible.builtin.apt:
         autoremove: yes
 
+
 - name: Reboot all machines
   hosts: all
   become: true
@@ -137,14 +221,32 @@
     - name: Reboot
       ansible.builtin.reboot:
 
+
+- name: Copy k3s resolv.conf
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Copy resolv.conf
+      ansible.builtin.copy:
+        src: all/resolv.conf
+        dest: /etc/rancher/k3s/
+
+
 - name: Install k3s on Nucio
   hosts: nucio
   become: true
 
   tasks:
+    - name: Check if k3s binary present
+      stat:
+        path: "/usr/local/bin/k3s"
+      register: k3s_exist
+
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
+      when: not k3s_exist.stat.exists
 
     - name: Get token
       ansible.builtin.slurp:
@@ -153,16 +255,24 @@
 
     - name: Debug token
       ansible.builtin.debug:
-        msg: Token {{ master_node_token.content }}
+        msg: Token {{ master_node_token['content'] | b64decode | trim }}
 
-- name: Install k3s on Raspio
-  hosts: raspio
+
+- name: Install k3s on Bedio
+  hosts: bedio
   become: true
 
   tasks:
+    - name: Check if k3s binary present
+      stat:
+        path: "/usr/local/bin/k3s"
+      register: k3s_exist
+
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/opt/k3dvol/resolv.conf" K3S_TOKEN={{hostvars['192.168.2.2'].master_node_token.content}} sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" K3S_TOKEN={{hostvars['192.168.2.2'].master_node_token.content | b64decode | trim}} sh -s
+      when: not k3s_exist.stat.exists
+
 
 - name: Setup Docker registry
   hosts: all
@@ -179,6 +289,7 @@
         src: all/registries.yaml
         dest: /etc/rancher/k3s/
 
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
@@ -189,8 +300,9 @@
         name: k3s
         state: restarted
 
-- name: Restart k3s on Raspio
-  hosts: raspio
+
+- name: Restart k3s on Bedio
+  hosts: bedio
   become: true
 
   tasks:
