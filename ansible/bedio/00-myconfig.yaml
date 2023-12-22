@@ -1,7 +1,7 @@
 network:
   version: 2
   ethernets:
-    eth0:
+    eno1:
       dhcp4: no
       addresses:
         - 192.168.2.3/24
@@ -10,6 +10,3 @@ network:
           via: 192.168.2.1
       nameservers:
         addresses: [1.1.1.1, 1.0.0.1]
-      match:
-        macaddress: b8:27:eb:85:e5:1b
-      set-name: eth0
