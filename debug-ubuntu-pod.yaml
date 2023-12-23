@@ -16,33 +16,14 @@ spec:
       labels:
         app: ubuntu
     spec:
-      volumes:
-        - name: storage-local-path-pvc
-          persistentVolumeClaim:
-            claimName: storage-local-path-pvc
-        - name: syncthing-aurelien-pvc
-          persistentVolumeClaim:
-            claimName: syncthing-aurelien-pvc
-        - name: syncthing-yvonne-pvc
-          persistentVolumeClaim:
-            claimName: syncthing-yvonne-pvc
       containers:
         - name: ubuntu
           image: ubuntu:mantic
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
           securityContext:
             privileged: true
-          volumeMounts:
-            - name: syncthing-yvonne-pvc
-              mountPath: "/longhorn-yvonne"
-            - name: syncthing-aurelien-pvc
-              mountPath: "/longhorn-aurelien"
-            - name: storage-local-path-pvc
-              mountPath: "storage-local"
       restartPolicy: Always
-      nodeSelector:
-        kubernetes.io/hostname: nucio
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
