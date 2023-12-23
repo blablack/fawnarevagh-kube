@@ -26,9 +26,9 @@ spec:
         app: immich
     spec:
       volumes:
-        - name: storage-local-path-pvc
+        - name: immich-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: immich-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -48,8 +48,8 @@ spec:
               value: "immich"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
-              subPath: "immich/postgresql"
-              name: storage-local-path-pvc
+              subPath: "postgresql"
+              name: immich-pvc
             - name: immich-postgres-vol
               subPath: "create-extensions.sql"
               mountPath: "/docker-entrypoint-initdb.d/create-extensions.sql"
@@ -115,8 +115,8 @@ spec:
               value: "http://localhost:3003"
           volumeMounts:
             - mountPath: "/geodata-cache"
-              subPath: "immich/geodata-cache"
-              name: storage-local-path-pvc
+              subPath: "geodata-cache"
+              name: immich-pvc
             - mountPath: "/photos"
               subPath: "Our Pictures"
               name: nasio-nfs-pvc
@@ -151,10 +151,8 @@ spec:
             failureThreshold: 3
           volumeMounts:
             - mountPath: "/cache"
-              subPath: "immich/ml-cache"
-              name: storage-local-path-pvc
-      nodeSelector:
-        cputype: x86
+              subPath: "ml-cache"
+              name: immich-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

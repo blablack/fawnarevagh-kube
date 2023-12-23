@@ -19,9 +19,9 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
-        - name: storage-local-path-pvc
+        - name: syncthing-yvonne-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: syncthing-yvonne-pvc
       containers:
         - image: syncthing/syncthing:latest
           imagePullPolicy: Always
@@ -30,8 +30,7 @@ spec:
             - mountPath: "/nasio"
               name: nasio-nfs-pvc
             - mountPath: "/var/syncthing"
-              subPath: "syncthing/yvonne"
-              name: storage-local-path-pvc
+              name: syncthing-yvonne-pvc
           env:
             - name: PUID
               value: "1027"
@@ -47,8 +46,6 @@ spec:
             - containerPort: 22000
               name: syncthing-udp
               protocol: UDP
-      nodeSelector:
-        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

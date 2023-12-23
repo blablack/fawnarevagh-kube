@@ -61,9 +61,9 @@ spec:
         - name: confmap-vol
           configMap:
             name: qbittorrent
-        - name: storage-local-path-pvc
+        - name: qbittorrent-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: qbittorrent-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -80,8 +80,7 @@ spec:
               protocol: UDP
           volumeMounts:
             - mountPath: "/config"
-              subPath: "qbittorrent"
-              name: storage-local-path-pvc
+              name: qbittorrent-pvc
             - mountPath: "/volume1/public/Torrent Downloads"
               subPath: "Torrent Downloads"
               name: nasio-nfs-pvc
@@ -122,7 +121,7 @@ spec:
             - mountPath: "/config"
               name: confmap-vol
       nodeSelector:
-        cputype: x86
+        kubernetes.io/hostname: nucio
       restartPolicy: Always
       dnsPolicy: "ClusterFirst"
       dnsConfig:

@@ -15,13 +15,6 @@ ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 
 ## Deployments
 
-### Label nodes
-
-```bash
-kubectl label nodes nucio cputype=x86
-kubectl label nodes raspio cputype=arm
-```
-
 ### Secrets
 
 ```bash

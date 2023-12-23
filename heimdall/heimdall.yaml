@@ -16,24 +16,23 @@ spec:
         app: heimdall
     spec:
       volumes:
-        - name: storage-local-path-pvc
+        - name: heimdall-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: heimdall-pvc
       containers:
         - image: linuxserver/heimdall:latest
           imagePullPolicy: Always
           name: heimdall
           volumeMounts:
             - mountPath: "/config"
-              subPath: "heimdall"
-              name: storage-local-path-pvc
+              name: heimdall-pvc
           env:
             - name: PUID
               value: "1026"
             - name: PGID
               value: "100"
             - name: TZ
-              value: Europe/Amsterdam
+              value: "EU/Dublin"
           ports:
             - containerPort: 80
               name: http-80
@@ -41,8 +40,6 @@ spec:
             - containerPort: 443
               name: https-443
               protocol: TCP
-      nodeSelector:
-        cputype: arm
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

@@ -29,8 +29,6 @@ spec:
                 requests:
                   cpu: 100m
                   memory: 100Mi
-          nodeSelector:
-            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:

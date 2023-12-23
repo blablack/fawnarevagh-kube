@@ -11,11 +11,9 @@ spec:
           name: build-dnsmasq-ui
           imagePullPolicy: Always
           command: ["./build.sh"]
-          args: ["dnsmasq-ui", "linux/arm64"]
+          args: ["dnsmasq-ui", "linux/amd64"]
           securityContext:
             privileged: true
-      nodeSelector:
-        cputype: x86
       restartPolicy: Never
       dnsPolicy: "None"
       dnsConfig:

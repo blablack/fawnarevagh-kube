@@ -24,9 +24,8 @@ spec:
             - containerPort: 5000
               protocol: TCP
           volumeMounts:
-            - name: storage-local-path-pvc
+            - name: registry-pvc
               mountPath: /data
-              subPath: "registry"
           env:
             - name: REGISTRY_HTTP_ADDR
               value: :5000
@@ -41,12 +40,10 @@ spec:
             requests:
               cpu: 100m
               memory: 100Mi
-      nodeSelector:
-        cputype: x86
       volumes:
-        - name: storage-local-path-pvc
+        - name: registry-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: registry-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

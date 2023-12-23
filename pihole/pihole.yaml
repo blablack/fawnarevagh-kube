@@ -1,3 +1,44 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: download-root-hints
+spec:
+  schedule: "0 0 16 * *"
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: download-root-hints
+        spec:
+          volumes:
+            - name: pihole-pvc
+              persistentVolumeClaim:
+                claimName: pihole-pvc
+          containers:
+            - image: nucio.nowhere:30038/download-root-hints:latest
+              imagePullPolicy: Always
+              name: download-root-hints
+              volumeMounts:
+                - mountPath: "/tmp/unbound_config"
+                  subPath: "unbound"
+                  name: pihole-pvc
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 100m
+                  memory: 100Mi
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 10.43.0.22
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,13 +96,13 @@ spec:
             - name: DNSMASQ_LISTENING
               value: "all"
           volumeMounts:
-            - name: storage-local-path-pvc
+            - name: pihole-pvc
               subPath: "pihole"
               mountPath: "/etc/pihole"
-            - name: storage-local-path-pvc
+            - name: pihole-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
-        - image: mvance/unbound-rpi:latest
+        - image: mvance/unbound:latest
           imagePullPolicy: Always
           name: unbound
           securityContext:
@@ -69,13 +110,11 @@ spec:
           volumeMounts:
             - mountPath: "/opt/unbound/etc/unbound/"
               subPath: "unbound"
-              name: storage-local-path-pvc
-      nodeSelector:
-        cputype: arm
+              name: pihole-pvc
       volumes:
-        - name: storage-local-path-pvc
+        - name: pihole-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: pihole-pvc
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:

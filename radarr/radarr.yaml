@@ -16,9 +16,9 @@ spec:
         app: radarr
     spec:
       volumes:
-        - name: storage-local-path-pvc
+        - name: radarr-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: radarr-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -28,8 +28,7 @@ spec:
           name: radarr
           volumeMounts:
             - mountPath: "/config"
-              subPath: "radarr"
-              name: storage-local-path-pvc
+              name: radarr-pvc
             - mountPath: "/volume1/public"
               name: nasio-nfs-pvc
           env:
@@ -39,8 +38,6 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
-      nodeSelector:
-        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
