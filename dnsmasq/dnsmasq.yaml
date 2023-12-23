@@ -87,15 +87,13 @@ spec:
             - name: confmap-vol
               subPath: "dnsmasq.conf"
               mountPath: "/etc/dnsmasq.conf"
-            - name: storage-local-path-pvc
-              subPath: "dnsmasq/dnsmasq.leases"
+            - name: dnsmasq-pvc
+              subPath: "dnsmasq.leases"
               mountPath: "/var/lib/misc/dnsmasq.leases"
-      nodeSelector:
-        cputype: arm
       volumes:
-        - name: storage-local-path-pvc
+        - name: dnsmasq-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: dnsmasq-pvc
         - configMap:
             name: dnsmasq
           name: confmap-vol
@@ -129,15 +127,13 @@ spec:
           image: nucio.nowhere:30038/dnsmasq-ui:latest
           imagePullPolicy: Always
           volumeMounts:
-            - name: storage-local-path-pvc
-              subPath: "dnsmasq/dnsmasq.leases"
+            - name: dnsmasq-pvc
+              subPath: "dnsmasq.leases"
               mountPath: "/var/lib/misc/dnsmasq.leases"
-      nodeSelector:
-        cputype: arm
       volumes:
-        - name: storage-local-path-pvc
+        - name: dnsmasq-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: dnsmasq-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

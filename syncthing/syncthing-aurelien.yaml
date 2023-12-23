@@ -19,9 +19,9 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
-        - name: storage-local-path-pvc
+        - name: syncthing-aurelien-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: syncthing-aurelien-pvc
       containers:
         - image: syncthing/syncthing:latest
           imagePullPolicy: Always
@@ -30,8 +30,7 @@ spec:
             - mountPath: "/nasio"
               name: nasio-nfs-pvc
             - mountPath: "/var/syncthing"
-              subPath: "syncthing/aurelien"
-              name: storage-local-path-pvc
+              name: syncthing-aurelien-pvc
           env:
             - name: PUID
               value: "1026"
@@ -47,8 +46,6 @@ spec:
             - containerPort: 22000
               name: syncthing-udp
               protocol: UDP
-      nodeSelector:
-        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

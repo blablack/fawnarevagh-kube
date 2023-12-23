@@ -19,7 +19,7 @@ spec:
               name: build-kublicity
               imagePullPolicy: Always
               command: ["./build.sh"]
-              args: ["kublicity", "linux/amd64,linux/arm64"]
+              args: ["kublicity", "linux/amd64"]
               securityContext:
                 privileged: true
               resources:
@@ -29,8 +29,6 @@ spec:
                 requests:
                   cpu: 100m
                   memory: 100Mi
-          nodeSelector:
-            cputype: x86
           restartPolicy: Never
           dnsPolicy: "None"
           dnsConfig:

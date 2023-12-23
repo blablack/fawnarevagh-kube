@@ -16,9 +16,9 @@ spec:
         app: sonarr
     spec:
       volumes:
-        - name: storage-local-path-pvc
+        - name: sonarr-pvc
           persistentVolumeClaim:
-            claimName: storage-local-path-pvc
+            claimName: sonarr-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -28,8 +28,7 @@ spec:
           name: sonarr
           volumeMounts:
             - mountPath: "/config"
-              subPath: "sonarr"
-              name: storage-local-path-pvc
+              name: sonarr-pvc
             - mountPath: "/volume1/public"
               name: nasio-nfs-pvc
           env:
@@ -39,8 +38,6 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
-      nodeSelector:
-        cputype: x86
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
