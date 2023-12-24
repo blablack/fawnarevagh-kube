@@ -13,34 +13,11 @@ kubectl apply -f ./persistent-volumes/longhorn.yaml
 kubectl apply -f ./registry/registry-pvc.yaml
 kubectl apply -f ./registry/registry.yaml
 
-
-kubectl apply -f ./docker-builder-init-jobs/build-first-docker-builder.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-first-docker-builder
-
-kubectl delete configmap init-docker-builder-scripts
-
 kubectl apply -f ./download-root-hints/download-root-hints.yaml
 kubectl apply -f ./pihole/pihole.yaml
 
-kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq
-
-kubectl apply -f ./docker-builder-init-jobs/build-dnsmasq-ui.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-dnsmasq-ui
-
-kubectl apply -f ./docker-builder-init-jobs/build-pod-gateway.yaml
-kubectl wait --timeout=-1s --for=condition=Complete job/build-pod-gateway
-
 kubectl apply -f ./dnsmasq/dnsmasq-pvc.yaml
 kubectl apply -f ./dnsmasq/dnsmasq.yaml
-
-kubectl apply -f ./docker-builder-jobs/build-dnsmasq.yaml
-kubectl apply -f ./docker-builder-jobs/build-docker-builder.yaml
-kubectl apply -f ./docker-builder-jobs/build-download-root-hints.yaml
-kubectl apply -f ./docker-builder-jobs/build-kublicity.yaml
-kubectl apply -f ./docker-builder-jobs/build-nordvpn.yaml
-kubectl apply -f ./docker-builder-jobs/build-picsync.yaml
-
 
 kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-nordvpn.yaml
@@ -51,7 +28,6 @@ kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
 kubectl apply -f ./deployment-restarter/deployment-restarter-syncthing.yaml
-
 
 kubectl apply -f ./jenkins/jenkins-pvc.yaml
 kubectl apply -f ./jenkins/jenkins.yaml
