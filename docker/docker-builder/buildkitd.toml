@@ -1,4 +1,0 @@
-[registry."nucio.nowhere:30038"]
-  mirrors = ["nucio.nowhere:30038"]
-  http = true
-  insecure = true
