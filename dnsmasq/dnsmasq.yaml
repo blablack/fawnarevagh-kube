@@ -90,39 +90,6 @@ spec:
             - name: dnsmasq-pvc
               subPath: "dnsmasq.leases"
               mountPath: "/var/lib/misc/dnsmasq.leases"
-      volumes:
-        - name: dnsmasq-pvc
-          persistentVolumeClaim:
-            claimName: dnsmasq-pvc
-        - configMap:
-            name: dnsmasq
-          name: confmap-vol
-      dnsPolicy: "ClusterFirstWithHostNet"
-      dnsConfig:
-        nameservers:
-          - 10.43.0.22
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: dnsmasq-ui
-  labels:
-    app: dnsmasq-ui
-spec:
-  replicas: 1
-  revisionHistoryLimit: 0
-  selector:
-    matchLabels:
-      app: dnsmasq-ui
-  strategy:
-    type: Recreate
-  template:
-    metadata:
-      labels:
-        app: dnsmasq-ui
-        name: dnsmasq-ui
-    spec:
-      containers:
         - name: dnsmasq-ui
           image: nucio.nowhere:30038/dnsmasq-ui:latest
           imagePullPolicy: Always
@@ -134,7 +101,10 @@ spec:
         - name: dnsmasq-pvc
           persistentVolumeClaim:
             claimName: dnsmasq-pvc
-      dnsPolicy: "None"
+        - configMap:
+            name: dnsmasq
+          name: confmap-vol
+      dnsPolicy: "ClusterFirstWithHostNet"
       dnsConfig:
         nameservers:
           - 10.43.0.22
@@ -150,7 +120,7 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   selector:
-    app: dnsmasq-ui
+    app: dnsmasq
   ports:
     - name: http-80
       protocol: TCP
