@@ -1,3 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: docker-registry
+  namespace: kube-system
+  labels:
+    app: registry
+    release: docker-registry-ui
+    app/version: "1.2.1"
+data:
+  config.yml: |-
+    version: 0.1
+    log:
+      fields:
+        service: registry
+    storage:
+      cache:
+        blobdescriptor: inmemory
+      filesystem:
+        rootdirectory: /var/lib/registry
+    http:
+      addr: :5000
+      headers:
+        X-Content-Type-Options: [nosniff]
+        Access-Control-Allow-Origin: ['*']
+        Access-Control-Allow-Methods: ['HEAD', 'GET', 'OPTIONS', 'DELETE']
+        Access-Control-Allow-Headers: ['Authorization', 'Accept']
+        Access-Control-Max-Age: [1728000]
+        Access-Control-Allow-Credentials: [true]
+        Access-Control-Expose-Headers: ['Docker-Content-Digest']      
+    health:
+      storagedriver:
+        enabled: true
+        interval: 10s
+        threshold: 3
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,6 +62,8 @@ spec:
           volumeMounts:
             - name: registry-pvc
               mountPath: /data
+            - name: "config"
+              mountPath: "/etc/docker/registry"
           env:
             - name: REGISTRY_HTTP_ADDR
               value: :5000
@@ -44,6 +82,10 @@ spec:
         - name: registry-pvc
           persistentVolumeClaim:
             claimName: registry-pvc
+        - name: config
+          configMap:
+            defaultMode: 420
+            name: docker-registry
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
@@ -64,3 +106,22 @@ spec:
       targetPort: 5000
       nodePort: 30038
   type: NodePort
+---
+#apiVersion: v1
+#kind: Service
+#metadata:
+#  name: docker-registry-external
+#  namespace: kube-system
+#  annotations:
+#    metallb.universe.tf/address-pool: default
+#    metallb.universe.tf/allow-shared-ip: docker-registry-svc
+#    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
+#spec:
+#  externalTrafficPolicy: Local
+#  selector:
+#    app: docker-registry
+#  ports:
+#    - port: 5000
+#      targetPort: 5000
+#      protocol: TCP
+#  type: LoadBalancer

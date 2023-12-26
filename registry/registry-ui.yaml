@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docker-registry-ui
+  labels:
+    app: docker-registry-ui
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: docker-registry-ui
+  template:
+    metadata:
+      labels:
+        app: docker-registry-ui
+    spec:
+      containers:
+        - name: docker-registry-ui
+          image: joxit/docker-registry-ui:latest
+          imagePullPolicy: Always
+          env:
+            - name: REGISTRY_URL
+              value: http://nucio.nowhere:30038
+            - name: DELETE_IMAGES
+              value: "true"
+            - name: SINGLE_REGISTRY
+              value: "true"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-registry-ui
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: docker-registry-ui-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.215
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: docker-registry-ui
+  ports:
+    - port: 80
+      targetPort: 80
+      protocol: TCP
+      name: http
+  type: LoadBalancer
