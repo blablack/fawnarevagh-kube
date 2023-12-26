@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: registry-cli
+  labels:
+    app: registry-cli
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: registry-cli
+  template:
+    metadata:
+      labels:
+        app: registry-cli
+    spec:
+      containers:
+        - name: registry-cli
+          image: anoxis/registry-cli
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          securityContext:
+            privileged: true
+      restartPolicy: Always
+      dnsPolicy: "ClusterFirst"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
