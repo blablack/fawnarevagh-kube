@@ -9,7 +9,6 @@ kubectl apply -f ./longhorn/longhorn.yaml
 kubectl apply -f ./persistent-volumes/nasio-nfs.yaml
 kubectl apply -f ./persistent-volumes/longhorn.yaml
 
-
 kubectl apply -f ./registry/registry-pvc.yaml
 kubectl apply -f ./registry/registry.yaml
 
@@ -18,16 +17,6 @@ kubectl apply -f ./pihole/pihole.yaml
 
 kubectl apply -f ./dnsmasq/dnsmasq-pvc.yaml
 kubectl apply -f ./dnsmasq/dnsmasq.yaml
-
-kubectl apply -f ./deployment-restarter/deployment-restarter-home-assistant.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-nordvpn.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-pihole.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-plex.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-prowlarr.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-radarr.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-rbac.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-sonarr.yaml
-kubectl apply -f ./deployment-restarter/deployment-restarter-syncthing.yaml
 
 kubectl apply -f ./jenkins/jenkins-pvc.yaml
 kubectl apply -f ./jenkins/jenkins.yaml
@@ -61,10 +50,4 @@ kubectl apply -f ./qbittorrent/qbittorrent.yaml
 kubectl apply -f ./prowlarr/prowlarr-pvc.yaml
 kubectl apply -f ./prowlarr/prowlarr.yaml
 
-kubectl apply -f ./kublicity/kublicity_full_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_clean_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_incr_nucio.yaml
-kubectl apply -f ./kublicity/kublicity_full_raspio.yaml
-kubectl apply -f ./kublicity/kublicity_clean_raspio.yaml
-kubectl apply -f ./kublicity/kublicity_incr_raspio.yaml
 kubectl apply -f ./picsync/picsync.yaml
