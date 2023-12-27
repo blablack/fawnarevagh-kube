@@ -107,7 +107,6 @@ spec:
               name: confmap-vol
       nodeSelector:
         kubernetes.io/hostname: nucio
-      restartPolicy: Always
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:

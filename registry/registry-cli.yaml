@@ -23,7 +23,6 @@ spec:
           command: ["/bin/sleep", "3650d"]
           securityContext:
             privileged: true
-      restartPolicy: Always
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
