@@ -59,6 +59,7 @@ spec:
     metadata:
       labels:
         app: nordvpn
+        part-of: nordvpn
     spec:
       volumes:
         - name: confmap-vol
@@ -67,6 +68,16 @@ spec:
         - name: nordvpn-pvc
           persistentVolumeClaim:
             claimName: nordvpn-pvc
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - nordvpn
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
@@ -129,8 +140,6 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
-      nodeSelector:
-        kubernetes.io/hostname: nucio
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

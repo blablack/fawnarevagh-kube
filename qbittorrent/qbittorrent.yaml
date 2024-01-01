@@ -42,9 +42,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qbittorrent
-  labels:
-    app: qbittorrent
-  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -55,6 +52,7 @@ spec:
     metadata:
       labels:
         app: qbittorrent
+        part-of: nordvpn
     spec:
       hostname: qbittorrent
       volumes:
@@ -67,6 +65,16 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - nordvpn
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - image: linuxserver/qbittorrent:latest
           imagePullPolicy: Always
@@ -120,8 +128,6 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
-      nodeSelector:
-        kubernetes.io/hostname: nucio
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:

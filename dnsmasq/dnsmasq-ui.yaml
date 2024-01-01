@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dnsmasq-ui
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: dnsmasq-ui
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: dnsmasq-ui
+        part-of: dnsmasq
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - dnsmasq
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - name: dnsmasq-ui
+          image: nucio.nowhere:30038/dnsmasq-ui:latest
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: dnsmasq-pvc
+              subPath: "dnsmasq.leases"
+              mountPath: "/var/lib/misc/dnsmasq.leases"
+      volumes:
+        - name: dnsmasq-pvc
+          persistentVolumeClaim:
+            claimName: dnsmasq-pvc
+      dnsPolicy: "ClusterFirstWithHostNet"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dnsmasq-ui
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: dnsmasq-ui-svc
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.208
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: dnsmasq
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer

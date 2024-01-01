@@ -38,8 +38,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: docker-registry
-  labels:
-    app: docker-registry
   namespace: kube-system
 spec:
   replicas: 1
