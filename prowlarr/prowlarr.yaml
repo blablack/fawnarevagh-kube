@@ -42,9 +42,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: prowlarr
-  labels:
-    app: prowlarr
-  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -55,6 +52,7 @@ spec:
     metadata:
       labels:
         app: prowlarr
+        part-of: nordvpn
     spec:
       hostname: prowlarr
       volumes:
@@ -64,6 +62,16 @@ spec:
         - name: prowlarr-pvc
           persistentVolumeClaim:
             claimName: prowlarr-pvc
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - nordvpn
+              topologyKey: "kubernetes.io/hostname"
       containers:
         - image: linuxserver/prowlarr:latest
           imagePullPolicy: Always
@@ -105,8 +113,6 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
-      nodeSelector:
-        kubernetes.io/hostname: nucio
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
