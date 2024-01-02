@@ -6,13 +6,17 @@ data:
   dnsmasq.conf: |
     # Set the interface on which dnsmasq operates.
     # If not set, all the interfaces is used.
-    #interface=eth0
+    interface=eno1
 
     # To disable dnsmasq's DNS server functionality.
     #port=0
 
     # listen to every interface
     except-interface=none
+
+    # IPV6
+    # dhcp-range=::100,::1fff,constructor:eno1,ra-stateless,ra-names,slaac
+    # enable-ra
 
     # To enable dnsmasq's DHCP server functionality.
     dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,7d
@@ -27,7 +31,7 @@ data:
     dhcp-option=3,192.168.2.1
 
     # Set DNS server as PiHole
-    dhcp-option=6,192.168.2.201
+    dhcp-option=6,192.168.2.201,192.168.2.202
 
     # dhcp v4 rapid commit
     dhcp-rapid-commit
@@ -119,12 +123,12 @@ spec:
   ports:
     - port: 53
       targetPort: 53
-      protocol: TCP
-      name: port53
-    - port: 53
-      targetPort: 53
       protocol: UDP
-      name: port53-udp
+      name: port53
+    - port: 67
+      targetPort: 67
+      protocol: UDP
+      name: port67
   selector:
     app: dnsmasq
   type: ClusterIP

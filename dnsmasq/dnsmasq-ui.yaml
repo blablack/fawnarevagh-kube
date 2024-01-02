@@ -54,7 +54,7 @@ metadata:
 spec:
   externalTrafficPolicy: Local
   selector:
-    app: dnsmasq
+    app: dnsmasq-ui
   ports:
     - name: http-80
       protocol: TCP
