@@ -2,7 +2,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: picsync
+  name: picsync-legacy
 spec:
   schedule: "0 0 15 * *"
   successfulJobsHistoryLimit: 0
@@ -13,7 +13,7 @@ spec:
       template:
         metadata:
           labels:
-            app: picsync
+            app: picsync-legacy
         spec:
           volumes:
             - name: nasio-nfs-pvc
@@ -39,7 +39,7 @@ spec:
                   "-s",
                   "/source/",
                   "-t",
-                  "~/Pictures",
+                  "~/Pictures Backup/Our Pictures",
                 ]
               name: picsync
               volumeMounts:
