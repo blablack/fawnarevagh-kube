@@ -94,7 +94,7 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "Our Pictures/08 - Immich"
+              subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
         - image: ghcr.io/immich-app/immich-server:v1.91.4
           imagePullPolicy: IfNotPresent
@@ -122,7 +122,7 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "Our Pictures/08 - Immich"
+              subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
         - image: ghcr.io/immich-app/immich-machine-learning:v1.91.4
           imagePullPolicy: IfNotPresent
