@@ -50,7 +50,7 @@ metadata:
   annotations:
     metallb.universe.tf/address-pool: default
     metallb.universe.tf/allow-shared-ip: radarr-svc
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.202
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.217
 spec:
   externalTrafficPolicy: Local
   selector:
