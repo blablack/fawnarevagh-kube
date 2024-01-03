@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: devel-env-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devel-env
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: devel-env
+  template:
+    metadata:
+      labels:
+        app: devel-env
+    spec:
+      volumes:
+        - name: devel-env-pvc
+          persistentVolumeClaim:
+            claimName: devel-env-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - name: devel-env
+          image: ubuntu:mantic
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/home/blablack"
+              name: devel-env-pvc
+            - mountPath: "/photos"
+              subPath: "Our Pictures"
+              name: nasio-nfs-pvc
+      dnsPolicy: "ClusterFirst"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: devel-env
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: devel-env
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: devel-env
+  ports:
+    - port: 22
+      targetPort: 22
+  type: LoadBalancer
