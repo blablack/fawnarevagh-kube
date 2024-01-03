@@ -8,6 +8,8 @@ spec:
   selector:
     matchLabels:
       app: docker-registry-ui
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
