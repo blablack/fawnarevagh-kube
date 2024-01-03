@@ -39,7 +39,7 @@
   become: true
 
   tasks:
-    - name: Disable ipv6
+    - name: Setup ipv6
       ansible.builtin.copy:
         src: all/sysctl.conf
         dest: /etc/
