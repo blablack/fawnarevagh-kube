@@ -88,6 +88,18 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
+          readinessProbe:
+            httpGet:
+              path: /system/status/
+              port: 9696
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /system/status/
+              port: 9696
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
