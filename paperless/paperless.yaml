@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: paperless
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: paperless
+    spec:
+      volumes:
+        - name: paperless-pvc
+          persistentVolumeClaim:
+            claimName: paperless-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
+      containers:
+        - image: docker.io/library/postgres:15
+          imagePullPolicy: IfNotPresent
+          name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: "paperless"
+            - name: POSTGRES_PASSWORD
+              value: "paperless"
+            - name: POSTGRES_DB
+              value: "paperless"
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "postgresql"
+              name: paperless-pvc
+        - image: docker.io/library/redis:7
+          imagePullPolicy: IfNotPresent
+          name: redis
+          volumeMounts:
+            - mountPath: "/data"
+              subPath: "redis"
+              name: paperless-pvc
+        - image: paperlessngx/paperless-ngx:latest
+          imagePullPolicy: Always
+          name: paperless
+          volumeMounts:
+            - mountPath: /usr/src/paperless/data
+              subPath: "paperless/data"
+              name: paperless-pvc
+            - mountPath: /usr/src/paperless/media
+              subPath: "paperless/media"
+              name: paperless-pvc
+            - mountPath: /usr/src/paperless/export
+              subPath: "paperless/export"
+              name: paperless-pvc
+            - mountPath: /usr/src/paperless/consume
+              subPath: "paperless/consume"
+              name: paperless-pvc
+          ports:
+            - containerPort: 8000
+              name: paperless-tcp
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -fs -S --max-time 2 http://localhost:8000"
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          env:
+            - name: PAPERLESS_REDIS
+              value: "redis://localhost:6379"
+            - name: PAPERLESS_DBHOST
+              value: "localhost"
+            - name: USERMAP_UID
+              value: "1000"
+            - name: USERMAP_GID
+              value: "1000"
+            - name: PAPERLESS_PORT
+              value: "8000"
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paperless
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: paperless
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: LoadBalancer
