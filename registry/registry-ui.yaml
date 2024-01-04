@@ -41,7 +41,6 @@ metadata:
   name: docker-registry-ui
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: docker-registry-ui-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.215
 spec:
   externalTrafficPolicy: Local

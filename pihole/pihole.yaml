@@ -146,7 +146,6 @@ metadata:
   name: pihole-external1
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: pihole-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.201
 spec:
   externalTrafficPolicy: Local
@@ -182,7 +181,6 @@ metadata:
   name: pihole-external2
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: pihole-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.202
 spec:
   externalTrafficPolicy: Local

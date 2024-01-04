@@ -5,7 +5,6 @@ metadata:
   namespace: longhorn-system
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: longhorn-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.214
 spec:
   externalTrafficPolicy: Local

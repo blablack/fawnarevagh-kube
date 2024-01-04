@@ -104,22 +104,3 @@ spec:
       targetPort: 5000
       nodePort: 30038
   type: NodePort
----
-#apiVersion: v1
-#kind: Service
-#metadata:
-#  name: docker-registry-external
-#  namespace: kube-system
-#  annotations:
-#    metallb.universe.tf/address-pool: default
-#    metallb.universe.tf/allow-shared-ip: docker-registry-svc
-#    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
-#spec:
-#  externalTrafficPolicy: Local
-#  selector:
-#    app: docker-registry
-#  ports:
-#    - port: 5000
-#      targetPort: 5000
-#      protocol: TCP
-#  type: LoadBalancer
