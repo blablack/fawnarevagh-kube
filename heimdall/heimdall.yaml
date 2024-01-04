@@ -51,7 +51,6 @@ metadata:
   name: heimdall
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: heimdall-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.200
 spec:
   externalTrafficPolicy: Local
