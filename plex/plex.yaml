@@ -94,7 +94,6 @@ metadata:
   name: plex
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: plex-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.204
 spec:
   externalTrafficPolicy: Local

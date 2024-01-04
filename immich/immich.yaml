@@ -164,7 +164,6 @@ metadata:
   name: immich
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: immich-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.210
 spec:
   externalTrafficPolicy: Local

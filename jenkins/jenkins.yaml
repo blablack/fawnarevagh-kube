@@ -100,7 +100,6 @@ metadata:
   name: jenkins
   annotations:
     metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: jenkins-svc
     metallb.universe.tf/loadBalancerIPs: 192.168.2.213
 spec:
   externalTrafficPolicy: Local
