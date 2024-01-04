@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homer
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: homer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: homer
+        part-of: homer
+    spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - homer
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+        - name: homer-pvc
+          persistentVolumeClaim:
+            claimName: homer-pvc
+      containers:
+        - image: b4bz/homer:latest
+          imagePullPolicy: Always
+          name: homer
+          volumeMounts:
+            - mountPath: "/www/assets"
+              subPath: "homer"
+              name: homer-pvc
+      initContainers:
+        - image: alpine:latest
+          imagePullPolicy: Always
+          name: init-assets-folder
+          command: ["chown"]
+          args: ["1000:1000", "/www/assets"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/www/assets"
+              subPath: "homer"
+              name: homer-pvc
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homer
+  annotations:
+    metallb.universe.tf/address-pool: default
+    metallb.universe.tf/allow-shared-ip: homer-shared-ip
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
+spec:
+  externalTrafficPolicy: Cluster
+  selector:
+    app: homer
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
