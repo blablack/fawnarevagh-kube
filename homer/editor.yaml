@@ -60,7 +60,7 @@ metadata:
   annotations:
     metallb.universe.tf/address-pool: default
     metallb.universe.tf/allow-shared-ip: homer-shared-ip
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.216
+    metallb.universe.tf/loadBalancerIPs: 192.168.2.218
 spec:
   externalTrafficPolicy: Cluster
   selector:
