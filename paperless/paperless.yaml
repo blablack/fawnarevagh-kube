@@ -86,6 +86,13 @@ spec:
               value: "1000"
             - name: PAPERLESS_PORT
               value: "8000"
+            - name: PAPERLESS_ADMIN_USER
+              value: "blablack"
+            - name: PAPERLESS_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: paperless-password
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
