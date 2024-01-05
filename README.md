@@ -3,11 +3,13 @@
 The Kubernetes (k3s) cluster creation and deployments for my home cloud at Fawnarevagh!
 
 ## Nodes
+
 Nodes are running Ubuntu Server.
 
 ## Ansible
 
 Ansible is used to setup the two nodes:
+
 ```bash
 cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
@@ -21,6 +23,7 @@ ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
+kubectl create secret generic paperless-password --from-literal password=PAPERLESSPASSWORD
 ```
 
 ### Deployments
@@ -33,7 +36,7 @@ The kubeconfig file can be found in `/etc/rancher/k3s/k3s.yaml`
 
 ## Debug
 
-Ubuntu and Podman pods can be created to debug from inside the cluster.
+Ubuntu pod can be created to debug from inside the cluster.
 
 For example:
 
