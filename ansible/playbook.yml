@@ -290,6 +290,19 @@
         dest: /etc/rancher/k3s/
 
 
+- name: Setup cronjob
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Create a clean k3s job
+      ansible.builtin.cron:
+        name: "clean k3s"
+        minute: "0"
+        hour: "2"
+        job: "k3s crictl rmi --prune"
+
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
