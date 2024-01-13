@@ -295,13 +295,16 @@
   become: true
 
   tasks:
+    - name: Install crontab
+      ansible.builtin.apt:
+        name: cron
     - name: Create a clean k3s job
       ansible.builtin.cron:
         name: "clean k3s"
         minute: "0"
         hour: "2"
         job: "k3s crictl rmi --prune"
-
+        
 
 - name: Restart k3s on Nucio
   hosts: nucio
