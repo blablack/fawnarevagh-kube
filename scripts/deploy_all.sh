@@ -30,9 +30,6 @@ kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-yvonne.yaml
 kubectl apply -f $SCRIPT_DIR/../immich/immich-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../immich/immich.yaml
 
-kubectl apply -f $SCRIPT_DIR/../heimdall/heimdall-pvc.yaml
-kubectl apply -f $SCRIPT_DIR/../heimdall/heimdall.yaml
-
 kubectl apply -f $SCRIPT_DIR/../homer/homer-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../homer/homer.yaml
 
