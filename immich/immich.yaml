@@ -56,7 +56,7 @@ spec:
         - image: redis:latest
           imagePullPolicy: IfNotPresent
           name: redis
-        - image: ghcr.io/immich-app/immich-server:v1.93.3
+        - image: ghcr.io/immich-app/immich-server:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-server
           command: ["./start-server.sh"]
@@ -96,7 +96,7 @@ spec:
             - mountPath: "/usr/src/app/upload"
               subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
-        - image: ghcr.io/immich-app/immich-server:v1.93.3
+        - image: ghcr.io/immich-app/immich-server:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-microservices
           command: ["./start-microservices.sh"]
@@ -124,7 +124,7 @@ spec:
             - mountPath: "/usr/src/app/upload"
               subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
-        - image: ghcr.io/immich-app/immich-machine-learning:v1.93.3
+        - image: ghcr.io/immich-app/immich-machine-learning:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-machine-learning
           env:
