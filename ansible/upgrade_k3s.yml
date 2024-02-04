@@ -1,0 +1,69 @@
+- name: Stop k3s on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Stop master
+      ansible.builtin.service:
+        name: k3s
+        state: stopped
+
+
+- name: Stop k3s on Bedio
+  hosts: bedio
+  become: true
+
+  tasks:
+    - name: Stop agent
+      ansible.builtin.service:
+        name: k3s-agent
+        state: stopped
+
+- name: Install k3s on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Install
+      ansible.builtin.shell:
+        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
+
+    - name: Get token
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      register: master_node_token
+
+    - name: Debug token
+      ansible.builtin.debug:
+        msg: Token {{ master_node_token['content'] | b64decode | trim }}
+
+
+- name: Install k3s on Bedio
+  hosts: bedio
+  become: true
+
+  tasks:
+    - name: Install
+      ansible.builtin.shell:
+        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" K3S_TOKEN={{hostvars['192.168.2.2'].master_node_token.content | b64decode | trim}} sh -s
+
+- name: Restart k3s on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Restart master
+      ansible.builtin.service:
+        name: k3s
+        state: started
+
+
+- name: Restart k3s on Bedio
+  hosts: bedio
+  become: true
+
+  tasks:
+    - name: Restart agent
+      ansible.builtin.service:
+        name: k3s-agent
+        state: started
