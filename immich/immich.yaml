@@ -53,9 +53,23 @@ spec:
             - name: immich-postgres-vol
               subPath: "create-extensions.sql"
               mountPath: "/docker-entrypoint-initdb.d/create-extensions.sql"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: redis:latest
           imagePullPolicy: IfNotPresent
           name: redis
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: ghcr.io/immich-app/immich-server:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-server
@@ -96,6 +110,13 @@ spec:
             - mountPath: "/usr/src/app/upload"
               subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
+          resources:
+            limits:
+              cpu: 400m
+              memory: 400Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: ghcr.io/immich-app/immich-server:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-microservices
@@ -124,6 +145,13 @@ spec:
             - mountPath: "/usr/src/app/upload"
               subPath: "Our Pictures - Immich"
               name: nasio-nfs-pvc
+          resources:
+            limits:
+              cpu: 400m
+              memory: 400Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: ghcr.io/immich-app/immich-machine-learning:v1.94.1
           imagePullPolicy: IfNotPresent
           name: immich-machine-learning
@@ -153,6 +181,13 @@ spec:
             - mountPath: "/cache"
               subPath: "ml-cache"
               name: immich-pvc
+          resources:
+            limits:
+              cpu: 400m
+              memory: 400Mi
+            requests:
+              cpu: 200m
+              memory: 200Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

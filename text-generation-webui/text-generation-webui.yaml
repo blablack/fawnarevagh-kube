@@ -48,6 +48,49 @@ spec:
             - mountPath: "/home/app/text-generation-webui/training"
               subPath: "training"
               name: text-generation-webui-pvc
+          resources:
+            limits:
+              cpu: 3
+              memory: 8Gi
+            requests:
+              cpu: 1
+              memory: 1Gi
+      initContainers:
+        - image: nucio.nowhere:30038/text-generation-webui-init:latest
+          imagePullPolicy: Always
+          name: text-generation-webui-init
+          volumeMounts:
+            - mountPath: "/home/app/text-generation-webui/models"
+              subPath: "models"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/characters"
+              subPath: "characters"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/extensions"
+              subPath: "extensions"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/loras"
+              subPath: "loras"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/presets"
+              subPath: "presets"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/prompts"
+              subPath: "prompts"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/softprompts"
+              subPath: "softprompts"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/training"
+              subPath: "training"
+              name: text-generation-webui-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
