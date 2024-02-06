@@ -34,6 +34,13 @@ spec:
             - name: dnsmasq-pvc
               subPath: "dnsmasq.leases"
               mountPath: "/var/lib/misc/dnsmasq.leases"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       volumes:
         - name: dnsmasq-pvc
           persistentVolumeClaim:
