@@ -27,6 +27,13 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: home-assistant-pvc
+          resources:
+            limits:
+              cpu: 400m
+              memory: 400Mi
+            requests:
+              cpu: 200m
+              memory: 200Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
