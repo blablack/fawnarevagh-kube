@@ -83,6 +83,13 @@ spec:
             - containerPort: 32414
               name: gdm-32414
               protocol: UDP
+          resources:
+            limits:
+              cpu: 2
+              memory: 5000Mi
+            requests:
+              cpu: 1
+              memory: 200Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
