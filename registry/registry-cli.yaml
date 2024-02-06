@@ -20,6 +20,13 @@ spec:
           command: ["/bin/sleep", "3650d"]
           securityContext:
             privileged: true
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
