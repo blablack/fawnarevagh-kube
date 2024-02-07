@@ -19,6 +19,15 @@ spec:
         - name: text-generation-webui-pvc
           persistentVolumeClaim:
             claimName: text-generation-webui-pvc
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - bedio
       containers:
         - image: nucio.nowhere:30038/text-generation-webui:latest
           imagePullPolicy: Always
@@ -50,10 +59,10 @@ spec:
               name: text-generation-webui-pvc
           resources:
             limits:
-              cpu: 3
-              memory: 8Gi
+              cpu: 3000m
+              memory: 12Gi
             requests:
-              cpu: 1
+              cpu: 500m
               memory: 1Gi
       initContainers:
         - image: nucio.nowhere:30038/text-generation-webui-init:latest
