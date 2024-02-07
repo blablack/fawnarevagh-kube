@@ -38,6 +38,13 @@ spec:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql"
               name: paperless-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: docker.io/library/redis:7
           imagePullPolicy: IfNotPresent
           name: redis
@@ -45,6 +52,13 @@ spec:
             - mountPath: "/data"
               subPath: "redis"
               name: paperless-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: paperlessngx/paperless-ngx:latest
           imagePullPolicy: Always
           name: paperless
@@ -93,6 +107,13 @@ spec:
                 secretKeyRef:
                   key: password
                   name: paperless-password
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

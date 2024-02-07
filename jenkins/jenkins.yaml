@@ -89,6 +89,13 @@ spec:
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
+          resources:
+            limits:
+              cpu: 2
+              memory: 2Gi
+            requests:
+              cpu: 1
+              memory: 750Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
