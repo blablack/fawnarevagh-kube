@@ -124,10 +124,10 @@ spec:
               mountPath: "/etc/dnsmasq.d"
           resources:
             limits:
-              cpu: 500m
-              memory: 500Mi
-            requests:
               cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
               memory: 100Mi
         - image: mvance/unbound:latest
           imagePullPolicy: Always
@@ -140,11 +140,11 @@ spec:
               name: pihole-pvc
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 40m
+              memory: 150Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 50Mi
       volumes:
         - name: pihole-pvc
           persistentVolumeClaim:

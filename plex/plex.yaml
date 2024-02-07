@@ -85,10 +85,10 @@ spec:
               protocol: UDP
           resources:
             limits:
-              cpu: 2
-              memory: 5000Mi
+              cpu: 1200m
+              memory: 1200Mi
             requests:
-              cpu: 1
+              cpu: 100m
               memory: 200Mi
       dnsPolicy: "None"
       dnsConfig:

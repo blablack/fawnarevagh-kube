@@ -120,11 +120,11 @@ spec:
                 - NET_ADMIN
           resources:
             limits:
-              cpu: 500m
-              memory: 500Mi
-            requests:
               cpu: 100m
-              memory: 100Mi
+              memory: 150Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -139,11 +139,11 @@ spec:
               name: confmap-vol
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 20m
+              memory: 20Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 10Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
