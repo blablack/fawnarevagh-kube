@@ -98,14 +98,18 @@ spec:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 15
+            initialDelaySeconds: 45
+            periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           env:
             - name: PUID
               value: "1026"
@@ -117,8 +121,8 @@ spec:
               value: "8112"
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 300m
+              memory: 300Mi
             requests:
               cpu: 100m
               memory: 100Mi
@@ -154,11 +158,11 @@ spec:
             periodSeconds: 5
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 20m
+              memory: 20Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 10Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always

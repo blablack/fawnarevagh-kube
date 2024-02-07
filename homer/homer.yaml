@@ -59,11 +59,11 @@ spec:
               name: homer-pvc
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 20m
+              memory: 20Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 10Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

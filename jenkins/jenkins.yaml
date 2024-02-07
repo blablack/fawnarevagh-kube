@@ -85,17 +85,17 @@ spec:
             httpGet:
               path: "/login"
               port: 8080
-            initialDelaySeconds: 60
+            initialDelaySeconds: 90
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 3
+            failureThreshold: 5
           resources:
             limits:
-              cpu: 2
-              memory: 2Gi
+              cpu: 700m
+              memory: 2500Mi
             requests:
-              cpu: 1
-              memory: 750Mi
+              cpu: 100m
+              memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

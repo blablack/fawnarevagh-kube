@@ -40,11 +40,11 @@ spec:
               name: paperless-pvc
           resources:
             limits:
-              cpu: 500m
-              memory: 500Mi
-            requests:
               cpu: 100m
-              memory: 100Mi
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
         - image: docker.io/library/redis:7
           imagePullPolicy: IfNotPresent
           name: redis
@@ -54,11 +54,11 @@ spec:
               name: paperless-pvc
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 20m
+              memory: 20Mi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 10m
+              memory: 10Mi
         - image: paperlessngx/paperless-ngx:latest
           imagePullPolicy: Always
           name: paperless
@@ -79,6 +79,16 @@ spec:
             - containerPort: 8000
               name: paperless-tcp
               protocol: TCP
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -fs -S --max-time 2 http://localhost:8000"
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
           livenessProbe:
             exec:
               command:
@@ -112,7 +122,7 @@ spec:
               cpu: 500m
               memory: 750Mi
             requests:
-              cpu: 200m
+              cpu: 20m
               memory: 200Mi
       dnsPolicy: "None"
       dnsConfig:

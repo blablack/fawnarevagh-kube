@@ -48,11 +48,11 @@ spec:
               protocol: UDP
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
-            requests:
-              cpu: 100m
+              cpu: 50m
               memory: 100Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

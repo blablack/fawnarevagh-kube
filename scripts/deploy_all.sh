@@ -13,11 +13,13 @@ kubectl apply -f $SCRIPT_DIR/../persistent-volumes/longhorn.yaml
 
 kubectl apply -f $SCRIPT_DIR/../registry/registry-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
+kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
 
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq.yaml
+kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-ui.yaml
 
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins.yaml
