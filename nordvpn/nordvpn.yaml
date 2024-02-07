@@ -118,6 +118,13 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -130,6 +137,13 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
@@ -140,6 +154,13 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

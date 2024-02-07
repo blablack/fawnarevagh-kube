@@ -100,6 +100,13 @@ spec:
               port: 9696
             initialDelaySeconds: 10
             timeoutSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -112,6 +119,31 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
+          readinessProbe:
+            exec:
+              command:
+                - ping
+                - -c
+                - "1"
+                - 172.16.0.1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          livenessProbe:
+            exec:
+              command:
+                - ping
+                - -c
+                - "1"
+                - 172.16.0.1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
@@ -127,6 +159,13 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: confmap-vol
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
