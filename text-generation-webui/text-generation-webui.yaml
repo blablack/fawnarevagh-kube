@@ -59,7 +59,7 @@ spec:
               name: text-generation-webui-pvc
           resources:
             limits:
-              cpu: 3000m
+              cpu: 2000m
               memory: 12Gi
             requests:
               cpu: 500m
