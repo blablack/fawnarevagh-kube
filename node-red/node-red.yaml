@@ -20,7 +20,7 @@ spec:
           persistentVolumeClaim:
             claimName: node-red-pvc
       containers:
-        - image: nodered/node-red
+        - image: nodered/node-red:latest
           imagePullPolicy: Always
           name: node-red
           volumeMounts:
@@ -31,6 +31,31 @@ spec:
               value: "true"
             - name: TZ
               value: "Europe/Dublin"
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+      initContainers:
+        - image: alpine:latest
+          imagePullPolicy: Always
+          name: init-assets-folder
+          command: ["chmod"]
+          args: ["777", "/data"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/data"
+              name: node-red-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
