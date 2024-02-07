@@ -122,6 +122,13 @@ spec:
             - name: pihole-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
         - image: mvance/unbound:latest
           imagePullPolicy: Always
           name: unbound
@@ -131,6 +138,13 @@ spec:
             - mountPath: "/opt/unbound/etc/unbound/"
               subPath: "unbound"
               name: pihole-pvc
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
       volumes:
         - name: pihole-pvc
           persistentVolumeClaim:
