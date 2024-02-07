@@ -8,4 +8,4 @@ spec:
   storageClassName: my-longhorn
   resources:
     requests:
-      storage: 15Gi
+      storage: 10Gi
