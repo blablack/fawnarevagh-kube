@@ -40,8 +40,8 @@ spec:
               name: paperless-pvc
           resources:
             limits:
-              cpu: 200m
-              memory: 200Mi
+              cpu: 500m
+              memory: 500Mi
             requests:
               cpu: 100m
               memory: 100Mi
@@ -109,11 +109,11 @@ spec:
                   name: paperless-password
           resources:
             limits:
+              cpu: 500m
+              memory: 750Mi
+            requests:
               cpu: 200m
               memory: 200Mi
-            requests:
-              cpu: 100m
-              memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
