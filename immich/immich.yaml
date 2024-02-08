@@ -112,7 +112,7 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 200m
+              cpu: 300m
               memory: 400Mi
             requests:
               cpu: 10m
@@ -147,7 +147,7 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 100m
+              cpu: 300m
               memory: 400Mi
             requests:
               cpu: 100m
