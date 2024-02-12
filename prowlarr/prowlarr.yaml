@@ -92,21 +92,25 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 15
+            initialDelaySeconds: 90
+            periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             limits:
               cpu: 200m
-              memory: 150Mi
+              memory: 250Mi
             requests:
-              cpu: 10m
-              memory: 10Mi
+              cpu: 50m
+              memory: 50Mi
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
           name: pod-gateway
@@ -126,8 +130,10 @@ spec:
                 - -c
                 - "1"
                 - 172.16.0.1
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             exec:
               command:
@@ -135,8 +141,10 @@ spec:
                 - -c
                 - "1"
                 - 172.16.0.1
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             limits:
               cpu: 20m
