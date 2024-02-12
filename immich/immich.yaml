@@ -56,7 +56,7 @@ spec:
           resources:
             limits:
               cpu: 100m
-              memory: 200Mi
+              memory: 300Mi
             requests:
               cpu: 10m
               memory: 50Mi
@@ -165,7 +165,7 @@ spec:
             httpGet:
               path: /ping
               port: http
-            initialDelaySeconds: 0
+            initialDelaySeconds: 90
             periodSeconds: 10
             timeoutSeconds: 1
             failureThreshold: 3
@@ -173,7 +173,7 @@ spec:
             httpGet:
               path: /ping
               port: http
-            initialDelaySeconds: 0
+            initialDelaySeconds: 90
             periodSeconds: 10
             timeoutSeconds: 1
             failureThreshold: 3
