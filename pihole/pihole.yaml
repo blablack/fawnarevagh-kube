@@ -124,8 +124,8 @@ spec:
               mountPath: "/etc/dnsmasq.d"
           resources:
             limits:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 200m
+              memory: 400Mi
             requests:
               cpu: 10m
               memory: 100Mi
