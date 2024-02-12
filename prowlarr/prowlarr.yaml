@@ -129,6 +129,8 @@ spec:
                 - ping
                 - -c
                 - "1"
+                - "-W"
+                - "2"
                 - 172.16.0.1
             initialDelaySeconds: 90
             periodSeconds: 10
@@ -140,6 +142,8 @@ spec:
                 - ping
                 - -c
                 - "1"
+                - "-W"
+                - "2"
                 - 172.16.0.1
             initialDelaySeconds: 90
             periodSeconds: 10

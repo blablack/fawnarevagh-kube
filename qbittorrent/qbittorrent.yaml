@@ -144,18 +144,26 @@ spec:
                 - ping
                 - -c
                 - "1"
+                - "-W"
+                - "2"
                 - 172.16.0.1
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             exec:
               command:
                 - ping
                 - -c
                 - "1"
+                - "-W"
+                - "2"
                 - 172.16.0.1
-            initialDelaySeconds: 10
-            periodSeconds: 5
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           resources:
             limits:
               cpu: 20m

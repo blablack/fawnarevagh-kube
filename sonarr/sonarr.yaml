@@ -40,10 +40,10 @@ spec:
               value: "EU/Dublin"
           resources:
             limits:
-              cpu: 50m
-              memory: 200Mi
+              cpu: 100m
+              memory: 250Mi
             requests:
-              cpu: 10m
+              cpu: 20m
               memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
