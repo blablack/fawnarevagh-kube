@@ -51,10 +51,10 @@ spec:
           resources:
             limits:
               cpu: 3000m
-              memory: 8Gi
+              memory: 12Gi
             requests:
-              cpu: 100m
-              memory: 100Mi
+              cpu: 200m
+              memory: 2000Mi
       initContainers:
         - image: nucio.nowhere:30038/text-generation-webui-init:latest
           imagePullPolicy: Always
@@ -83,6 +83,9 @@ spec:
               name: text-generation-webui-pvc
             - mountPath: "/home/app/text-generation-webui/training"
               subPath: "training"
+              name: text-generation-webui-pvc
+            - mountPath: "/home/app/text-generation-webui/logs"
+              subPath: "logs"
               name: text-generation-webui-pvc
           resources:
             limits:
