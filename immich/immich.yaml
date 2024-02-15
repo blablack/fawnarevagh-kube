@@ -55,7 +55,7 @@ spec:
               mountPath: "/docker-entrypoint-initdb.d/create-extensions.sql"
           resources:
             limits:
-              cpu: 100m
+              cpu: 200m
               memory: 300Mi
             requests:
               cpu: 10m
@@ -92,7 +92,7 @@ spec:
               port: http
             initialDelaySeconds: 90
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 5
           readinessProbe:
             httpGet:
@@ -100,7 +100,7 @@ spec:
               port: http
             initialDelaySeconds: 90
             periodSeconds: 10
-            timeoutSeconds: 5
+            timeoutSeconds: 10
             failureThreshold: 5
           volumeMounts:
             - mountPath: "/photos"
@@ -112,8 +112,8 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 300m
-              memory: 400Mi
+              cpu: 500m
+              memory: 500Mi
             requests:
               cpu: 10m
               memory: 100Mi
@@ -147,10 +147,10 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 300m
-              memory: 400Mi
+              cpu: 400m
+              memory: 300Mi
             requests:
-              cpu: 100m
+              cpu: 10m
               memory: 100Mi
         - image: ghcr.io/immich-app/immich-machine-learning:v1.94.1
           imagePullPolicy: IfNotPresent
@@ -167,27 +167,27 @@ spec:
               port: http
             initialDelaySeconds: 90
             periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 3
+            timeoutSeconds: 10
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /ping
               port: http
             initialDelaySeconds: 90
             periodSeconds: 10
-            timeoutSeconds: 1
-            failureThreshold: 3
+            timeoutSeconds: 10
+            failureThreshold: 5
           volumeMounts:
             - mountPath: "/cache"
               subPath: "ml-cache"
               name: immich-pvc
           resources:
             limits:
-              cpu: 400m
-              memory: 400Mi
+              cpu: 600m
+              memory: 1500Mi
             requests:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 10m
+              memory: 1000Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
