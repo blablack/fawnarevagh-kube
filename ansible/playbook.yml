@@ -57,6 +57,23 @@
         dest: /etc/hosts
         line: 192.168.2.3 bedio.nowhere
 
+- name: Setup network for Bedio
+  hosts: bedio
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        pkg:
+          - ethtool
+    - name: Copy config
+      ansible.builtin.copy:
+        src: bedio/10-disable-offloading
+        dest: /etc/networkd-dispatcher/routable.d
+    - name: Changing perm of config, adding "+x"
+      file: dest=/etc/networkd-dispatcher/routable.d/10-disable-offloading mode=a+x
+    
+
 - name: Install basic packages
   hosts: all
   become: true
