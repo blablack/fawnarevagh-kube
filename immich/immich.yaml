@@ -25,6 +25,15 @@ spec:
       labels:
         app: immich
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - bedio
       volumes:
         - name: immich-pvc
           persistentVolumeClaim:
@@ -108,7 +117,7 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "Our Pictures - Immich"
+              subPath: "Kubernetes/Our Pictures - Immich"
               name: nasio-nfs-pvc
           resources:
             limits:
@@ -143,7 +152,7 @@ spec:
               name: nasio-nfs-pvc
               readOnly: true
             - mountPath: "/usr/src/app/upload"
-              subPath: "Our Pictures - Immich"
+              subPath: "Kubernetes/Our Pictures - Immich"
               name: nasio-nfs-pvc
           resources:
             limits:
