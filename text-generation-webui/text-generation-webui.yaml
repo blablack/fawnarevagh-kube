@@ -15,18 +15,30 @@ spec:
       labels:
         app: text-generation-webui
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - nucio
       volumes:
         - name: text-generation-webui-pvc
           persistentVolumeClaim:
             claimName: text-generation-webui-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
       containers:
         - image: nucio.nowhere:30038/text-generation-webui:latest
           imagePullPolicy: Always
           name: text-generation-webui
           volumeMounts:
             - mountPath: "/home/app/text-generation-webui/models"
-              subPath: "models"
-              name: text-generation-webui-pvc
+              subPath: "Kubernetes/LLMs/models"
+              name: nasio-nfs-pvc
             - mountPath: "/home/app/text-generation-webui/characters"
               subPath: "characters"
               name: text-generation-webui-pvc
@@ -51,7 +63,7 @@ spec:
           resources:
             limits:
               cpu: 3000m
-              memory: 12Gi
+              memory: 7Gi
             requests:
               cpu: 200m
               memory: 2000Mi
@@ -61,8 +73,8 @@ spec:
           name: text-generation-webui-init
           volumeMounts:
             - mountPath: "/home/app/text-generation-webui/models"
-              subPath: "models"
-              name: text-generation-webui-pvc
+              subPath: "Kubernetes/LLMs/models"
+              name: nasio-nfs-pvc
             - mountPath: "/home/app/text-generation-webui/characters"
               subPath: "characters"
               name: text-generation-webui-pvc
