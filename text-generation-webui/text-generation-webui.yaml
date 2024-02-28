@@ -15,15 +15,6 @@ spec:
       labels:
         app: text-generation-webui
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - nucio
       volumes:
         - name: text-generation-webui-pvc
           persistentVolumeClaim:
@@ -63,7 +54,7 @@ spec:
           resources:
             limits:
               cpu: 3000m
-              memory: 7Gi
+              memory: 24Gi
             requests:
               cpu: 200m
               memory: 2000Mi

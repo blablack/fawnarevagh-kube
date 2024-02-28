@@ -25,15 +25,6 @@ spec:
       labels:
         app: immich
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - bedio
       volumes:
         - name: immich-pvc
           persistentVolumeClaim:
@@ -79,7 +70,7 @@ spec:
             requests:
               cpu: 10m
               memory: 10Mi
-        - image: ghcr.io/immich-app/immich-server:v1.95.1
+        - image: ghcr.io/immich-app/immich-server:v1.96.0
           imagePullPolicy: IfNotPresent
           name: immich-server
           command: ["./start-server.sh"]
@@ -126,7 +117,7 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: ghcr.io/immich-app/immich-server:v1.95.1
+        - image: ghcr.io/immich-app/immich-server:v1.96.0
           imagePullPolicy: IfNotPresent
           name: immich-microservices
           command: ["./start-microservices.sh"]
@@ -161,7 +152,7 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: ghcr.io/immich-app/immich-machine-learning:v1.95.1
+        - image: ghcr.io/immich-app/immich-machine-learning:v1.96.0
           imagePullPolicy: IfNotPresent
           name: immich-machine-learning
           env:
