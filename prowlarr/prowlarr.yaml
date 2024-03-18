@@ -151,11 +151,11 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 20m
-              memory: 20Mi
+              cpu: 200m
+              memory: 250Mi
             requests:
-              cpu: 10m
-              memory: 10Mi
+              cpu: 50m
+              memory: 100Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
