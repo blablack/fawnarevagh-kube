@@ -5,8 +5,9 @@ metadata:
   name: picsync-legacy
 spec:
   schedule: "0 0 15 * *"
-  successfulJobsHistoryLimit: 0
+  successfulJobsHistoryLimit: 1
   failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
   jobTemplate:
     spec:
       backoffLimit: 1
