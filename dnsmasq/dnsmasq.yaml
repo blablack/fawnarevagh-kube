@@ -6,7 +6,7 @@ data:
   dnsmasq.conf: |
     # Set the interface on which dnsmasq operates.
     # If not set, all the interfaces is used.
-    interface=eno1
+    # interface=eno1
 
     # To disable dnsmasq's DNS server functionality.
     #port=0
@@ -116,7 +116,7 @@ spec:
         - configMap:
             name: dnsmasq
           name: confmap-vol
-      dnsPolicy: "ClusterFirstWithHostNet"
+      dnsPolicy: "None"
       dnsConfig:
         nameservers:
           - 10.43.0.22
