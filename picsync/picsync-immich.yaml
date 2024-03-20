@@ -45,7 +45,7 @@ spec:
               name: picsync
               volumeMounts:
                 - mountPath: "/source"
-                  subPath: "Kubernets/Our Pictures - Immich/library"
+                  subPath: "Kubernetes/Our Pictures - Immich/library"
                   name: nasio-nfs-pvc
               resources:
                 limits:
