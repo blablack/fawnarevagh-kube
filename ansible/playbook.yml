@@ -72,7 +72,6 @@
         dest: /etc/networkd-dispatcher/routable.d
     - name: Changing perm of config, adding "+x"
       file: dest=/etc/networkd-dispatcher/routable.d/10-disable-offloading mode=a+x
-    
 
 - name: Install basic packages
   hosts: all
@@ -107,6 +106,15 @@
       ansible.builtin.file:
         state: absent
         path: /etc/update-motd.d/60-unminimize
+
+- name: Setup timezone
+  hosts: all
+  become: true
+
+  tasks:
+    - name: timedatectl
+      ansible.builtin.shell:
+        cmd: timedatectl set-timezone Europe/Dublin
 
 - name: Install nfs-common
   hosts: all
