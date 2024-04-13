@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: debug-nordvpn
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: debug-nordvpn
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: debug-nordvpn
+    spec:
+      containers:
+        - image: nucio.nowhere:30038/nordvpn:latest
+          imagePullPolicy: IfNotPresent
+          name: debug-nordvpn
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "Ireland"
+            - name: NETWORK
+              value: "192.168.2.0/24;172.16.0.0/24"
+            - name: DNS
+              value: "1.1.1.1"
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            limits:
+              cpu: 100m
+              memory: 150Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
