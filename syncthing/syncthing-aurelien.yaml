@@ -36,6 +36,22 @@ spec:
               value: "1026"
             - name: PGID
               value: "100"
+          readinessProbe:
+            httpGet:
+              path: /rest/noauth/health
+              port: 8384
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /rest/noauth/health
+              port: 8384
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           ports:
             - containerPort: 8384
               name: web-ui
@@ -48,10 +64,10 @@ spec:
               protocol: UDP
           resources:
             limits:
-              cpu: 50m
-              memory: 100Mi
+              cpu: 200m
+              memory: 750Mi
             requests:
-              cpu: 10m
+              cpu: 50m
               memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
