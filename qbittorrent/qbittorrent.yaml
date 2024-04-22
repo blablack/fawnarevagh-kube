@@ -167,10 +167,10 @@ spec:
           resources:
             limits:
               cpu: 200m
-              memory: 250Mi
+              memory: 400Mi
             requests:
               cpu: 50m
-              memory: 100Mi
+              memory: 200Mi
       initContainers:
         - image: nucio.nowhere:30038/pod-gateway:latest
           imagePullPolicy: Always
