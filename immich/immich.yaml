@@ -72,11 +72,13 @@ spec:
             requests:
               cpu: 10m
               memory: 10Mi
-        - image: ghcr.io/immich-app/immich-server:v1.102.3
-          imagePullPolicy: IfNotPresent
+        - image: ghcr.io/immich-app/immich-server:release
+          imagePullPolicy: Always
           name: immich-server
           command: ["./start-server.sh"]
           env:
+            - name: DB_HOSTNAME
+              value: "localhost"
             - name: DB_USERNAME
               value: "immich"
             - name: DB_PASSWORD
@@ -92,7 +94,7 @@ spec:
             httpGet:
               path: /server-info/ping
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
@@ -100,7 +102,7 @@ spec:
             httpGet:
               path: /server-info/ping
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
@@ -119,11 +121,13 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: ghcr.io/immich-app/immich-server:v1.102.3
-          imagePullPolicy: IfNotPresent
+        - image: ghcr.io/immich-app/immich-server:release
+          imagePullPolicy: Always
           name: immich-microservices
           command: ["./start-microservices.sh"]
           env:
+            - name: DB_HOSTNAME
+              value: "localhost"
             - name: DB_USERNAME
               value: "immich"
             - name: DB_PASSWORD
@@ -154,8 +158,8 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: ghcr.io/immich-app/immich-machine-learning:v1.102.3
-          imagePullPolicy: IfNotPresent
+        - image: ghcr.io/immich-app/immich-machine-learning:release
+          imagePullPolicy: Always
           name: immich-machine-learning
           env:
             - name: TRANSFORMERS_CACHE
@@ -167,7 +171,7 @@ spec:
             httpGet:
               path: /ping
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
@@ -175,7 +179,7 @@ spec:
             httpGet:
               path: /ping
               port: http
-            initialDelaySeconds: 90
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
