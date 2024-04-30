@@ -56,6 +56,7 @@ kubectl apply -f $SCRIPT_DIR/../qbittorrent/qbittorrent-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../qbittorrent/qbittorrent.yaml
 kubectl apply -f $SCRIPT_DIR/../prowlarr/prowlarr-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../prowlarr/prowlarr.yaml
+kubectl apply -f $SCRIPT_DIR/../flaresolverr/flaresolverr.yaml
 
 kubectl apply -f $SCRIPT_DIR/../picsync/picsync-immich.yaml
 kubectl apply -f $SCRIPT_DIR/../picsync/picsync-legacy.yaml
