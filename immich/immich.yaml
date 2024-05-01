@@ -153,8 +153,8 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 400m
-              memory: 500Mi
+              cpu: 1500m
+              memory: 1700Mi
             requests:
               cpu: 10m
               memory: 100Mi
@@ -189,7 +189,7 @@ spec:
               name: immich-pvc
           resources:
             limits:
-              cpu: 600m
+              cpu: 1500m
               memory: 1500Mi
             requests:
               cpu: 10m
