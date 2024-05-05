@@ -57,7 +57,7 @@ spec:
               mountPath: "/docker-entrypoint-initdb.d/create-extensions.sql"
           resources:
             limits:
-              cpu: 200m
+              cpu: 500m
               memory: 300Mi
             requests:
               cpu: 10m
