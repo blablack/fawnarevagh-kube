@@ -15,6 +15,15 @@ spec:
       labels:
         app: text-generation-webui
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "nucio"
       volumes:
         - name: text-generation-webui-pvc
           persistentVolumeClaim:
