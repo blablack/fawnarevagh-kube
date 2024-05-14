@@ -63,3 +63,6 @@ kubectl apply -f $SCRIPT_DIR/../picsync/picsync-legacy.yaml
 
 kubectl apply -f $SCRIPT_DIR/../text-generation-webui/text-generation-webui-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../text-generation-webui/text-generation-webui.yaml
+
+kubectl apply -f $SCRIPT_DIR/../localai/localai-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../localai/localai.yaml
