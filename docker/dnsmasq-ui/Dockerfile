@@ -1,6 +1,9 @@
-FROM python:3.11.7-alpine
+FROM python:alpine
+
+ENV TZ=Europe/London
 
 RUN apk add --update --no-cache build-base
+RUN apk add --no-cache tzdata
 
 WORKDIR /app
 COPY ./requirements.txt ./
