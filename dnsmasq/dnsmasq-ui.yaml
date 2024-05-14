@@ -30,6 +30,9 @@ spec:
         - name: dnsmasq-ui
           image: nucio.nowhere:30038/dnsmasq-ui:latest
           imagePullPolicy: Always
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
           volumeMounts:
             - name: dnsmasq-pvc
               subPath: "dnsmasq.leases"

@@ -92,6 +92,9 @@ spec:
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
           ports:
             - containerPort: 53
               name: dns-udp
