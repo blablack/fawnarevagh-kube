@@ -36,7 +36,7 @@ spec:
               value: "paperless"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
-              subPath: "postgresql"
+              subPath: "postgresql_16"
               name: paperless-pvc
           resources:
             limits:
