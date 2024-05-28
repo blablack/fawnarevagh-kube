@@ -19,9 +19,6 @@ spec:
         - name: paperless-pvc
           persistentVolumeClaim:
             claimName: paperless-pvc
-        - name: nasio-nfs-pvc
-          persistentVolumeClaim:
-            claimName: nasio-nfs-pvc
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       containers:
         - image: docker.io/library/postgres:16
@@ -120,7 +117,7 @@ spec:
           resources:
             limits:
               cpu: 600m
-              memory: 1000Mi
+              memory: 2000Mi
             requests:
               cpu: 20m
               memory: 200Mi
