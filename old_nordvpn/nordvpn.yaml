@@ -1,0 +1,181 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nordvpn
+data:
+  settings.sh: |
+    #!/bin/bash
+
+    # Vxlan ID to use
+    VXLAN_ID="42"
+    # VXLAN need an /24 IP range not conflicting with K8S and local IP ranges
+    VXLAN_IP_NETWORK="172.16.0"
+    # Keep a range of IPs for static assignment in nat.conf
+    VXLAN_GATEWAY_FIRST_DYNAMIC_IP=20
+
+    # If using a VPN, interface name created by it
+    VPN_INTERFACE=nordlynx
+    # Prevent non VPN traffic to leave the gateway
+    VPN_BLOCK_OTHER_TRAFFIC=false
+    # If VPN_BLOCK_OTHER_TRAFFIC is true, allow VPN traffic over this port
+    VPN_TRAFFIC_PORT=443
+    # Traffic to these IPs will be send through the K8S gateway
+    VPN_LOCAL_CIDRS="10.0.0.0/8 192.168.2.0/24"
+
+    # DNS queries to these domains will be resolved by K8S DNS instead of
+    # the default (typcally the VPN client changes it)
+    DNS_LOCAL_CIDRS="local"
+
+    # dnsmasq monitors directories. /etc/resolv.conf in a container is in another
+    # file system so it does not work. To circumvent this a copy is made using
+    # inotifyd
+    RESOLV_CONF_COPY=/etc/resolv_copy.conf
+
+    # If you use nftables for iptables you need to set this to yes
+    IPTABLES_NFT=no
+
+  nat.conf: |
+    # Configure client PODs with static IP addresses
+    # and ports exposed through NAT
+    # static IPs must be bellow VXLAN_GATEWAY_FIRST_DYNAMIC_IP
+    #
+    # hostname IP ports(coma separated)
+    # Example:
+    # transmission 10 tcp:18289,udp:18289
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nordvpn
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: nordvpn
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: nordvpn
+        part-of: nordvpn
+    spec:
+      volumes:
+        - name: confmap-vol
+          configMap:
+            name: nordvpn
+        - name: nordvpn-pvc
+          persistentVolumeClaim:
+            claimName: nordvpn-pvc
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - nordvpn
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+        - image: nucio.nowhere:30038/nordvpn:latest
+          imagePullPolicy: Always
+          name: nordvpn
+          volumeMounts:
+            - mountPath: "/config"
+              name: nordvpn-pvc
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  ["/bin/sh", "-c", "/wait_for_nordvpn.sh > /usr/share/message"]
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "P2P"
+            - name: NETWORK
+              value: "192.168.2.0/24;172.16.0.0/24"
+            - name: PORTS
+              value: "8112,6881,8080"
+            - name: DNS
+              value: "192.168.2.201"
+            - name: MESHNET
+              value: "True"
+          livenessProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 30
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          resources:
+            limits:
+              cpu: 100m
+              memory: 150Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+        - image: nucio.nowhere:30038/pod-gateway:latest
+          imagePullPolicy: Always
+          name: pod-gateway
+          command: ["/bin/gateway_sidecar.sh"]
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+                - NET_ADMIN
+          volumeMounts:
+            - mountPath: "/config"
+              name: confmap-vol
+          resources:
+            limits:
+              cpu: 20m
+              memory: 20Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+      initContainers:
+        - image: nucio.nowhere:30038/pod-gateway:latest
+          imagePullPolicy: Always
+          name: pod-gateway-init
+          command: ["/bin/gateway_init.sh"]
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: "/config"
+              name: confmap-vol
+          resources:
+            limits:
+              cpu: 200m
+              memory: 200Mi
+            requests:
+              cpu: 100m
+              memory: 100Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nordvpn
+spec:
+  clusterIP: None
+  ports:
+    - port: 4789
+      name: nordvpn-http
+      protocol: UDP
+  selector:
+    app: nordvpn
+  type: ClusterIP
