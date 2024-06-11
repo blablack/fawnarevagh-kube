@@ -49,6 +49,8 @@ spec:
               value: "immich"
             - name: POSTGRES_DB
               value: "immich"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql"
