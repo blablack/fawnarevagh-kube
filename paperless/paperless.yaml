@@ -31,6 +31,8 @@ spec:
               value: "paperless"
             - name: POSTGRES_DB
               value: "paperless"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql_16"
