@@ -119,8 +119,8 @@ spec:
               name: nasio-nfs-pvc
           resources:
             limits:
-              cpu: 500m
-              memory: 500Mi
+              cpu: 1500m
+              memory: 2500Mi
             requests:
               cpu: 10m
               memory: 100Mi
