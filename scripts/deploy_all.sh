@@ -15,6 +15,8 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
+kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin?ref=main'
+
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
 
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-pvc.yaml
@@ -59,6 +61,3 @@ kubectl apply -f $SCRIPT_DIR/../nordvpn/nordvpn.yaml
 
 kubectl apply -f $SCRIPT_DIR/../picsync/picsync-immich.yaml
 kubectl apply -f $SCRIPT_DIR/../picsync/picsync-legacy.yaml
-
-kubectl apply -f $SCRIPT_DIR/../text-generation-webui/text-generation-webui-pvc.yaml
-kubectl apply -f $SCRIPT_DIR/../text-generation-webui/text-generation-webui.yaml
