@@ -85,6 +85,17 @@
           - htop
           - bash-completion
 
+- name: Install nvidia packages
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        pkg:
+          - intel-media-va-driver-non-free 
+          - intel-gpu-tools
+
 - name: Configure login info
   hosts: all
   become: true

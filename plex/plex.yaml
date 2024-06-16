@@ -87,9 +87,11 @@ spec:
             limits:
               cpu: 1200m
               memory: 4000Mi
+              gpu.intel.com/i915: 1000m
             requests:
               cpu: 100m
               memory: 200Mi
+              gpu.intel.com/i915: 1000m
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
