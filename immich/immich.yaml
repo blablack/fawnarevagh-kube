@@ -90,6 +90,8 @@ spec:
               value: "localhost"
             - name: IMMICH_PORT
               value: "3001"
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: "http://localhost:3003"
           ports:
             - containerPort: 3001
               name: http
