@@ -59,11 +59,11 @@ spec:
               mountPath: "/docker-entrypoint-initdb.d/create-extensions.sql"
           resources:
             limits:
-              cpu: 500m
-              memory: 400Mi
+              cpu: 1500m
+              memory: 1000Mi
             requests:
               cpu: 10m
-              memory: 50Mi
+              memory: 300Mi
         - image: redis:latest
           imagePullPolicy: IfNotPresent
           name: redis
