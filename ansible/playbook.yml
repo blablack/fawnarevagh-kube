@@ -11,6 +11,16 @@
       ansible.builtin.shell:
         cmd: rm -rf /etc/netplan/*
 
+- name: Setup APT
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Disable phased updates
+      ansible.builtin.copy:
+        src: all/99-phased-updates
+        dest: /etc/apt/apt.conf.d/
+
 - name: Setup network on Nucio
   hosts: nucio
   become: true
@@ -93,7 +103,7 @@
     - name: Install package
       ansible.builtin.apt:
         pkg:
-          - intel-media-va-driver-non-free 
+          - intel-media-va-driver-non-free
           - intel-gpu-tools
 
 - name: Configure login info
