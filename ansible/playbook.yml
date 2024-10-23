@@ -106,6 +106,20 @@
           - intel-media-va-driver-non-free
           - intel-gpu-tools
 
+- name: Install Cryptsetup
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        pkg:
+          - cryptsetup
+    - name: Load module
+      ansible.builtin.copy:
+        src: all/cryptsetup.conf
+        dest: /etc/modules-load.d
+
 - name: Configure login info
   hosts: all
   become: true
