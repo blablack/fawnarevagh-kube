@@ -361,6 +361,29 @@
         hour: "2"
         job: "k3s crictl rmi --prune"
 
+- name: Setup chattr cleanup
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install crontab
+      ansible.builtin.apt:
+        name: cron
+    - name: Copy chattr.sh
+      ansible.builtin.copy:
+        src: all/chattr.sh
+        dest: /opt/
+    - name: Make chattr.sh executable
+      ansible.builtin.file:
+        path: /opt/chattr.sh
+        mode: "0755"
+    - name: Create a chattr job
+      ansible.builtin.cron:
+        name: "chattr"
+        minute: "15"
+        hour: "0"
+        job: "/opt/chattr.sh"
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
