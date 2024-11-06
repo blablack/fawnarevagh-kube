@@ -22,10 +22,14 @@ spec:
           env:
             - name: TZ
               value: "EU/Dublin"
+            - name: LANG
+              value: "en_GB"
+            - name: BROWSER_TIMEOUT
+              value: "180000"
           resources:
             limits:
-              cpu: 200m
-              memory: 500Mi
+              cpu: 1000m
+              memory: 750Mi
             requests:
               cpu: 50m
               memory: 100Mi
