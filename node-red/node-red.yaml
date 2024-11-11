@@ -15,6 +15,15 @@ spec:
       labels:
         app: node-red
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "nucio"
       volumes:
         - name: node-red-pvc
           persistentVolumeClaim:

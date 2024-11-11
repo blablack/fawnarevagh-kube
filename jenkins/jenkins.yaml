@@ -53,6 +53,15 @@ spec:
       labels:
         app: jenkins
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "nucio"
       volumes:
         - name: jenkins-pvc
           persistentVolumeClaim:
