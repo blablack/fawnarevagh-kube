@@ -16,6 +16,15 @@ spec:
         app: nordvpn
         part-of: nordvpn
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "nucio"
       volumes:
         - name: nordvpn-pvc
           persistentVolumeClaim:

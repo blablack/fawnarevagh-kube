@@ -81,6 +81,14 @@ spec:
                     values:
                       - pihole
               topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - nucio
       containers:
         - name: pihole
           image: pihole/pihole:latest

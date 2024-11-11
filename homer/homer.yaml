@@ -26,6 +26,14 @@ spec:
                     values:
                       - homer
               topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - nucio
       volumes:
         - name: homer-pvc
           persistentVolumeClaim:

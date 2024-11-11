@@ -50,6 +50,15 @@ spec:
       labels:
         app: docker-registry
     spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - "nucio"
       containers:
         - name: docker-registry
           image: registry
