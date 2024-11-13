@@ -17,7 +17,7 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
 (
     # kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin?ref=main'
-    cd $SCRIPT_DIR/intel-gpu-plugin
+    cd $SCRIPT_DIR/../intel-gpu-plugin
     wget -O intel-gpu-plugin.yaml https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/refs/heads/main/deployments/gpu_plugin/base/intel-gpu-plugin.yaml
     sed -i 's/imagePullPolicy: IfNotPresent/imagePullPolicy: Always/g' intel-gpu-plugin.yaml
     kubectl apply -f intel-gpu-plugin.yaml
