@@ -23,7 +23,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "nucio"
+                      - "bedio"
       containers:
         - image: flaresolverr/flaresolverr:latest
           imagePullPolicy: Always

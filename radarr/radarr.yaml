@@ -23,7 +23,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "nucio"
+                      - "bedio"
       volumes:
         - name: radarr-pvc
           persistentVolumeClaim:
