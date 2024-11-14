@@ -53,15 +53,6 @@ spec:
       labels:
         app: jenkins
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - "bedio"
       volumes:
         - name: jenkins-pvc
           persistentVolumeClaim:

@@ -15,15 +15,6 @@ spec:
       labels:
         app: paperless
     spec:
-      affinity:
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - "nucio"
       volumes:
         - name: paperless-pvc
           persistentVolumeClaim:
