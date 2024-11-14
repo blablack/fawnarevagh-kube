@@ -61,7 +61,7 @@ spec:
                   - key: kubernetes.io/hostname
                     operator: In
                     values:
-                      - "nucio"
+                      - "bedio"
       volumes:
         - name: jenkins-pvc
           persistentVolumeClaim:
