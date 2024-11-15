@@ -5,7 +5,9 @@ metadata:
 data:
   server.yml: |
     # Template: https://github.com/binwiederhier/ntfy/blob/main/server/server.yml
-    base-url: https://ntfy.sh
+    base-url: http://192.168.2.220
+    listen: ":80"
+    db: "/var/cache/ntfy/cache.db"
 
 ---
 apiVersion: apps/v1
@@ -36,7 +38,7 @@ spec:
         - name: ntfy
           image: binwiederhier/ntfy:latest
           imagePullPolicy: Always
-          args: ["serve", "--cache-file", "/var/cache/ntfy/cache.db"]
+          args: ["serve"]
           resources:
             limits:
               cpu: 500m
