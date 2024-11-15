@@ -31,7 +31,7 @@ spec:
           persistentVolumeClaim:
             claimName: homer-pvc
       containers:
-        - image: linuxserver/code-server
+        - image: linuxserver/code-server:latest
           imagePullPolicy: Always
           name: homer-editor
           env:
