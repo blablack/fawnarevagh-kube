@@ -19,7 +19,6 @@ spec:
         - name: uptime-kuma-pvc
           persistentVolumeClaim:
             claimName: uptime-kuma-pvc
-      hostNetwork: true
       containers:
         - image: louislam/uptime-kuma:latest
           imagePullPolicy: Always
