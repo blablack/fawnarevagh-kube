@@ -71,11 +71,11 @@ spec:
                 - NET_ADMIN
           resources:
             limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
               cpu: 100m
               memory: 150Mi
-            requests:
-              cpu: 10m
-              memory: 50Mi
         - image: linuxserver/prowlarr:latest
           imagePullPolicy: Always
           name: prowlarr
