@@ -111,13 +111,13 @@ setup_nordvpn() {
 
 	[[ -n ${MESHNET} ]] && nordvpn set meshnet on
 
-	if [[ -n ${MESHNET} && -n ${DNS} ]]; then
-    	nordvpn whitelist add port 53
-		iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
-		iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
-		iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
-		iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
-	fi
+	#if [[ -n ${MESHNET} && -n ${DNS} ]]; then
+    #	nordvpn whitelist add port 53
+	#	iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#fi
 
     nordvpn set technology nordlynx 
 	nordvpn set killswitch on 
