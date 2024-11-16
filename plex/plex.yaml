@@ -44,7 +44,7 @@ spec:
             - name: ADVERTISE_IP
               value: "http://192.168.2.204:32400"
             - name: ALLOWED_NETWORKS
-              value: "192.168.2.0/24,10.42.0.0/24"
+              value: "192.168.2.0/24,10.42.0.0/16"
             - name: HOSTNAME
               value: "nucio.nowhere"
             - name: TZ

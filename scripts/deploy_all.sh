@@ -32,6 +32,12 @@ kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-ui.yaml
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins.yaml
 
+kubectl apply -f $SCRIPT_DIR/../netalertx/netalertx-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../netalertx/netalertx.yaml
+
+kubectl apply -f $SCRIPT_DIR/../uptime-kuma/uptime-kuma-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../uptime-kuma/uptime-kuma.yaml
+
 kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-aurelien-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-aurelien.yaml
 kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-yvonne-pvc.yaml
