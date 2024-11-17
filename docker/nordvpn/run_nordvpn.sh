@@ -119,6 +119,14 @@ setup_nordvpn() {
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
 	[[ -n ${NETWORK} ]] && for net in ${NETWORK//[;,]/ };  do nordvpn whitelist add subnet "${net}";  done
 	[[ -n ${PORTS} ]] && for port in ${PORTS//[;,]/ };  do nordvpn whitelist add port "${port}";  done
+
+	#if [[ -n ${MESHNET} && -n ${DNS} ]]; then
+	#	nordvpn whitelist add port 53
+	#	iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#	iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
+	#fi
 	
     nordvpn -version && nordvpn settings
 
@@ -151,14 +159,6 @@ kill_switch
 setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
-
-if [[ -n ${MESHNET} && -n ${DNS} ]]; then
-    nordvpn whitelist add port 53
-	iptables -t nat -A OUTPUT -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
-	iptables -t nat -A OUTPUT -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
-	iptables -t nat -A PREROUTING -p udp --dport 53 -j DNAT --to-destination ${DNS}:53
-	iptables -t nat -A PREROUTING -p tcp --dport 53 -j DNAT --to-destination ${DNS}:53
-fi
 
 nordvpn status
 
