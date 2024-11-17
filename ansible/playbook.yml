@@ -384,6 +384,19 @@
         hour: "0"
         job: "/opt/chattr.sh"
 
+- name: Install watchdog
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        name: watchdog
+    - name: Configure
+      ansible.builtin.copy:
+        src: all/watchdog.conf
+        dest: /etc/
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
