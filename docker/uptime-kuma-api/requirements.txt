@@ -1,0 +1,2 @@
+fastapi==0.115.5
+uptime-kuma-api==1.2.1
