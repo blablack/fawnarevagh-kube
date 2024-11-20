@@ -37,6 +37,33 @@ spec:
             requests:
               cpu: 200m
               memory: 100Mi
+        - image: nucio.nowhere:30038/uptime-kuma-api:latest
+          imagePullPolicy: Always
+          name: uptime-kuma-api
+          ports:
+            - containerPort: 8000
+              name: kuma-api-tcp
+              protocol: TCP
+          env:
+            - name: KUMA_URL
+              value: "http://localhost:3001"
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: uptime-kuma-credentials
+                  key: username
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: uptime-kuma-credentials
+                  key: password
+          resources:
+            limits:
+              cpu: 100m
+              memory: 100Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
@@ -57,4 +84,8 @@ spec:
   ports:
     - port: 80
       targetPort: 3001
+      name: "ui-port"
+    - port: 8000
+      targetPort: 8000
+      name: "api-port"
   type: LoadBalancer
