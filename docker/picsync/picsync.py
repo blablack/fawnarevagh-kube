@@ -81,7 +81,7 @@ def sync(hostname, username, source, target, ntfy_url):
 def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-h", "--hostname", required=True, help="Hostname of the target machine"
+        "-H", "--hostname", required=True, help="Hostname of the target machine"
     )
     parser.add_argument(
         "-u", "--username", required=True, help="Username for the target machine"
