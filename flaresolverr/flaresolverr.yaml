@@ -26,6 +26,18 @@ spec:
               value: "en_GB"
             - name: BROWSER_TIMEOUT
               value: "180000"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8191
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8191
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           resources:
             limits:
               cpu: 1000m

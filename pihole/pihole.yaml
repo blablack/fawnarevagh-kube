@@ -124,6 +124,18 @@ spec:
                   name: pihole-webpassword
             - name: DNSMASQ_LISTENING
               value: "all"
+          readinessProbe:
+            httpGet:
+              path: /admin/login.php
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /admin/login.php
+              port: 80
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           volumeMounts:
             - name: pihole-pvc
               subPath: "pihole"

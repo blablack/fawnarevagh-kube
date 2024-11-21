@@ -78,6 +78,24 @@ spec:
               value: /data
             - name: REGISTRY_STORAGE_DELETE_ENABLED
               value: "true"
+          livenessProbe:
+            httpGet:
+              path: /v2/_catalog
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /v2/_catalog
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+            successThreshold: 1
           resources:
             limits:
               cpu: 200m
