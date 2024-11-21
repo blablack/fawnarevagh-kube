@@ -4,7 +4,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update -y 
 RUN apt-get install -y curl
-RUN curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-release_1.0.0_all.deb --output /tmp/nordrepo.deb 
+RUN curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-release/nordvpn-release_1.0.0_all.deb --output /tmp/nordrepo.deb 
 RUN apt-get install -y /tmp/nordrepo.deb 
 RUN apt-get update -y 
 RUN apt-get dist-upgrade -y
