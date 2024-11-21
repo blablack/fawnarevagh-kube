@@ -61,7 +61,7 @@ def sync(hostname, username, source, target, ntfy_url):
         logging.error(f"Process failed with return code {err.returncode}\n{err}")
         ntfy(
             ntfy_url,
-            f"PicSync failed for '{source}'\n{err}",
+            f"PicSync failed for '{hostname}:{target}'\n{err}",
             "PicSync failed",
             "urgent",
             "rotating_light",
@@ -71,7 +71,7 @@ def sync(hostname, username, source, target, ntfy_url):
     logging.info("Sync completed!")
     ntfy(
         ntfy_url,
-        f"PicSync completed for '{source}'",
+        f"PicSync completed for '{hostname}:{target}'",
         "PicSync completed",
         "default",
         "partying_face",
@@ -99,7 +99,7 @@ def main(args):
 
     ntfy(
         ntfy_url,
-        f"PicSync started for '{args.source}'",
+        f"PicSync started for '{args.hostname}:{args.target}'",
         "PicSync started",
         "default",
         "partying_face",
