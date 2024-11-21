@@ -29,6 +29,8 @@ spec:
                     secretKeyRef:
                       name: picsync-sshpassword
                       key: password
+                - name: NTFY_URL
+                  value: "192.168.2.220"
               command: ["python3"]
               args:
                 [
