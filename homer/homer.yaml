@@ -38,6 +38,18 @@ spec:
             - mountPath: "/www/assets"
               subPath: "homer"
               name: homer-pvc
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           resources:
             limits:
               cpu: 200m

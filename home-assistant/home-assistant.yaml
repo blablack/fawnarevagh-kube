@@ -36,6 +36,26 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: home-assistant-pvc
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -fs -S --max-time 2 http://localhost:8123"
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - "curl -fs -S --max-time 2 http://localhost:8123"
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
           resources:
             limits:
               cpu: 200m

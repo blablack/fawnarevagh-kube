@@ -40,6 +40,18 @@ spec:
               value: "true"
             - name: TZ
               value: "Europe/Dublin"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 1880
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 1880
+            initialDelaySeconds: 10
+            timeoutSeconds: 10
           resources:
             limits:
               cpu: 200m
