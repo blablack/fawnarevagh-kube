@@ -9,7 +9,8 @@ RUN apt-get autoremove -y
 RUN apt-get autoclean -y 
 RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
 
-COPY ./requirements.txt ./
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install -r requirements.txt 
 
