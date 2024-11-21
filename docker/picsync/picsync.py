@@ -1,27 +1,31 @@
 import os
 import time
 import sys
-import getopt
 import subprocess
 import requests
 import logging
+import argparse
 
 
-def ntfy(ntfy_url, data, title, priority, tags):
+def ntfy(ntfy_url, data, title, priority="default", tags=None):
     if ntfy_url:
-        requests.post(
-            f"http://{ntfy_url}/picsync",
-            data=data,
-            headers={
-                "Title": title,
-                "Priority": priority,
-                "Tags": tags,
-            },
-        )
+        try:
+            response = requests.post(
+                f"http://{ntfy_url}/picsync",
+                data=data,
+                headers={
+                    "Title": title,
+                    "Priority": priority,
+                    "Tags": tags if tags else "",
+                },
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Failed to send notification: {e}")
 
 
 def machine_up(hostname):
-    response = os.system("ping -c 1 " + hostname)
+    response = os.system(f"ping -c 1 {hostname}")
     response_bool = response == 0
 
     logging.info(f"Is '{hostname}' up: {response_bool}")
@@ -29,16 +33,17 @@ def machine_up(hostname):
 
 
 def sync(hostname, username, source, target, ntfy_url):
-    logging.info("Starting sync...")
-
-    logging.info(f"Source: {source}")
-    logging.info(f"Target: {hostname}:{target}")
+    logging.info(f"Starting sync...\nSource: {source}\nTarget: {hostname}:{target}")
 
     password = os.environ.get("SSHPASS_PASSWORD")
-    bashCommand = [
+    if not password:
+        logging.error("Environment variable SSHPASS_PASSWORD not set")
+        sys.exit(1)
+
+    bash_command = [
         "sshpass",
         "-p",
-        f"{password}",
+        password,
         "rsync",
         "-e",
         "ssh -o StrictHostKeyChecking=no",
@@ -51,12 +56,9 @@ def sync(hostname, username, source, target, ntfy_url):
     ]
 
     try:
-        subprocess.run(bashCommand, check=True)
+        subprocess.run(bash_command, check=True)
     except subprocess.CalledProcessError as err:
-        logging.error(
-            f"Process failed because did not return a successful return code. "
-            f"Returned {err.returncode}\n{err}"
-        )
+        logging.error(f"Process failed with return code {err.returncode}\n{err}")
         ntfy(
             ntfy_url,
             f"PicSync failed for '{source}'\n{err}",
@@ -76,43 +78,38 @@ def sync(hostname, username, source, target, ntfy_url):
     )
 
 
-def main(argv):
-    hostname = ""
-    username = ""
-    source = ""
-    target = ""
+def main(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-h", "--hostname", required=True, help="Hostname of the target machine"
+    )
+    parser.add_argument(
+        "-u", "--username", required=True, help="Username for the target machine"
+    )
+    parser.add_argument(
+        "-s", "--source", required=True, help="Source directory to sync"
+    )
+    parser.add_argument(
+        "-t", "--target", required=True, help="Target directory on the destination"
+    )
 
-    try:
-        opts, args = getopt.getopt(argv, "h:u:s:t:")
-    except getopt.GetoptError as err:
-        logging.error(f"Error: {err}")
-        sys.exit(2)
-
-    for opt, arg in opts:
-        if opt in ["-h"]:
-            hostname = arg
-        elif opt in ["-u"]:
-            username = arg
-        elif opt in ["-s"]:
-            source = arg
-        elif opt in ["-t"]:
-            target = arg
+    args = parser.parse_args(args)
 
     ntfy_url = os.getenv("NTFY_URL")
 
     ntfy(
         ntfy_url,
-        f"PicSync started for '{source}'",
+        f"PicSync started for '{args.source}'",
         "PicSync started",
         "default",
         "partying_face",
     )
 
-    while not machine_up(hostname):
+    while not machine_up(args.hostname):
         # sleep 10 minutes
         time.sleep(600)
 
-    sync(hostname, username, source, target, ntfy_url)
+    sync(args.hostname, args.username, args.source, args.target, ntfy_url)
 
 
 if __name__ == "__main__":
