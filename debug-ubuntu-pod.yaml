@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: ubuntu
-          image: ubuntu:noble
+          image: ubuntu:oracular
           imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
           securityContext:
