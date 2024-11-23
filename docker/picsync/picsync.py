@@ -10,6 +10,7 @@ import argparse
 def ntfy(ntfy_url, data, title, priority="default", tags=None):
     if ntfy_url:
         try:
+            logging.info(f"Sending to ntfy http://{ntfy_url}/picsync: {data}")
             response = requests.post(
                 f"http://{ntfy_url}/picsync",
                 data=data,
