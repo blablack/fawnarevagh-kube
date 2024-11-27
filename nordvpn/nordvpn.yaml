@@ -57,6 +57,13 @@ spec:
               value: "192.168.2.201"
             - name: MESHNET
               value: "True"
+          readinessProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 30
           livenessProbe:
             exec:
               command:
