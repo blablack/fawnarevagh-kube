@@ -166,7 +166,7 @@ sleep 30s;
 
 clean_meshnet
 
-while nordvpn status | grep -q 'Status: Connected' ; do
+while true ; do
     [[ -n ${MESHNET} ]] && /add_to_meshnet.sh
 	
 	sleep 60m;
