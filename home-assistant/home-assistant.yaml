@@ -73,8 +73,8 @@ kind: Service
 metadata:
   name: home-assistant
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.206
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.206
 spec:
   selector:
     app: home-assistant

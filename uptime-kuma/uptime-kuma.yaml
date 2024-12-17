@@ -86,9 +86,9 @@ kind: Service
 metadata:
   name: uptime-kuma
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: uptime-kuma-shared-ip
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.219
+    metallb.io/address-pool: default
+    metallb.io/allow-shared-ip: uptime-kuma-shared-ip
+    metallb.io/loadBalancerIPs: 192.168.2.219
 spec:
   externalTrafficPolicy: Cluster
   selector:

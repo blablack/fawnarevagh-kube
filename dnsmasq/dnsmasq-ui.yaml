@@ -58,8 +58,8 @@ kind: Service
 metadata:
   name: dnsmasq-ui
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.208
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.208
 spec:
   externalTrafficPolicy: Local
   selector:
