@@ -77,9 +77,9 @@ kind: Service
 metadata:
   name: ntfy
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: ntfy-shared-ip
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.220
+    metallb.io/address-pool: default
+    metallb.io/allow-shared-ip: ntfy-shared-ip
+    metallb.io/loadBalancerIPs: 192.168.2.220
 spec:
   externalTrafficPolicy: Cluster
   selector:

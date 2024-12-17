@@ -67,8 +67,8 @@ kind: Service
 metadata:
   name: radarr
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.217
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.217
 spec:
   externalTrafficPolicy: Local
   selector:

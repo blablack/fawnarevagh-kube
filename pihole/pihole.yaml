@@ -180,8 +180,8 @@ kind: Service
 metadata:
   name: pihole-external1
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.201
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.201
 spec:
   externalTrafficPolicy: Local
   ports:
@@ -215,8 +215,8 @@ kind: Service
 metadata:
   name: pihole-external2
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.202
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.202
 spec:
   externalTrafficPolicy: Local
   ports:

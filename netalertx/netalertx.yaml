@@ -52,10 +52,10 @@ spec:
             timeoutSeconds: 10
           resources:
             limits:
-              cpu: 400m
+              cpu: 500m
               memory: 250Mi
             requests:
-              cpu: 200m
+              cpu: 250m
               memory: 100Mi
       dnsPolicy: "None"
       dnsConfig:
@@ -67,9 +67,9 @@ kind: Service
 metadata:
   name: netalertx
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/allow-shared-ip: netalertx-shared-ip
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.218
+    metallb.io/address-pool: default
+    metallb.io/allow-shared-ip: netalertx-shared-ip
+    metallb.io/loadBalancerIPs: 192.168.2.218
 spec:
   externalTrafficPolicy: Cluster
   selector:

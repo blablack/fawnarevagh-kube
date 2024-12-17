@@ -191,8 +191,8 @@ kind: Service
 metadata:
   name: prowlarr
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.207
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.207
 spec:
   externalTrafficPolicy: Cluster
   selector:
@@ -208,8 +208,8 @@ kind: Service
 metadata:
   name: qbittorrent
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.209
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.209
 spec:
   externalTrafficPolicy: Cluster
   selector:

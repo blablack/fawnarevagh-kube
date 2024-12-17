@@ -47,8 +47,8 @@ kind: Service
 metadata:
   name: docker-registry-ui
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.215
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.215
 spec:
   externalTrafficPolicy: Local
   selector:

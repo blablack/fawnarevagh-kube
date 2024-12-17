@@ -87,8 +87,8 @@ kind: Service
 metadata:
   name: node-red
   annotations:
-    metallb.universe.tf/address-pool: default
-    metallb.universe.tf/loadBalancerIPs: 192.168.2.205
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.205
 spec:
   externalTrafficPolicy: Local
   selector:
