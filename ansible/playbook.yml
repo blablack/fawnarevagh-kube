@@ -31,14 +31,14 @@
         src: nucio/00-myconfig.yaml
         dest: /etc/netplan/
 
-- name: Setup network on Bedio
-  hosts: bedio
+- name: Setup network on Quario
+  hosts: quario
   become: true
 
   tasks:
     - name: Copy Netplan configuration
       ansible.builtin.copy:
-        src: bedio/00-myconfig.yaml
+        src: quario/00-myconfig.yaml
         dest: /etc/netplan/
 
 - name: Setup network
@@ -62,26 +62,26 @@
       lineinfile:
         dest: /etc/hosts
         line: 192.168.2.2 nucio.nowhere
-    - name: Add Bedio host to hosts
+    - name: Add Quario host to hosts
       lineinfile:
         dest: /etc/hosts
-        line: 192.168.2.3 bedio.nowhere
+        line: 192.168.2.3 quario.nowhere
 
-- name: Setup network for Bedio
-  hosts: bedio
-  become: true
+#- name: Setup network for Bedio
+#  hosts: bedio
+#  become: true
 
-  tasks:
-    - name: Install package
-      ansible.builtin.apt:
-        pkg:
-          - ethtool
-    - name: Copy config
-      ansible.builtin.copy:
-        src: bedio/10-disable-offloading
-        dest: /etc/networkd-dispatcher/routable.d
-    - name: Changing perm of config, adding "+x"
-      file: dest=/etc/networkd-dispatcher/routable.d/10-disable-offloading mode=a+x
+#  tasks:
+#    - name: Install package
+#      ansible.builtin.apt:
+#        pkg:
+#          - ethtool
+#    - name: Copy config
+#      ansible.builtin.copy:
+#        src: bedio/10-disable-offloading
+#        dest: /etc/networkd-dispatcher/routable.d
+#    - name: Changing perm of config, adding "+x"
+#      file: dest=/etc/networkd-dispatcher/routable.d/10-disable-offloading mode=a+x
 
 - name: Install basic packages
   hosts: all
@@ -95,7 +95,7 @@
           - htop
           - bash-completion
 
-- name: Install nvidia packages
+- name: Install intel packages
   hosts: all
   become: true
 
@@ -239,6 +239,10 @@
       ansible.builtin.apt:
         name: avahi-daemon
         state: absent
+    - name: Remove ModemManager
+      ansible.builtin.apt:
+        name: modemmanager
+        state: absent
 
 - name: Stop unnecessary services
   hosts: all
@@ -247,7 +251,6 @@
   vars:
     stop_services:
       - wpa_supplicant.service
-      - ModemManager.service
 
   tasks:
     - service_facts:
@@ -316,8 +319,8 @@
       ansible.builtin.debug:
         msg: Token {{ master_node_token['content'] | b64decode | trim }}
 
-- name: Install k3s on Bedio
-  hosts: bedio
+- name: Install k3s on Quario
+  hosts: quario
   become: true
 
   tasks:
@@ -407,8 +410,8 @@
         name: k3s
         state: restarted
 
-- name: Restart k3s on Bedio
-  hosts: bedio
+- name: Restart k3s on Quario
+  hosts: quario
   become: true
 
   tasks:

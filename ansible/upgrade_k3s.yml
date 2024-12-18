@@ -9,8 +9,8 @@
         state: stopped
 
 
-- name: Stop k3s on Bedio
-  hosts: bedio
+- name: Stop k3s on Quario
+  hosts: quario
   become: true
 
   tasks:
@@ -38,8 +38,8 @@
         msg: Token {{ master_node_token['content'] | b64decode | trim }}
 
 
-- name: Install k3s on Bedio
-  hosts: bedio
+- name: Install k3s on Quario
+  hosts: quario
   become: true
 
   tasks:
@@ -58,8 +58,8 @@
         state: started
 
 
-- name: Restart k3s on Bedio
-  hosts: bedio
+- name: Restart k3s on Quario
+  hosts: quario
   become: true
 
   tasks:
