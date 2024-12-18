@@ -85,14 +85,6 @@ spec:
                     values:
                       - dnsmasq
               topologyKey: "kubernetes.io/hostname"
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: kubernetes.io/hostname
-                    operator: In
-                    values:
-                      - nucio
       containers:
         - name: dnsmasq
           image: nucio.nowhere:30038/dnsmasq:latest
