@@ -1,0 +1,18 @@
+network:
+  version: 2
+  ethernets: 
+    eno1: {}
+  wifis:
+    wlp2s0:
+      access-points:
+        "{{ wifi_ssid }}":
+          password: "{{ wifi_password }}"
+  bonds:
+    bond0:
+      interfaces:
+        - eno1
+        - wlp2s0
+      dhcp4: true
+      parameters:
+        mode: active-backup
+        primary: eno1

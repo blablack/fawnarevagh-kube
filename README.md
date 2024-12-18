@@ -15,6 +15,12 @@ cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 ```
 
+### Ansible Lumio
+```bash
+cd ansible
+ansible-playbook --limit lumio.nowhere -i hosts --ask-become-pass -u MYUSER --ask-pass ./lumio.yml --extra-vars "wifi_ssid=MYWIFISSID wifi_password=MYWIFIPASSWORD"
+```
+
 ## Deployments
 
 ### Secrets

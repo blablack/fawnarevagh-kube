@@ -30,6 +30,7 @@
       ansible.builtin.copy:
         src: nucio/00-myconfig.yaml
         dest: /etc/netplan/
+        mode: '0600'
 
 - name: Setup network on Quario
   hosts: quario
