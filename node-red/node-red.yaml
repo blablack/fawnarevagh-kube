@@ -31,6 +31,12 @@ spec:
               value: "true"
             - name: TZ
               value: "Europe/Dublin"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 1880
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /

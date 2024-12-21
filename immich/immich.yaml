@@ -95,6 +95,14 @@ spec:
           ports:
             - containerPort: 3001
               name: http
+          startupProbe:
+            httpGet:
+              path: /server-info/ping
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /server-info/ping
@@ -136,6 +144,14 @@ spec:
           ports:
             - containerPort: 3003
               name: http
+          startupProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /ping

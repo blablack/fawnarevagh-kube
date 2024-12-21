@@ -49,6 +49,12 @@ spec:
               value: "nucio.nowhere"
             - name: TZ
               value: "Europe/Dublin"
+          startupProbe:
+            httpGet:
+              path: /identity
+              port: 32400
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /identity

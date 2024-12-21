@@ -73,11 +73,19 @@ spec:
               containerPort: 8080
             - name: jnlpport
               containerPort: 50000
+          startupProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             httpGet:
               path: "/login"
               port: 8080
-            initialDelaySeconds: 90
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
@@ -134,3 +142,9 @@ spec:
     name: jenkins
   updatePolicy:
     updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: "250m"
+          memory: "256Mi"

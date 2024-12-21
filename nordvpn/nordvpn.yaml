@@ -57,6 +57,13 @@ spec:
               value: "192.168.2.201"
             - name: MESHNET
               value: "True"
+          startupProbe:
+            exec:
+              command:
+                - /check_nordvpn_connection.sh
+            initialDelaySeconds: 30
+            periodSeconds: 600
+            timeoutSeconds: 30
           readinessProbe:
             exec:
               command:
@@ -96,6 +103,14 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
+          startupProbe:
+            httpGet:
+              path: /system/status/
+              port: 9696
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /system/status/
@@ -135,6 +150,14 @@ spec:
             - mountPath: "/volume1/public/Torrent Downloads"
               subPath: "Torrent Downloads"
               name: nasio-nfs-pvc
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8112
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /

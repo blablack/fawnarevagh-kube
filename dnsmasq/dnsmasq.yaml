@@ -85,6 +85,14 @@ spec:
                     values:
                       - dnsmasq
               topologyKey: "kubernetes.io/hostname"
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values:
+                      - nucio
       containers:
         - name: dnsmasq
           image: nucio.nowhere:30038/dnsmasq:latest
@@ -102,6 +110,21 @@ spec:
             - containerPort: 67
               name: client-udp
               protocol: UDP
+          startupProbe:
+            tcpSocket:
+              port: 53
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 53
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: 53
+            initialDelaySeconds: 5
+            periodSeconds: 10
           volumeMounts:
             - name: confmap-vol
               subPath: "dnsmasq.conf"
@@ -113,23 +136,6 @@ spec:
             limits:
               cpu: 20m
               memory: 20Mi
-            requests:
-              cpu: 10m
-              memory: 10Mi
-        - name: dnsmasq-ui
-          image: nucio.nowhere:30038/dnsmasq-ui:latest
-          imagePullPolicy: Always
-          env:
-            - name: TZ
-              value: "Europe/Dublin"
-          volumeMounts:
-            - name: dnsmasq-pvc
-              subPath: "dnsmasq.leases"
-              mountPath: "/var/lib/misc/dnsmasq.leases"
-          resources:
-            limits:
-              cpu: 30m
-              memory: 30Mi
             requests:
               cpu: 10m
               memory: 10Mi
@@ -163,24 +169,6 @@ spec:
   selector:
     app: dnsmasq
   type: ClusterIP
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: dnsmasq-ui
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.208
-spec:
-  externalTrafficPolicy: Local
-  selector:
-    app: dnsmasq
-  ports:
-    - name: http-80
-      protocol: TCP
-      port: 80
-      targetPort: 5000
-  type: LoadBalancer
 ---
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler

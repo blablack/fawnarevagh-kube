@@ -36,6 +36,14 @@ spec:
               value: "1027"
             - name: PGID
               value: "100"
+          startupProbe:
+            httpGet:
+              path: /rest/noauth/health
+              port: 8384
+            initialDelaySeconds: 45
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /rest/noauth/health
