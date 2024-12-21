@@ -99,3 +99,15 @@ spec:
       name: syncthing-udp
       protocol: UDP
   type: LoadBalancer
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: syncthing-yvonne-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: syncthing-yvonne
+  updatePolicy:
+    updateMode: "Auto"

@@ -27,7 +27,6 @@ kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
 
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq.yaml
-kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-ui.yaml
 
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins.yaml

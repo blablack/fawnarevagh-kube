@@ -122,3 +122,15 @@ spec:
       port: 50000
       targetPort: 50000
   type: LoadBalancer
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: jenkins-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: jenkins
+  updatePolicy:
+    updateMode: "Auto"
