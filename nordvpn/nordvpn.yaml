@@ -62,22 +62,25 @@ spec:
               command:
                 - /check_nordvpn_connection.sh
             initialDelaySeconds: 30
-            periodSeconds: 600
-            timeoutSeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             exec:
               command:
                 - /check_nordvpn_connection.sh
             initialDelaySeconds: 30
-            periodSeconds: 600
-            timeoutSeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             exec:
               command:
                 - /check_nordvpn_connection.sh
             initialDelaySeconds: 30
-            periodSeconds: 600
-            timeoutSeconds: 30
+            periodSeconds: 300
+            timeoutSeconds: 5
+            failureThreshold: 5
           securityContext:
             privileged: true
             capabilities:
