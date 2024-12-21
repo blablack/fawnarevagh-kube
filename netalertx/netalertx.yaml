@@ -38,6 +38,12 @@ spec:
             - mountPath: "/app/db"
               subPath: "db"
               name: netalertx-pvc
+          startupProbe:
+            httpGet:
+              path: /
+              port: 20211
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /
