@@ -29,6 +29,11 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/healthz")
+def healthz():
+    return jsonify({"status": "healthy"})
+
+
 @app.route("/leases")
 def getLeases():
     leases = []
