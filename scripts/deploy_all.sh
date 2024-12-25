@@ -20,6 +20,10 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
     cd $SCRIPT_DIR/../intel-gpu-plugin
     wget -O intel-gpu-plugin.yaml https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/refs/heads/main/deployments/gpu_plugin/base/intel-gpu-plugin.yaml
     sed -i 's/imagePullPolicy: IfNotPresent/imagePullPolicy: Always/g' intel-gpu-plugin.yaml
+    sed -i '/imagePullPolicy: Always/a\
+        args:\
+          - "-shared-dev-num"\
+          - "2"' ./intel-gpu-plugin.yaml 
     kubectl apply -f intel-gpu-plugin.yaml
 )
 
@@ -67,8 +71,8 @@ kubectl apply -f $SCRIPT_DIR/../sonarr/sonarr-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../sonarr/sonarr.yaml
 kubectl apply -f $SCRIPT_DIR/../radarr/radarr-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../radarr/radarr.yaml
-kubectl apply -f $SCRIPT_DIR/../radarr/tdarr-pvc.yaml
-kubectl apply -f $SCRIPT_DIR/../radarr/tdarr.yaml
+kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr.yaml
 kubectl apply -f $SCRIPT_DIR/../flaresolverr/flaresolverr.yaml
 
 kubectl apply -f $SCRIPT_DIR/../nordvpn/nordvpn-pvc.yaml

@@ -31,6 +31,9 @@ spec:
                 fieldPath: status.hostIP
         image: intel/intel-gpu-plugin:devel
         imagePullPolicy: Always
+        args:
+          - "-shared-dev-num"
+          - "2"
         securityContext:
           seLinuxOptions:
             type: "container_device_plugin_t"
