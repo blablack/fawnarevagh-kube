@@ -1,0 +1,124 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: tdarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tdarr
+    spec:
+      volumes:
+        - name: tdarr-pvc
+          persistentVolumeClaim:
+            claimName: tdarr-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: haveagitgat/tdarr:latest
+          imagePullPolicy: Always
+          name: tdarr
+          volumeMounts:
+            - mountPath: "/app/server"
+              subPath: "server"
+              name: tdarr-pvc
+            - mountPath: "/app/configs"
+              subPath: "configs"
+              name: tdarr-pvc
+            - mountPath: "/app/logs"
+              subPath: "logs"
+              name: tdarr-pvc
+            - mountPath: "/volume1/public"
+              name: nasio-nfs-pvc
+          env:
+            - name: PUID
+              value: "1026"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: "EU/Dublin"
+            - name: serverIP
+              value: "0.0.0.0"
+            - name: serverPort
+              value: "8266"
+            - name: webUIPort
+              value: "8265"
+            - name: internalNode
+              value: "true"
+            - name: inContainer
+              value: "true"
+            - name: nodeName
+              value: "MainNode"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8265
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8265
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8265
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 8Gi
+              gpu.intel.com/i915: 1000m
+            requests:
+              cpu: 50m
+              memory: 100Mi
+              gpu.intel.com/i915: 1000m
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdarr
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.221
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: tdarr
+  ports:
+    - port: 80
+      targetPort: 8265
+  type: LoadBalancer
+---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: tdarr-vpa
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: tdarr
+  updatePolicy:
+    updateMode: "Auto"
