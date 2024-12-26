@@ -57,6 +57,8 @@ spec:
               value: "true"
             - name: nodeName
               value: "MainNode"
+            - name: ffmpegVersion
+              value: "6"
           startupProbe:
             httpGet:
               path: /
