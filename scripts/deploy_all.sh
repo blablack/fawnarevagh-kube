@@ -16,7 +16,6 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
 (
-    # kubectl apply -k 'https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin?ref=main'
     cd $SCRIPT_DIR/../intel-gpu-plugin
     wget -O intel-gpu-plugin.yaml https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/refs/heads/main/deployments/gpu_plugin/base/intel-gpu-plugin.yaml
     sed -i 's/imagePullPolicy: IfNotPresent/imagePullPolicy: Always/g' intel-gpu-plugin.yaml
@@ -25,6 +24,22 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
           - "-shared-dev-num"\
           - "2"' ./intel-gpu-plugin.yaml 
     kubectl apply -f intel-gpu-plugin.yaml
+)
+
+(
+    cd $SCRIPT_DIR/../prometheus
+
+    kubectl apply -f namespace.yaml
+
+    wget -O prometheus-crd.yaml https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
+    sed -i 's/namespace: default/namespace: monitoring/g' prometheus-crd.yaml
+    kubectl create -f prometheus-crd.yaml
+
+    kubectl apply -f prometheus-rbac.yaml
+
+    kubectl apply -f prometheus.yaml
+
+    kubectl apply -f node-exporter.yaml
 )
 
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
