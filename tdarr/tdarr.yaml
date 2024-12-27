@@ -15,6 +15,16 @@ spec:
       labels:
         app: tdarr
     spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - tdarr-node
+              topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: tdarr-pvc
           persistentVolumeClaim:
@@ -96,6 +106,101 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tdarr-node
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: tdarr-node
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: tdarr-node
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: app
+                    operator: In
+                    values:
+                      - tdarr
+              topologyKey: "kubernetes.io/hostname"
+      volumes:
+        - name: tdarr-node-pvc
+          persistentVolumeClaim:
+            claimName: tdarr-node-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: haveagitgat/tdarr_node:latest
+          imagePullPolicy: Always
+          name: tdarr-node
+          volumeMounts:
+            - mountPath: "/app/configs"
+              subPath: "configs"
+              name: tdarr-node-pvc
+            - mountPath: "/app/logs"
+              subPath: "logs"
+              name: tdarr-node-pvc
+            - mountPath: "/volume1/public"
+              name: nasio-nfs-pvc
+          env:
+            - name: PUID
+              value: "1026"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: "EU/Dublin"
+            - name: serverIP
+              value: "10.43.0.25"
+            - name: serverPort
+              value: "8266"
+            - name: inContainer
+              value: "true"
+            - name: nodeName
+              value: "SecondNode"
+            - name: ffmpegVersion
+              value: "6"
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 8Gi
+              gpu.intel.com/i915: 1000m
+            requests:
+              cpu: 50m
+              memory: 100Mi
+              gpu.intel.com/i915: 1000m
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tdarr-internal
+spec:
+  clusterIP: 10.43.0.25
+  ports:
+    - port: 8265
+      targetPort: 8265
+      name: port8265
+    - port: 8266
+      targetPort: 8266
+      name: port8266
+  selector:
+    app: tdarr
+  type: ClusterIP
 ---
 apiVersion: v1
 kind: Service
