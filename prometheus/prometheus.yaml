@@ -1,0 +1,113 @@
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  image: quay.io/prometheus/prometheus:latest
+  imagePullPolicy: Always
+  nodeSelector:
+    kubernetes.io/os: linux
+  replicas: 2
+  resources:
+    requests:
+      memory: 400Mi
+  securityContext:
+    fsGroup: 2000
+    runAsNonRoot: true
+    runAsUser: 1000
+  serviceAccountName: prometheus
+  serviceMonitorSelector:
+    matchExpressions:
+      - key: name
+        operator: In
+        values:
+          - node-exporter
+  storage:
+  storage:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: my-longhorn
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-external
+  namespace: monitoring
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/allow-shared-ip: prometheus-svc
+    metallb.io/loadBalancerIPs: 192.168.2.222
+spec:
+  selector:
+    prometheus: prometheus
+  type: LoadBalancer
+  ports:
+    - name: web
+      protocol: TCP
+      port: 9090
+      targetPort: web
+  externalTrafficPolicy: Local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+spec:
+  type: ClusterIP
+  clusterIP: 10.43.0.20
+  ports:
+    - name: web
+      port: 9090
+      targetPort: web
+  selector:
+    prometheus: prometheus
+  sessionAffinity: ClientIP
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+  - kind: ServiceAccount
+    name: prometheus
+    namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+  namespace: monitoring
+rules:
+  - apiGroups: [""]
+    resources:
+      - nodes
+      - services
+      - endpoints
+      - pods
+      - nodes/metrics
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - configmaps
+    verbs: ["get"]
+  - nonResourceURLs: ["/metrics"]
+    verbs: ["get"]
