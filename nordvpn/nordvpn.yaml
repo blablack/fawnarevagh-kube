@@ -157,7 +157,7 @@ spec:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 30
+            initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 5
