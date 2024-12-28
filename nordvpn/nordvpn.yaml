@@ -61,16 +61,16 @@ spec:
             exec:
               command:
                 - /check_nordvpn_connection.sh
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           readinessProbe:
             exec:
               command:
                 - /check_nordvpn_connection.sh
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           livenessProbe:
@@ -110,16 +110,16 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           livenessProbe:
@@ -157,16 +157,16 @@ spec:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 120
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
           livenessProbe:
