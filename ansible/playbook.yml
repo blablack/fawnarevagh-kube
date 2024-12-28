@@ -68,22 +68,6 @@
         dest: /etc/hosts
         line: 192.168.2.3 quario.nowhere
 
-#- name: Setup network for Bedio
-#  hosts: bedio
-#  become: true
-
-#  tasks:
-#    - name: Install package
-#      ansible.builtin.apt:
-#        pkg:
-#          - ethtool
-#    - name: Copy config
-#      ansible.builtin.copy:
-#        src: bedio/10-disable-offloading
-#        dest: /etc/networkd-dispatcher/routable.d
-#    - name: Changing perm of config, adding "+x"
-#      file: dest=/etc/networkd-dispatcher/routable.d/10-disable-offloading mode=a+x
-
 - name: Install basic packages
   hosts: all
   become: true
@@ -286,6 +270,19 @@
     - name: Reboot
       ansible.builtin.reboot:
 
+- name: Create k3s data directory
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Create k3s data directory
+      ansible.builtin.file:
+        path: /opt/k8s_data
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
 - name: Copy k3s resolv.conf
   hosts: all
   become: true
@@ -311,20 +308,21 @@
         cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
       when: not k3s_exist.stat.exists
 
-    - name: Get token
+- name: Install k3s on Quario
+  hosts: quario
+  become: true
+
+  tasks:
+    - name: Get token from Nucio
       ansible.builtin.slurp:
         src: /var/lib/rancher/k3s/server/node-token
+      delegate_to: nucio
       register: master_node_token
 
     - name: Debug token
       ansible.builtin.debug:
         msg: Token {{ master_node_token['content'] | b64decode | trim }}
 
-- name: Install k3s on Quario
-  hosts: quario
-  become: true
-
-  tasks:
     - name: Check if k3s binary present
       stat:
         path: "/usr/local/bin/k3s"
@@ -332,7 +330,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" K3S_TOKEN={{hostvars['192.168.2.2'].master_node_token.content | b64decode | trim}} sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" K3S_TOKEN={{master_node_token['content'] | b64decode | trim}} sh -s
       when: not k3s_exist.stat.exists
 
 - name: Setup Docker registry
