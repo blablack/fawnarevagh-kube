@@ -37,8 +37,6 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
     kubectl apply -f prometheus-rbac.yaml
 
-    # kubectl apply -f prometheus-storage.yaml
-
     kubectl apply -f prometheus.yaml
 
     kubectl apply -f node-exporter.yaml

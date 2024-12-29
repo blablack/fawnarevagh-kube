@@ -276,19 +276,6 @@
     - name: Reboot
       ansible.builtin.reboot:
 
-- name: Create k3s data directory
-  hosts: all
-  become: true
-
-  tasks:
-    - name: Create k3s data directory
-      ansible.builtin.file:
-        path: /opt/k8s_data
-        state: directory
-        mode: '0755'
-        owner: root
-        group: root
-
 - name: Copy k3s resolv.conf
   hosts: all
   become: true
