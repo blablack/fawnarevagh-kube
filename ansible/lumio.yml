@@ -32,15 +32,21 @@
         dest: /etc/netplan/00-myconfig.yaml
         mode: '0600'
 
+- name: Configure kernel
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Copy sysctl.conf
+      ansible.builtin.copy:
+        src: all/sysctl.conf
+        dest: /etc/
+
 - name: Setup network
   hosts: lumio
   become: true
 
   tasks:
-    - name: Setup ipv6
-      ansible.builtin.copy:
-        src: all/sysctl.conf
-        dest: /etc/
     - name: Copy resolved.conf
       ansible.builtin.copy:
         src: all/resolved.conf
