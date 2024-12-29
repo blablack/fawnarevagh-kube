@@ -42,15 +42,21 @@
         src: quario/00-myconfig.yaml
         dest: /etc/netplan/
 
+- name: Configure kernel
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Copy sysctl.conf
+      ansible.builtin.copy:
+        src: all/sysctl.conf
+        dest: /etc/
+
 - name: Setup network
   hosts: all
   become: true
 
   tasks:
-    - name: Setup ipv6
-      ansible.builtin.copy:
-        src: all/sysctl.conf
-        dest: /etc/
     - name: Copy resolved.conf
       ansible.builtin.copy:
         src: all/resolved.conf
