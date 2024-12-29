@@ -125,3 +125,10 @@ spec:
     name: uptime-kuma
   updatePolicy:
     updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: uptime-kuma
+        minAllowed:
+          cpu: "200m"
+          memory: "256Mi"
+        controlledResources: ["cpu", "memory"]
