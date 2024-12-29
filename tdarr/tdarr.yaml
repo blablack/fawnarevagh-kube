@@ -46,7 +46,7 @@ spec:
             - mountPath: "/app/logs"
               subPath: "logs"
               name: tdarr-pvc
-            - mountPath: "/volume1/public"
+            - mountPath: "/data"
               name: nasio-nfs-pvc
           env:
             - name: PUID
@@ -152,7 +152,7 @@ spec:
             - mountPath: "/app/logs"
               subPath: "logs"
               name: tdarr-node-pvc
-            - mountPath: "/volume1/public"
+            - mountPath: "/data"
               name: nasio-nfs-pvc
           env:
             - name: PUID
