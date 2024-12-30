@@ -99,7 +99,6 @@ metadata:
   name: uptime-kuma
   annotations:
     metallb.io/address-pool: default
-    metallb.io/allow-shared-ip: uptime-kuma-shared-ip
     metallb.io/loadBalancerIPs: 192.168.2.219
 spec:
   externalTrafficPolicy: Cluster
