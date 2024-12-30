@@ -33,15 +33,20 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
     wget -O prometheus-crd.yaml https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
     sed -i 's/namespace: default/namespace: monitoring/g' prometheus-crd.yaml
-    kubectl create -f prometheus-crd.yaml
+    kubectl create -f prometheus-crd.yaml --server-side
 
     kubectl apply -f prometheus-rbac.yaml
 
     kubectl apply -f prometheus.yaml
 
-    kubectl apply -f node-exporter.yaml
+    kubectl apply -f monitor-node-exporter.yaml
+    kubectl apply -f monitor-longhorn.yaml
 )
 
+kubectl apply -f $SCRIPT_DIR/../grafana/grafana-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../grafana/grafana.yaml
+
+kubectl apply -f $SCRIPT_DIR/../pihole/pihole-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
 
 kubectl apply -f $SCRIPT_DIR/../dnsmasq/dnsmasq-pvc.yaml

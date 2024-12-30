@@ -25,33 +25,14 @@ spec:
         operator: In
         values:
           - node-exporter
+          - longhorn-prometheus-servicemonitor
   storage:
     volumeClaimTemplate:
       spec:
-        storageClassName: local-path 
+        storageClassName: local-path
         resources:
           requests:
             storage: 5Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: prometheus-external
-  namespace: monitoring
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/allow-shared-ip: prometheus-svc
-    metallb.io/loadBalancerIPs: 192.168.2.222
-spec:
-  selector:
-    prometheus: prometheus
-  type: LoadBalancer
-  ports:
-    - name: web
-      protocol: TCP
-      port: 9090
-      targetPort: web
-  externalTrafficPolicy: Local
 ---
 apiVersion: v1
 kind: Service
