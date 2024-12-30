@@ -74,7 +74,6 @@ metadata:
   name: netalertx
   annotations:
     metallb.io/address-pool: default
-    metallb.io/allow-shared-ip: netalertx-shared-ip
     metallb.io/loadBalancerIPs: 192.168.2.218
 spec:
   externalTrafficPolicy: Cluster
