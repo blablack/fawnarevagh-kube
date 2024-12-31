@@ -29,6 +29,12 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: prowlarr-logs-dir
+          emptyDir:
+            medium: Memory
+        - name: qbittorrent-logs-dir
+          emptyDir:
+            medium: Memory
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
@@ -99,6 +105,8 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: prowlarr-pvc
+            - mountPath: "/config/logs"
+              name: prowlarr-logs-dir
           env:
             - name: PUID
               value: "1026"
@@ -150,6 +158,8 @@ spec:
           volumeMounts:
             - mountPath: "/config"
               name: qbittorrent-pvc
+            - mountPath: "/config/qBittorrent/logs"
+              name: qbittorrent-logs-dir
             - mountPath: "/volume1/public/Torrent Downloads"
               subPath: "Torrent Downloads"
               name: nasio-nfs-pvc
