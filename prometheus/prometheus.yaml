@@ -26,6 +26,7 @@ spec:
         values:
           - node-exporter
           - longhorn-prometheus-servicemonitor
+          - kubelet
   storage:
     volumeClaimTemplate:
       spec:
