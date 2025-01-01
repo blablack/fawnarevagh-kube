@@ -15,6 +15,8 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
+kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
+
 (
     cd $SCRIPT_DIR/../intel-gpu-plugin
     wget -O intel-gpu-plugin.yaml https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/refs/heads/main/deployments/gpu_plugin/base/intel-gpu-plugin.yaml
