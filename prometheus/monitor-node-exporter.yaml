@@ -82,7 +82,6 @@ spec:
             - --path.sysfs=/host/sys
             - --path.rootfs=/host/root
             - --no-collector.wifi
-            - --no-collector.hwmon
             - --collector.filesystem.ignored-mount-points=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/pods/.+)($|/)
             - --collector.netclass.ignored-devices=^(veth.*)$
             - --collector.netdev.device-exclude=^(veth.*)$
@@ -109,7 +108,7 @@ spec:
               mountPropagation: HostToContainer
               name: root
               readOnly: true
-        
+
       hostNetwork: true
       hostPID: true
       nodeSelector:
