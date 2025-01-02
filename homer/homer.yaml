@@ -187,6 +187,11 @@ data:
       - name: "Kubernetes"
         icon: "fas fa-cube"
         items:
+          - name: "Headlamp"
+            url: "http://192.168.2.223"
+            target: "_blank"
+            logo: "assets/apps/headlamp.png"
+            subtitle: "Kubernetes UI"
           - name: "Docker Registry"
             url: "http://192.168.2.215"
             target: "_blank"

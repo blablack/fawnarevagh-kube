@@ -26,6 +26,7 @@ ansible-playbook --limit lumio.nowhere -i hosts --ask-become-pass -u MYUSER --as
 ### Secrets
 
 ```bash
+kubectl -n kube-system create secret generic kubeconfig --from-file=kubeconfig=PATHTOKUBECONFIG
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
