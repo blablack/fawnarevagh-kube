@@ -298,7 +298,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw" sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
       when: not k3s_exist.stat.exists
 
 - name: Install k3s on Quario
@@ -309,7 +309,7 @@
     - name: Get token from Nucio
       ansible.builtin.slurp:
         src: /var/lib/rancher/k3s/server/node-token
-      delegate_to: nucio
+      delegate_to: 192.168.2.2
       register: master_node_token
 
     - name: Debug token
