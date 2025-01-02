@@ -15,11 +15,44 @@ spec:
       labels:
         app: grafana
     spec:
+      volumes:
+        - name: grafana-datasources
+          configMap:
+            name: grafana-datasources
+        - name: grafana-dashboard-cadvisor
+          configMap:
+            name: grafana-dashboard-cadvisor
+        - name: grafana-dashboard-home
+          configMap:
+            name: grafana-dashboard-home
+        - name: grafana-dashboard-longhorn
+          configMap:
+            name: grafana-dashboard-longhorn
+        - name: grafana-dashboard-nodes
+          configMap:
+            name: grafana-dashboard-nodes
+        - name: grafana-dashboards
+          configMap:
+            name: grafana-dashboards
+        - name: grafana-dashboard
+          configMap:
+            name: grafana-dashboard
+        - name: grafana-storage
+          emptyDir: {}
       containers:
-        - env: []
-          image: grafana/grafana:latest
+        - image: grafana/grafana:latest
           imagePullPolicy: Always
           name: grafana
+          env:
+            - name: GF_SECURITY_ADMIN_USER
+              value: "blablack"
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: grafana-password
+            - name: GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH
+              value: "/tmp/dashboards/home.json"
           ports:
             - containerPort: 3000
               name: http
@@ -35,18 +68,31 @@ spec:
               cpu: 100m
               memory: 100Mi
           volumeMounts:
+            - mountPath: /tmp/dashboards/cadvisor.json
+              name: grafana-dashboard-cadvisor
+              subPath: data.json
+            - mountPath: /tmp/dashboards/home.json
+              name: grafana-dashboard-home
+              subPath: data.json
+            - mountPath: /tmp/dashboards/longhorn.json
+              name: grafana-dashboard-longhorn
+              subPath: data.json
+            - mountPath: /tmp/dashboards/nodes.json
+              name: grafana-dashboard-nodes
+              subPath: data.json
+            - mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
+              name: grafana-dashboards
+              subPath: dashboards.yaml
+            - mountPath: /etc/grafana/provisioning/datasources/datasources.yaml
+              name: grafana-datasources
+              subPath: datasources.yaml
             - mountPath: /var/lib/grafana
-              subPath: "grafana"
-              name: grafana-pvc
+              name: grafana-storage
       securityContext:
         fsGroup: 65534
         runAsNonRoot: true
         runAsUser: 65534
       serviceAccountName: grafana
-      volumes:
-        - name: grafana-pvc
-          persistentVolumeClaim:
-            claimName: grafana-pvc
       dnsPolicy: "None"
       dnsConfig:
         nameservers:

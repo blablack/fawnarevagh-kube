@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+data:
+  dashboards.yaml: |-
+    apiVersion: 1
+    providers: 
+      - name: 'Metrics'
+        updateIntervalSeconds: 10
+        allowUiUpdates: true
+        options:
+          path: /tmp/dashboards
+          foldersFromFilesStructure: true
+        type: file
