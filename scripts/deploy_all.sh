@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
@@ -45,7 +47,12 @@ kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
     kubectl apply -f monitor-longhorn.yaml
 )
 
-kubectl apply -f $SCRIPT_DIR/../grafana/grafana-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dash-cadvisor.yaml --server-side
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dash-home.yaml --server-side
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dash-longhorn.yaml --server-side
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dash-nodes.yaml --server-side
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dashboards.yaml --server-side
+kubectl apply -f $SCRIPT_DIR/../grafana/configmap-datasources.yaml --server-side
 kubectl apply -f $SCRIPT_DIR/../grafana/grafana.yaml
 
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole-pvc.yaml
@@ -75,7 +82,6 @@ kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-yvonne.yaml
 kubectl apply -f $SCRIPT_DIR/../immich/immich-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../immich/immich.yaml
 
-kubectl apply -f $SCRIPT_DIR/../homer/homer-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../homer/homer.yaml
 
 kubectl apply -f $SCRIPT_DIR/../paperless/paperless-pvc.yaml

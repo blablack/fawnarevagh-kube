@@ -31,6 +31,7 @@ kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEP
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
 kubectl create secret generic paperless-password --from-literal password=PAPERLESSPASSWORD
+kubectl create secret generic grafana-password --from-literal password=GRAFANAPASSWORD
 kubectl create secret generic uptime-kuma-credentials --from-literal=username=USERNAME --from-literal=password=PASSWORD
 ```
 
