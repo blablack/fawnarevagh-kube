@@ -136,10 +136,11 @@ apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
   name: registry-vpa
+  namespace: kube-system
 spec:
   targetRef:
     apiVersion: "apps/v1"
     kind: Deployment
-    name: registry
+    name: docker-registry
   updatePolicy:
     updateMode: "Auto"
