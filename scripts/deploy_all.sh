@@ -35,7 +35,7 @@ kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
 
     wget -O prometheus-crd.yaml https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
     sed -i 's/namespace: default/namespace: monitoring/g' prometheus-crd.yaml
-    kubectl create -f prometheus-crd.yaml --server-side
+    kubectl apply -f prometheus-crd.yaml --server-side
 
     kubectl apply -f prometheus-rbac.yaml
 

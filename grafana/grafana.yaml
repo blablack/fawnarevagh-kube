@@ -87,3 +87,9 @@ spec:
     name: grafana
   updatePolicy:
     updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "*"
+        minAllowed:
+          cpu: "250m"
+          memory: "256Mi"
