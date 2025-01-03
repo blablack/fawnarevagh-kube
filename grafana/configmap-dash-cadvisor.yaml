@@ -869,8 +869,6 @@ data:
       "refresh": "",
       "schemaVersion": 40,
       "tags": [
-        "cadvisor",
-        "docker"
       ],
       "templating": {
         "list": [
@@ -934,7 +932,7 @@ data:
       },
       "timepicker": {},
       "timezone": "",
-      "title": "Cadvisor exporter",
+      "title": "Cadvisor",
       "uid": "pMEd7m0Mz2",
       "version": 2,
       "weekStart": ""
