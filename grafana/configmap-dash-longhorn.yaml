@@ -96,7 +96,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -182,7 +182,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "disableTextWrap": false,
               "editorMode": "code",
@@ -203,7 +203,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -289,7 +289,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "disableTextWrap": false,
               "editorMode": "code",
@@ -310,7 +310,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -396,7 +396,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "disableTextWrap": false,
               "editorMode": "code",
@@ -417,7 +417,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -503,7 +503,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "disableTextWrap": false,
               "editorMode": "code",
@@ -537,7 +537,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "The total number of volumes in the Longhorn storage system",
           "fieldConfig": {
@@ -584,7 +584,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_capacity_bytes{volume=~\"$volume\"}) OR on() vector(0)",
@@ -600,7 +600,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Healthy volumes are volumes that are attaching to a node and have the number of healthy replicas equals to the expected number of replicas.",
           "fieldConfig": {
@@ -651,7 +651,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_robustness{volume=~\"$volume\"}==1) OR on() vector(0)",
@@ -667,7 +667,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Note that Longhorn volume actual size is not the size of the filesystem inside a Longhorn volume.  See more at : https://longhorn.io/docs/1.0.2/volumes-and-nodes/volume-size/#volume-actual-size",
           "fieldConfig": {
@@ -755,7 +755,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "exemplar": true,
@@ -772,7 +772,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Degraded volumes are volumes that have the number of healthy replicas smaller than the expected number of replicas. e.g. User creates a volume with 2 replicas but 1 replicas is failed.",
           "fieldConfig": {
@@ -823,7 +823,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_robustness{volume=~\"$volume\"}==2) OR on() vector(0)",
@@ -839,7 +839,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Fault volumes are volumes that doesn't have any healthy replica.",
           "fieldConfig": {
@@ -890,7 +890,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_robustness{volume=~\"$volume\"}==3) OR on() vector(0)",
@@ -906,7 +906,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "The capacity of each Longhorn volume",
           "fieldConfig": {
@@ -1018,7 +1018,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "avg by (volume) (longhorn_volume_capacity_bytes{volume=~\"$volume\"})",
@@ -1033,7 +1033,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1048,7 +1048,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "exemplar": false,
@@ -1099,7 +1099,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Attached volumes are volumes that are currently attaching to a node",
           "fieldConfig": {
@@ -1150,7 +1150,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_state{volume=~\"$volume\"}==2) OR on() vector(0)",
@@ -1166,7 +1166,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Detached volumes are volumes that aren't currently attaching to a node",
           "fieldConfig": {
@@ -1217,7 +1217,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
               "expr": "count(longhorn_volume_state{volume=~\"$volume\"}==3) OR on() vector(0)",
@@ -1246,7 +1246,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "The total number of nodes in the Longhorn storage system",
           "fieldConfig": {
@@ -1293,7 +1293,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "avg(longhorn_node_count_total) OR on() vector(0)",
               "interval": "",
@@ -1307,7 +1307,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Disabled nodes are nodes that are disabled by the user.  When users disable a node, Longhorn will not use the node's storage for replica scheduling. Note that Longhorn can still attach a volume to disabled nodes because the actual data of the volume could be on a different node.",
           "fieldConfig": {
@@ -1358,7 +1358,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "count(longhorn_node_status{condition=\"allowScheduling\"}==0) OR on() vector(0)",
               "interval": "",
@@ -1372,7 +1372,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "",
           "fieldConfig": {
@@ -1458,7 +1458,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "exemplar": true,
               "expr": "(longhorn_node_storage_usage_bytes/longhorn_node_storage_capacity_bytes) * 100",
@@ -1473,7 +1473,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Schedulable nodes are nodes that Longhorn can use their storage for replica scheduling.",
           "fieldConfig": {
@@ -1524,7 +1524,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "(count(longhorn_node_status{condition=\"schedulable\"}==1) OR on() vector(0)) - (count(longhorn_node_status{condition=\"allowScheduling\"}==0) OR on() vector(0))",
               "interval": "",
@@ -1538,7 +1538,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "Failed Nodes are nodes that Longhorn cannot attach volumes to and cannot schedule replicas onto. e.g: when the nodes went down.",
           "fieldConfig": {
@@ -1589,7 +1589,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "(avg(longhorn_node_count_total) OR on() vector(0)) - (count(longhorn_node_status{condition=\"ready\"}==1) OR on() vector(0))",
               "interval": "",
@@ -1603,7 +1603,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "description": "",
           "fieldConfig": {
@@ -1671,7 +1671,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "longhorn_node_storage_capacity_bytes",
               "format": "table",
@@ -1721,7 +1721,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -1805,7 +1805,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${DS_PROMETHEUS}"
+                "uid": "8rTXXfF4z"
               },
               "exemplar": true,
               "expr": "count by (node) (longhorn_volume_state==2)",
@@ -1830,7 +1830,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "The capacity of each Longhorn volume",
               "fieldConfig": {
@@ -1912,7 +1912,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "(longhorn_disk_usage_bytes/longhorn_disk_capacity_bytes)*100",
@@ -1927,7 +1927,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "",
               "fieldConfig": {
@@ -1992,7 +1992,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "expr": "longhorn_disk_capacity_bytes",
                   "format": "table",
@@ -2058,7 +2058,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "",
               "fieldConfig": {
@@ -2139,7 +2139,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "(longhorn_node_cpu_usage_millicpu / longhorn_node_cpu_capacity_millicpu) * 100",
@@ -2154,7 +2154,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "",
               "fieldConfig": {
@@ -2235,7 +2235,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "( longhorn_node_memory_usage_bytes / longhorn_node_memory_capacity_bytes ) * 100",
@@ -2250,7 +2250,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
               "fieldConfig": {
@@ -2331,7 +2331,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "longhorn_instance_manager_cpu_usage_millicpu",
@@ -2346,7 +2346,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
               "fieldConfig": {
@@ -2427,7 +2427,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "(longhorn_instance_manager_cpu_usage_millicpu/longhorn_instance_manager_cpu_requests_millicpu)*100",
@@ -2442,7 +2442,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "Instance managers are pods that contains the engine and replica processes of Longhorn volumes. See more at https://longhorn.io/docs/1.0.2/concepts/#11-the-longhorn-manager-and-the-longhorn-engine ",
               "fieldConfig": {
@@ -2522,7 +2522,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "longhorn_instance_manager_memory_usage_bytes",
@@ -2537,7 +2537,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "Longhorn manager pods manage the control plane of the Longhorn system. e.g. Volume scheduling, attaching, detaching, backup, etc,..",
               "fieldConfig": {
@@ -2618,7 +2618,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "longhorn_manager_cpu_usage_millicpu",
@@ -2633,7 +2633,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "description": "Longhorn manager pods manage the control plane of the Longhorn system. e.g. Volume scheduling, attaching, detaching, backup, etc,..",
               "fieldConfig": {
@@ -2713,7 +2713,7 @@ data:
                 {
                   "datasource": {
                     "type": "prometheus",
-                    "uid": "${DS_PROMETHEUS}"
+                    "uid": "8rTXXfF4z"
                   },
                   "exemplar": true,
                   "expr": "longhorn_manager_memory_usage_bytes",
@@ -2799,7 +2799,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${datasource}"
+              "uid": "8rTXXfF4z"
             },
             "definition": "label_values(longhorn_volume_state,volume)",
             "includeAll": true,
