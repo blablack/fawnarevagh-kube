@@ -78,7 +78,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -170,7 +170,7 @@ data:
               "refId": "A",
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               }
             }
           ],
@@ -180,7 +180,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -266,7 +266,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "sum(rate(container_cpu_usage_seconds_total{instance=~\"$host\",name=~\"$container\",name=~\".+\"}[5m])) by (name) *100",
               "hide": false,
@@ -294,7 +294,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -380,7 +380,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "sum(container_memory_rss{instance=~\"$host\",name=~\"$container\",name=~\".+\"}) by (name)",
               "hide": false,
@@ -395,7 +395,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -481,7 +481,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "sum(container_memory_cache{instance=~\"$host\",name=~\"$container\",name=~\".+\"}) by (name)",
               "hide": false,
@@ -509,7 +509,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -595,7 +595,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "sum(rate(container_network_receive_bytes_total{instance=~\"$host\",name=~\"$container\",name=~\".+\"}[5m])) by (name)",
               "hide": false,
@@ -610,7 +610,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -696,7 +696,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "sum(rate(container_network_transmit_bytes_total{instance=~\"$host\",name=~\"$container\",name=~\".+\"}[5m])) by (name)",
               "interval": "",
@@ -723,7 +723,7 @@ data:
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${datasource}"
+            "uid": "8rTXXfF4z"
           },
           "fieldConfig": {
             "defaults": {
@@ -818,7 +818,7 @@ data:
             {
               "datasource": {
                 "type": "prometheus",
-                "uid": "${datasource}"
+                "uid": "8rTXXfF4z"
               },
               "expr": "(time() - container_start_time_seconds{instance=~\"$host\",name=~\"$container\",name=~\".+\"})/86400",
               "format": "table",
@@ -888,7 +888,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${datasource}"
+              "uid": "8rTXXfF4z"
             },
             "definition": "label_values({__name__=~\"container.*\"},instance)",
             "includeAll": true,
@@ -909,7 +909,7 @@ data:
             "current": {},
             "datasource": {
               "type": "prometheus",
-              "uid": "${datasource}"
+              "uid": "8rTXXfF4z"
             },
             "definition": "label_values({__name__=~\"container.*\", instance=~\"$host\"},name)",
             "includeAll": true,
