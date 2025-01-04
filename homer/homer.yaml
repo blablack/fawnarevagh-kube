@@ -299,7 +299,6 @@ metadata:
   name: homer
   annotations:
     metallb.io/address-pool: default
-    metallb.io/allow-shared-ip: homer-shared-ip
     metallb.io/loadBalancerIPs: 192.168.2.200
 spec:
   externalTrafficPolicy: Cluster
