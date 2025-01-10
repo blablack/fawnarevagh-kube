@@ -21,38 +21,32 @@ spec:
             claimName: home-assistant-pvc
       hostNetwork: true
       containers:
-        - image: homeassistant/home-assistant:stable
+        - image: homeassistant/home-assistant:2025.1.1
           name: home-assistant
           imagePullPolicy: Always
           volumeMounts:
             - mountPath: "/config"
               name: home-assistant-pvc
           startupProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8123"
+            httpGet:
+              path: /
+              port: 8123
             initialDelaySeconds: 60
             timeoutSeconds: 10
             periodSeconds: 10
             failureThreshold: 5
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8123"
+            httpGet:
+              path: /
+              port: 8123
             initialDelaySeconds: 60
             timeoutSeconds: 10
             periodSeconds: 10
             failureThreshold: 5
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8123"
+            httpGet:
+              path: /
+              port: 8123
             initialDelaySeconds: 60
             timeoutSeconds: 10
             periodSeconds: 10
