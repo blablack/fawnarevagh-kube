@@ -45,6 +45,7 @@ kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
 
     kubectl apply -f monitor-node-exporter.yaml
     kubectl apply -f monitor-longhorn.yaml
+    kubectl apply -f monitor-kubelet.yaml
 )
 
 kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dash-cadvisor.yaml --server-side
