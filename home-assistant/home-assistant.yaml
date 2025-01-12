@@ -21,7 +21,7 @@ spec:
             claimName: home-assistant-pvc
       hostNetwork: true
       containers:
-        - image: homeassistant/home-assistant:2024.12
+        - image: homeassistant/home-assistant:latest
           name: home-assistant
           imagePullPolicy: Always
           volumeMounts:
@@ -88,21 +88,3 @@ spec:
       targetPort: 8123
       name: port8123-tcp
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: home-assistant-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: home-assistant
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: "*"
-        minAllowed:
-          cpu: "250m"
-          memory: "256Mi"
