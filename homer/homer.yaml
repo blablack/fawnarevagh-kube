@@ -159,11 +159,6 @@ data:
             target: "_blank"
             logo: "assets/apps/grafana.svg"
             subtitle: "Monitoring"
-          - name: "NetAlertX"
-            url: "http://192.168.2.218/"
-            target: "_blank"
-            logo: "assets/apps/netalertx.ico"
-            subtitle: "Monitoring"
 
       - name: "Hardware"
         icon: "fas fa-server"
@@ -308,15 +303,3 @@ spec:
     - port: 80
       targetPort: 8080
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: homer-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: homer
-  updatePolicy:
-    updateMode: "Auto"

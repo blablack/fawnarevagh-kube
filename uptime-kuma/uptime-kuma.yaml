@@ -112,22 +112,3 @@ spec:
       targetPort: 8000
       name: "api-port"
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: uptime-kuma-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: uptime-kuma
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: uptime-kuma
-        minAllowed:
-          cpu: "200m"
-          memory: "256Mi"
-        controlledResources: ["cpu", "memory"]

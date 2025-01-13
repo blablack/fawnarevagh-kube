@@ -89,21 +89,3 @@ spec:
     - port: 80
       targetPort: 7878
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: radarr-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: radarr
-  updatePolicy:
-    updateMode: "Auto"
-  resourcePolicy:
-    containerPolicies:
-      - containerName: "*"
-        minAllowed:
-          cpu: "250m"
-          memory: "256Mi"

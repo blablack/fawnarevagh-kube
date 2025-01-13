@@ -201,15 +201,3 @@ spec:
       port: 80
       targetPort: 3001
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: immich-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: immich
-  updatePolicy:
-    updateMode: "Auto"
