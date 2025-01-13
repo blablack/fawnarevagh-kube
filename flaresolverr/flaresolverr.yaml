@@ -70,15 +70,3 @@ spec:
   selector:
     app: flaresolverr
   type: ClusterIP
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: flaresolverr-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: flaresolverr
-  updatePolicy:
-    updateMode: "Auto"

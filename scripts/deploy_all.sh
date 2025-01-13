@@ -67,7 +67,7 @@ kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins.yaml
 
 kubectl apply -f $SCRIPT_DIR/../netalertx/netalertx-pvc.yaml
-kubectl apply -f $SCRIPT_DIR/../netalertx/netalertx.yaml
+# kubectl apply -f $SCRIPT_DIR/../netalertx/netalertx.yaml
 
 kubectl apply -f $SCRIPT_DIR/../ntfy/ntfy-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../ntfy/ntfy.yaml

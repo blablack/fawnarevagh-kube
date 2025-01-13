@@ -169,15 +169,3 @@ spec:
   selector:
     app: dnsmasq
   type: ClusterIP
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: dnsmasq-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: dnsmasq
-  updatePolicy:
-    updateMode: "Auto"

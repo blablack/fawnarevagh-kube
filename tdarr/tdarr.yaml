@@ -217,15 +217,3 @@ spec:
     - port: 80
       targetPort: 8265
   type: LoadBalancer
----
-apiVersion: autoscaling.k8s.io/v1
-kind: VerticalPodAutoscaler
-metadata:
-  name: tdarr-vpa
-spec:
-  targetRef:
-    apiVersion: "apps/v1"
-    kind: Deployment
-    name: tdarr
-  updatePolicy:
-    updateMode: "Auto"
