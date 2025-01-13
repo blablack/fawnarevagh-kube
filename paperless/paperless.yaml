@@ -79,31 +79,25 @@ spec:
               name: paperless-tcp
               protocol: TCP
           startupProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8000"
-            initialDelaySeconds: 60
+            httpGet:
+              path: /
+              port: 8000
+            initialDelaySeconds: 180
             timeoutSeconds: 10
             periodSeconds: 10
             failureThreshold: 5
           readinessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8000"
+            httpGet:
+              path: /
+              port: 8000
             initialDelaySeconds: 60
             timeoutSeconds: 10
             periodSeconds: 10
             failureThreshold: 5
           livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - "curl -fs -S --max-time 2 http://localhost:8000"
+            httpGet:
+              path: /
+              port: 8000
             initialDelaySeconds: 60
             timeoutSeconds: 10
             periodSeconds: 10
