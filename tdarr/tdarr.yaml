@@ -32,6 +32,23 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: ffmpeg-data
+          emptyDir: {}
+      initContainers:
+        - name: download-extract-ffmpeg
+          image: alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache wget tar xz &&
+              wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O /ffmpeg/ffmpeg.tar.xz &&
+              cd /ffmpeg &&
+              tar xf ffmpeg.tar.xz --strip-components=1 &&
+              rm ffmpeg.tar.xz
+          volumeMounts:
+            - name: ffmpeg-data
+              mountPath: /ffmpeg
       containers:
         - image: haveagitgat/tdarr:latest
           imagePullPolicy: Always
@@ -48,6 +65,8 @@ spec:
               name: tdarr-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
+            - name: ffmpeg-data
+              mountPath: /ffmpeg
           env:
             - name: PUID
               value: "1026"
@@ -67,8 +86,6 @@ spec:
               value: "true"
             - name: nodeName
               value: "MainNode"
-            - name: ffmpegVersion
-              value: "6"
           startupProbe:
             httpGet:
               path: /
@@ -141,6 +158,23 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: ffmpeg-data
+          emptyDir: {}
+      initContainers:
+        - name: download-extract-ffmpeg
+          image: alpine
+          command:
+            - /bin/sh
+            - -c
+            - |
+              apk add --no-cache wget tar xz &&
+              wget https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -O /ffmpeg/ffmpeg.tar.xz &&
+              cd /ffmpeg &&
+              tar xf ffmpeg.tar.xz --strip-components=1 &&
+              rm ffmpeg.tar.xz
+          volumeMounts:
+            - name: ffmpeg-data
+              mountPath: /ffmpeg
       containers:
         - image: haveagitgat/tdarr_node:latest
           imagePullPolicy: Always
@@ -154,6 +188,8 @@ spec:
               name: tdarr-node-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
+            - name: ffmpeg-data
+              mountPath: /ffmpeg
           env:
             - name: PUID
               value: "1026"
@@ -169,8 +205,6 @@ spec:
               value: "true"
             - name: nodeName
               value: "SecondNode"
-            - name: ffmpegVersion
-              value: "6"
           resources:
             limits:
               cpu: 2000m
