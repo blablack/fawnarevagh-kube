@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: alertmanagerconfigs.monitoring.coreos.com
 spec:
@@ -10041,7 +10041,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: alertmanagers.monitoring.coreos.com
 spec:
@@ -18779,7 +18779,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: podmonitors.monitoring.coreos.com
 spec:
@@ -19987,7 +19987,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: probes.monitoring.coreos.com
 spec:
@@ -21162,7 +21162,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: prometheusagents.monitoring.coreos.com
 spec:
@@ -27530,6 +27530,19 @@ spec:
 
                         Only one scrape class can be set as the default.
                       type: boolean
+                    fallbackScrapeProtocol:
+                      description: |-
+                        The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+                        It will only apply if the scrape resource doesn't specify any FallbackScrapeProtocol
+
+                        It requires Prometheus >= v3.0.0.
+                      enum:
+                      - PrometheusProto
+                      - OpenMetricsText0.0.1
+                      - OpenMetricsText1.0.0
+                      - PrometheusText0.0.4
+                      - PrometheusText1.0.0
+                      type: string
                     metricRelabelings:
                       description: |-
                         MetricRelabelings configures the relabeling rules to apply to all samples before ingestion.
@@ -31956,7 +31969,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: prometheuses.monitoring.coreos.com
 spec:
@@ -40033,6 +40046,19 @@ spec:
 
                         Only one scrape class can be set as the default.
                       type: boolean
+                    fallbackScrapeProtocol:
+                      description: |-
+                        The protocol to use if a scrape returns blank, unparseable, or otherwise invalid Content-Type.
+                        It will only apply if the scrape resource doesn't specify any FallbackScrapeProtocol
+
+                        It requires Prometheus >= v3.0.0.
+                      enum:
+                      - PrometheusProto
+                      - OpenMetricsText0.0.1
+                      - OpenMetricsText1.0.0
+                      - PrometheusText0.0.4
+                      - PrometheusText1.0.0
+                      type: string
                     metricRelabelings:
                       description: |-
                         MetricRelabelings configures the relabeling rules to apply to all samples before ingestion.
@@ -44980,7 +45006,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: prometheusrules.monitoring.coreos.com
 spec:
@@ -45140,7 +45166,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: scrapeconfigs.monitoring.coreos.com
 spec:
@@ -56656,7 +56682,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: servicemonitors.monitoring.coreos.com
 spec:
@@ -57886,7 +57912,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.16.5
+    controller-gen.kubebuilder.io/version: v0.17.1
     operator.prometheus.io/version: 0.79.2
   name: thanosrulers.monitoring.coreos.com
 spec:
