@@ -12,8 +12,12 @@ spec:
     kubernetes.io/os: linux
   replicas: 2
   resources:
+    limits:
+      memory: "600Mi"
+      cpu: "200m"
     requests:
-      memory: 400Mi
+      memory: "400Mi"
+      cpu: "100m"
   securityContext:
     fsGroup: 2000
     runAsNonRoot: true
