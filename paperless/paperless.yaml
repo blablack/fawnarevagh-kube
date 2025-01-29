@@ -22,7 +22,7 @@ spec:
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       containers:
         - image: docker.io/library/postgres:16
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: postgres
           env:
             - name: POSTGRES_USER
@@ -45,7 +45,7 @@ spec:
               cpu: 10m
               memory: 50Mi
         - image: docker.io/library/redis:7
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: redis
           volumeMounts:
             - mountPath: "/data"
