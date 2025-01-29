@@ -5,7 +5,7 @@ metadata:
   name: picsync-immich
 spec:
   schedule: "0 0 15 * *"
-  successfulJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
   jobTemplate:
