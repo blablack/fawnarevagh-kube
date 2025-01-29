@@ -1,3 +1,61 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: clear-tdarr-backup
+spec:
+  schedule: "0 0 16 * *"
+  successfulJobsHistoryLimit: 1
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      template:
+        metadata:
+          labels:
+            app: clear-tdarr-backup
+            part-of: tdarr
+        spec:
+          volumes:
+            - name: tdarr-pvc
+              persistentVolumeClaim:
+                claimName: tdarr-pvc
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: "part-of"
+                        operator: In
+                        values:
+                          - tdarr
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            - image: alpine:latest
+              imagePullPolicy: Always
+              name: clear-tdarr-backup
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  rm -rf /app/server/Tdarr/Backups/*
+              volumeMounts:
+                - mountPath: "/app/server"
+                  subPath: "server"
+                  name: tdarr-pvc
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 200Mi
+                requests:
+                  cpu: 100m
+                  memory: 100Mi
+          restartPolicy: Never
+          dnsPolicy: "None"
+          dnsConfig:
+            nameservers:
+              - 10.43.0.22
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,6 +72,7 @@ spec:
     metadata:
       labels:
         app: tdarr
+        part-of: tdarr
     spec:
       affinity:
         podAntiAffinity:
@@ -24,6 +83,15 @@ spec:
                     operator: In
                     values:
                       - tdarr-node
+              topologyKey: "kubernetes.io/hostname"
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - tdarr
               topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: tdarr-pvc
@@ -36,7 +104,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: download-extract-ffmpeg
-          image: alpine
+          image: alpine:latest
           command:
             - /bin/sh
             - -c
@@ -164,7 +232,7 @@ spec:
           emptyDir: {}
       initContainers:
         - name: download-extract-ffmpeg
-          image: alpine
+          image: alpine:latest
           command:
             - /bin/sh
             - -c
