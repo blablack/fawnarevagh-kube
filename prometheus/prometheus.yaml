@@ -31,6 +31,7 @@ spec:
           - node-exporter
           - longhorn-prometheus-servicemonitor
           - kubelet
+          - snmp-exporter
   storage:
     volumeClaimTemplate:
       spec:
