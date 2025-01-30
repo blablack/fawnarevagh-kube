@@ -2978,7 +2978,7 @@ metadata:
   namespace: monitoring
 spec:
   endpoints:
-    - interval: 60s
+    - interval: 15s
       port: snmp-port
       params:
         module:
