@@ -2983,6 +2983,8 @@ spec:
       params:
         module:
           - synology
+          - if_mib
+          - ip_mib
         target:
           - 192.168.2.4
         auth:
