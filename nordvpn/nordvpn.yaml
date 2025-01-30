@@ -94,8 +94,8 @@ spec:
                 - NET_ADMIN
           resources:
             limits:
-              cpu: 500m
-              memory: 500Mi
+              cpu: 1000m
+              memory: 1024Mi
             requests:
               cpu: 100m
               memory: 150Mi
@@ -198,7 +198,7 @@ spec:
               value: "8112"
           resources:
             limits:
-              cpu: 800m
+              cpu: 1000m
               memory: 3000Mi
             requests:
               cpu: 100m
