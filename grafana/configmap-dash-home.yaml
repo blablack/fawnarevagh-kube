@@ -941,6 +941,8 @@ data:
                 }
               },
               "mappings": [],
+              "max": 60,
+              "min": 20,
               "thresholds": {
                 "mode": "absolute",
                 "steps": [
