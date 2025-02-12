@@ -114,6 +114,7 @@ setup_nordvpn() {
     nordvpn set technology nordlynx 
 	nordvpn set killswitch on 
 	nordvpn set cybersec off 
+	nordvpn set tray disabled
 
 	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
 	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
