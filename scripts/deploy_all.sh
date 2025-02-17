@@ -2,7 +2,7 @@
 
 set -e
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.14.9/config/manifests/metallb-native.yaml
@@ -26,7 +26,7 @@ kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
     sed -i '/imagePullPolicy: Always/a\
         args:\
           - "-shared-dev-num"\
-          - "2"' ./intel-gpu-plugin.yaml 
+          - "2"' ./intel-gpu-plugin.yaml
     kubectl apply -f intel-gpu-plugin.yaml
 )
 
