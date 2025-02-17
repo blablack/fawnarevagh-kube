@@ -6,4 +6,4 @@ output=$(nordvpn meshnet peer list)
 hostname=$(echo "$output" | awk '/Hostname/{print $2; exit}')
 
 # Print the hostname
-echo $hostname > /config/mesh_peer_name
+echo $hostname >/config/mesh_peer_name
