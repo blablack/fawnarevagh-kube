@@ -165,6 +165,10 @@ while true; do
 		pkill -x "norduserd"
 	fi
 
+	if pgrep -x "nordfileshare" >/dev/null; then
+		pkill -x "nordfileshare"
+	fi
+
 	[[ -n ${MESHNET} ]] && /add_to_meshnet.sh
 
 	sleep 15m
