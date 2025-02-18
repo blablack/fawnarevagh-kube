@@ -98,6 +98,16 @@ white_list() { # Allow unsecured traffic for an specific domain
 	ip6tables -A OUTPUT -o eth0 -d ${domain} -j ACCEPT 2>/dev/null
 }
 
+kill_process_if_running() {
+	local process_name="$1"
+	if pgrep -x "$process_name" >/dev/null; then
+		pkill -x "$process_name"
+		echo "Killed process: $process_name"
+	else
+		echo "Process not running: $process_name"
+	fi
+}
+
 setup_nordvpn() {
 	pkill nordvpnd
 	mkdir -p /run/nordvpn
@@ -161,13 +171,8 @@ sleep 30s
 clean_meshnet
 
 while true; do
-	if pgrep -x "norduserd" >/dev/null; then
-		pkill -x "norduserd"
-	fi
-
-	if pgrep -x "nordfileshare" >/dev/null; then
-		pkill -x "nordfileshare"
-	fi
+	kill_process_if_running "norduserd"
+	kill_process_if_running "nordfileshare"
 
 	[[ -n ${MESHNET} ]] && /add_to_meshnet.sh
 
