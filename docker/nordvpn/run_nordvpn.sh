@@ -159,7 +159,11 @@ sleep 30s
 clean_meshnet
 
 while true; do
+	if pgrep -x "norduserd" >/dev/null; then
+		pkill -x "norduserd"
+	fi
+
 	[[ -n ${MESHNET} ]] && /add_to_meshnet.sh
 
-	sleep 60m
+	sleep 15m
 done
