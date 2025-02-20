@@ -105,35 +105,39 @@ spec:
               name: client-udp
               protocol: UDP
           env:
-            - name: ServerIP
-              value: 192.168.2.201
             - name: TZ
               value: "EU/Dublin"
-            - name: WEBPASSWORD
+            - name: FTLCONF_webserver_api_password
               valueFrom:
                 secretKeyRef:
                   key: password
                   name: pihole-webpassword
-            - name: DNSMASQ_LISTENING
+            - name: FTLCONF_dns_listeningMode
               value: "all"
           startupProbe:
             httpGet:
-              path: /admin/login.php
+              path: /admin/login
               port: 80
-            initialDelaySeconds: 15
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
+            failureThreshold: 5
           readinessProbe:
             httpGet:
-              path: /admin/login.php
+              path: /admin/login
               port: 80
-            initialDelaySeconds: 15
+            initialDelaySeconds: 60
+            periodSeconds: 30
             timeoutSeconds: 5
+            failureThreshold: 5
           livenessProbe:
             httpGet:
-              path: /admin/login.php
+              path: /admin/login
               port: 80
-            initialDelaySeconds: 10
-            timeoutSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
           volumeMounts:
             - name: pihole-pvc
               subPath: "pihole"
