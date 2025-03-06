@@ -35,7 +35,7 @@ data:
     dhcp-option=3,192.168.2.1
 
     # Set DNS server as PiHole
-    dhcp-option=6,10.43.0.22
+    dhcp-option=6,192.168.2.201,192.168.2.202
 
     # dhcp v4 rapid commit
     dhcp-rapid-commit
