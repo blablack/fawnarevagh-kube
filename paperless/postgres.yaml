@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paperless
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: paperless
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: paperless
+    spec:
+      volumes:
+        - name: paperless-pvc
+          persistentVolumeClaim:
+            claimName: paperless-pvc
+      # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
+      containers:
+        - image: docker.io/library/postgres:16
+          imagePullPolicy: Always
+          name: postgres
+          command: ["/bin/sleep", "3650d"]
+          env:
+            - name: POSTGRES_USER
+              value: "paperless"
+            - name: POSTGRES_PASSWORD
+              value: "paperless"
+            - name: POSTGRES_DB
+              value: "paperless"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "postgresql_16"
+              name: paperless-pvc
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
