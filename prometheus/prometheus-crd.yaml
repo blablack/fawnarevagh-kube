@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: alertmanagerconfigs.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -10042,7 +10042,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: alertmanagers.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -15586,6 +15586,15 @@ spec:
                   ServiceAccountName is the name of the ServiceAccount to use to run the
                   Prometheus Pods.
                 type: string
+              serviceName:
+                description: |-
+                  The name of the service name used by the underlying StatefulSet(s) as the governing service.
+                  If defined, the Service  must be created before the Alertmanager resource in the same namespace and it must define a selector that matches the pod labels.
+                  If empty, the operator will create and manage a headless service named `alertmanager-operated` for Alermanager resources.
+                  When deploying multiple Alertmanager resources in the same namespace, it is recommended to specify a different value for each.
+                  See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
+                minLength: 1
+                type: string
               sha:
                 description: |-
                   SHA of Alertmanager container image to be deployed. Defaults to the value of `version`.
@@ -18780,7 +18789,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: podmonitors.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -19988,7 +19997,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: probes.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -21163,7 +21172,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: prometheusagents.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -31997,7 +32006,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: prometheuses.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -41024,6 +41033,27 @@ spec:
                 description: 'Deprecated: use ''spec.image'' instead. The image''s
                   digest can be specified as part of the image name.'
                 type: string
+              shardRetentionPolicy:
+                description: |-
+                  ShardRetentionPolicy defines the retention policy for the Prometheus shards.
+                  (Alpha) Using this field requires the 'PrometheusShardRetentionPolicy' feature gate to be enabled.
+
+                  The final goals for this feature can be seen at https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/proposals/202310-shard-autoscaling.md#graceful-scale-down-of-prometheus-servers,
+                  however, the feature is not yet fully implemented in this PR. The limitation being:
+                  * Retention duration is not settable, for now, shards are retained forever.
+                properties:
+                  whenScaled:
+                    description: |-
+                      Defines the retention policy when the Prometheus shards are scaled down.
+                      * `Delete`, the operator will delete the pods from the scaled-down shard(s).
+                      * `Retain`, the operator will keep the pods from the scaled-down shard(s), so the data can still be queried.
+
+                      If not defined, the operator assumes the `Delete` value.
+                    enum:
+                    - Retain
+                    - Delete
+                    type: string
+                type: object
               shards:
                 description: |-
                   Number of shards to distribute the scraped targets onto.
@@ -45061,7 +45091,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: prometheusrules.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -45221,7 +45251,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: scrapeconfigs.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -56052,12 +56082,14 @@ spec:
                       minLength: 1
                       type: string
                     role:
-                      description: The OpenStack role of entities that should be discovered.
+                      description: |-
+                        The OpenStack role of entities that should be discovered.
+
+                        Note: The `LoadBalancer` role requires Prometheus >= v3.2.0.
                       enum:
                       - Instance
-                      - instance
                       - Hypervisor
-                      - hypervisor
+                      - LoadBalancer
                       type: string
                     tlsConfig:
                       description: TLS configuration applying to the target HTTP endpoint.
@@ -57734,7 +57766,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: servicemonitors.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -58964,7 +58996,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.2
-    operator.prometheus.io/version: 0.80.0
+    operator.prometheus.io/version: 0.80.1
   name: thanosrulers.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -63901,6 +63933,15 @@ spec:
                   ServiceAccountName is the name of the ServiceAccount to use to run the
                   Thanos Ruler Pods.
                 type: string
+              serviceName:
+                description: |-
+                  The name of the service name used by the underlying StatefulSet(s) as the governing service.
+                  If defined, the Service  must be created before the ThanosRuler resource in the same namespace and it must define a selector that matches the pod labels.
+                  If empty, the operator will create and manage a headless service named `thanos-ruler-operated` for ThanosRuler resources.
+                  When deploying multiple ThanosRuler resources in the same namespace, it is recommended to specify a different value for each.
+                  See https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#stable-network-id for more details.
+                minLength: 1
+                type: string
               storage:
                 description: Storage spec to specify how storage shall be used.
                 properties:
@@ -67105,7 +67146,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.80.0
+    app.kubernetes.io/version: 0.80.1
   name: prometheus-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -67122,7 +67163,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.80.0
+    app.kubernetes.io/version: 0.80.1
   name: prometheus-operator
 rules:
 - apiGroups:
@@ -67230,7 +67271,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.80.0
+    app.kubernetes.io/version: 0.80.1
   name: prometheus-operator
   namespace: monitoring
 spec:
@@ -67246,19 +67287,19 @@ spec:
       labels:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: prometheus-operator
-        app.kubernetes.io/version: 0.80.0
+        app.kubernetes.io/version: 0.80.1
     spec:
       automountServiceAccountToken: true
       containers:
       - args:
         - --kubelet-service=kube-system/kubelet
-        - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.80.0
+        - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.80.1
         - --kubelet-endpoints=true
         - --kubelet-endpointslice=false
         env:
         - name: GOGC
           value: "30"
-        image: quay.io/prometheus-operator/prometheus-operator:v0.80.0
+        image: quay.io/prometheus-operator/prometheus-operator:v0.80.1
         name: prometheus-operator
         ports:
         - containerPort: 8080
@@ -67292,7 +67333,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.80.0
+    app.kubernetes.io/version: 0.80.1
   name: prometheus-operator
   namespace: monitoring
 ---
@@ -67302,7 +67343,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.80.0
+    app.kubernetes.io/version: 0.80.1
   name: prometheus-operator
   namespace: monitoring
 spec:
