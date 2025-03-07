@@ -83,6 +83,8 @@ class K8sPodResolver(BaseResolver):
         reply = request.reply()
         qname = str(request.q.qname)
 
+        logging.info(f"Request for {qname}")
+
         if request.q.qtype == QTYPE.PTR:
             if qname.endswith(".in-addr.arpa."):
                 parts = qname.split(".")
