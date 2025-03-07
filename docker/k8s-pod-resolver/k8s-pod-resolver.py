@@ -2,11 +2,31 @@ from dnslib import DNSRecord, DNSHeader, RR, QTYPE, A, PTR
 from dnslib.server import DNSServer, DNSHandler, BaseResolver
 import kubernetes.client
 import kubernetes.config
+import http.server
+import socketserver
 import os
 import ipaddress
 import socket
 import threading
 import logging
+from concurrent.futures import ThreadPoolExecutor
+
+class HealthCheckHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/healthz':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'OK')
+        else:
+            self.send_response(404)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'Not Found')
+    
+    def log_message(self, format, *args):
+        # Suppress logging for cleaner output
+        return
 
 class K8sPodResolver(BaseResolver):
     def __init__(self):
@@ -50,6 +70,10 @@ class K8sPodResolver(BaseResolver):
         self.cache_timer.daemon = True
         self.cache_timer.start()
     
+    def is_healthy(self):
+        """Check if the resolver is healthy"""
+        return len(self.pod_cache) > 0
+
     def resolve(self, request, handler):
         """Resolve DNS requests for pod IPs"""
         
@@ -70,6 +94,31 @@ class K8sPodResolver(BaseResolver):
                             return reply
         
         return reply
+    
+def run_health_server(resolver, port=8080):
+    """Run a health check server on the specified port"""
+    class CustomHealthHandler(HealthCheckHandler):
+        def do_GET(self):
+            if self.path == '/healthz':
+                if resolver.is_healthy():
+                    self.send_response(200)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(b'OK')
+                else:
+                    self.send_response(503)
+                    self.send_header('Content-type', 'text/plain')
+                    self.end_headers()
+                    self.wfile.write(b'Service Unavailable')
+            else:
+                self.send_response(404)
+                self.send_header('Content-type', 'text/plain')
+                self.end_headers()
+                self.wfile.write(b'Not Found')
+    
+    httpd = socketserver.TCPServer(("", port), CustomHealthHandler)
+    logging.info(f"Starting health check server on port {port}")
+    httpd.serve_forever()
 
 def run_server():
     logging.basicConfig(
@@ -78,12 +127,15 @@ def run_server():
 
     dns_port = int(os.environ.get("DNS_PORT", 53))
     dns_addr = os.environ.get("DNS_BIND_ADDR", "0.0.0.0")
+    health_port = int(os.environ.get("HEALTH_PORT", 8080))
 
     resolver = K8sPodResolver()
     server = DNSServer(resolver, port=dns_port, address=dns_addr)
     
     logging.info(f"Starting DNS server on {dns_addr}:{dns_port}")
-    server.start()
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        executor.submit(run_health_server, resolver, health_port)
+        executor.submit(server.start)
 
 if __name__ == "__main__":
     run_server()
