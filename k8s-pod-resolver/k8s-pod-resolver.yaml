@@ -29,20 +29,15 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: k8s-pod-resolver-config
-data:
-  refresh-interval: "300"  # Cache refresh interval in seconds
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: k8s-pod-resolver
 spec:
   replicas: 1
+  revisionHistoryLimit: 0
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: k8s-pod-resolver
@@ -66,6 +61,12 @@ spec:
         env:
         - name: DNS_PORT
           value: "53"
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
         livenessProbe:
           httpGet:
             path: /healthz
@@ -87,7 +88,6 @@ spec:
             cpu: "100m"
 
 ---
-# Service to expose the DNS resolver
 apiVersion: v1
 kind: Service
 metadata:

@@ -86,7 +86,7 @@ class K8sPodResolver(BaseResolver):
         logging.info(f"Request for {qname}")
 
         if request.q.qtype == QTYPE.PTR:
-            if qname.endswith(".in-addr.arpa."):
+            if qname.lower().rstrip('.').endswith('.in-addr.arpa'):
                 parts = qname.split(".")
                 if len(parts) >= 5:
                     # Reverse the octets
