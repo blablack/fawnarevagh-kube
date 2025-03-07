@@ -1,0 +1,108 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: k8s-pod-resolver
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-ip-reader
+rules:
+- apiGroups: [""]
+  resources: ["pods"]
+  verbs: ["get", "list", "watch"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: k8s-pod-resolver-binding
+subjects:
+- kind: ServiceAccount
+  name: k8s-pod-resolver
+  namespace: default
+roleRef:
+  kind: ClusterRole
+  name: pod-ip-reader
+  apiGroup: rbac.authorization.k8s.io
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: k8s-pod-resolver-config
+data:
+  refresh-interval: "300"  # Cache refresh interval in seconds
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: k8s-pod-resolver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: k8s-pod-resolver
+  template:
+    metadata:
+      labels:
+        app: k8s-pod-resolver
+    spec:
+      serviceAccountName: k8s-pod-resolver
+      containers:
+      - name: k8s-pod-resolver
+        image: nucio.nowhere:30038/k8s-pod-resolver:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 53
+          protocol: UDP
+          name: dns
+        - containerPort: 8080
+          protocol: TCP
+          name: http
+        env:
+        - name: DNS_PORT
+          value: "53"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+
+---
+# Service to expose the DNS resolver
+apiVersion: v1
+kind: Service
+metadata:
+  name: k8s-pod-resolver
+spec:
+  selector:
+    app: k8s-pod-resolver
+  ports:
+  - port: 53
+    protocol: UDP
+    targetPort: 53
+    name: dns
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
+    name: http
+  type: ClusterIP
+  clusterIP: 10.43.0.26
