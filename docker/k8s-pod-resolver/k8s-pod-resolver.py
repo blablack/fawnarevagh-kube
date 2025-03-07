@@ -10,6 +10,7 @@ import socket
 import threading
 import logging
 import sys
+import re
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -76,6 +77,35 @@ class K8sPodResolver(BaseResolver):
     def is_healthy(self):
         """Check if the resolver is healthy"""
         return len(self.pod_cache) > 0
+    
+    def clean_pod_name(self, full_name):
+        # Split namespace if present
+        parts = full_name.split('.')
+        pod_name = parts[0]
+        namespace = parts[1] if len(parts) > 1 else None
+        
+        # Pattern 1: deployment format with random hash (longhorn-ui-7cc7f7469-m8kv2)
+        match = re.match(r'(.*)-[a-f0-9]{8,10}-[a-z0-9]{5}$', pod_name)
+        if match:
+            clean_name = match.group(1)
+        
+        # Pattern 2: replicaset without deployment (metrics-server-7bf7d58749-lrjgz)
+        elif re.match(r'(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$', pod_name):
+            clean_name = re.match(r'(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$', pod_name).group(1)
+        
+        # Pattern 3: daemonset pods (speaker-d7xtj)
+        elif re.match(r'(.*)-[a-z0-9]{5}$', pod_name):
+            clean_name = re.match(r'(.*)-[a-z0-9]{5}$', pod_name).group(1)
+        
+        # No pattern matched, return original
+        else:
+            clean_name = pod_name
+        
+        # Add namespace back if it was present
+        if namespace:
+            return f"{clean_name}.{namespace}"
+        else:
+            return clean_name
 
     def resolve(self, request, handler):
         """Resolve DNS requests for pod IPs"""
@@ -95,6 +125,7 @@ class K8sPodResolver(BaseResolver):
                     with self.cache_lock:
                         if ip in self.pod_cache:
                             pod_name = self.pod_cache[ip]
+                            pod_name = self.clean_pod_name(pod_name)
                             logging.info(f"IP: {ip} - {pod_name}")
                             reply.add_answer(
                                 RR(request.q.qname, QTYPE.PTR, rdata=PTR(pod_name))
