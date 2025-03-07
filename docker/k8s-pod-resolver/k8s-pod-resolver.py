@@ -93,6 +93,7 @@ class K8sPodResolver(BaseResolver):
                     with self.cache_lock:
                         if ip in self.pod_cache:
                             pod_name = self.pod_cache[ip]
+                            logging.info(f"IP: {ip} - {pod_name}")
                             reply.add_answer(
                                 RR(request.q.qname, QTYPE.PTR, rdata=PTR(pod_name))
                             )
@@ -130,7 +131,7 @@ def run_health_server(resolver, port=8080):
 
 def run_server():
     logging.basicConfig(
-        level=logging.DEBUG,
+        level=logging.INFO,
         format="%(asctime)s - %(levelname)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)],
     )
