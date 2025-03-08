@@ -57,6 +57,7 @@ kubectl apply -f $SCRIPT_DIR/../grafana/configmap-dashboards.yaml --server-side
 kubectl apply -f $SCRIPT_DIR/../grafana/configmap-datasources.yaml --server-side
 kubectl apply -f $SCRIPT_DIR/../grafana/grafana.yaml
 
+kubectl apply -f $SCRIPT_DIR/../k8s-pod-resolver/k8s-pod-resolver.yaml
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../pihole/pihole.yaml
 
