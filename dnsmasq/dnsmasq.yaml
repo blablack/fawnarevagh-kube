@@ -122,8 +122,7 @@ spec:
               subPath: "dnsmasq.conf"
               mountPath: "/etc/dnsmasq.conf"
             - name: dnsmasq-pvc
-              subPath: "dnsmasq.leases"
-              mountPath: "/var/lib/misc/dnsmasq.leases"
+              mountPath: "/var/lib/misc/"
           resources:
             limits:
               cpu: 20m
