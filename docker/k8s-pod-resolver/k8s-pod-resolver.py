@@ -1,12 +1,10 @@
-from dnslib import DNSRecord, DNSHeader, RR, QTYPE, A, PTR
-from dnslib.server import DNSServer, DNSHandler, BaseResolver
+from dnslib import RR, QTYPE, PTR
+from dnslib.server import DNSServer, BaseResolver
 import kubernetes.client
 import kubernetes.config
 import http.server
 import socketserver
 import os
-import ipaddress
-import socket
 import threading
 import logging
 import sys
