@@ -43,11 +43,8 @@ class K8sPodResolver(BaseResolver):
         self.k8s_api = kubernetes.client.CoreV1Api()
         self.pod_cache = {}
         self.cache_lock = threading.Lock()
-        self.cache_timer = threading.Timer(300, self.refresh_cache)
-        self.cache_timer.daemon = True
-        self.cache_timer.start()
 
-        # Initial cache population
+        # Initial cache population and start the timer
         self.refresh_cache()
 
     def refresh_cache(self):
@@ -69,6 +66,10 @@ class K8sPodResolver(BaseResolver):
         except Exception as e:
             logging.error(f"Error refreshing cache: {e}")
 
+        # Cancel any existing timer before creating a new one
+        if hasattr(self, "cache_timer") and self.cache_timer:
+            self.cache_timer.cancel()
+
         # Schedule next refresh
         self.cache_timer = threading.Timer(300, self.refresh_cache)
         self.cache_timer.daemon = True
@@ -77,30 +78,32 @@ class K8sPodResolver(BaseResolver):
     def is_healthy(self):
         """Check if the resolver is healthy"""
         return len(self.pod_cache) > 0
-    
+
     def clean_pod_name(self, full_name):
         # Split namespace if present
-        parts = full_name.split('.')
+        parts = full_name.split(".")
         pod_name = parts[0]
         namespace = parts[1] if len(parts) > 1 else None
-        
+
         # Pattern 1: deployment format with random hash (longhorn-ui-7cc7f7469-m8kv2)
-        match = re.match(r'(.*)-[a-f0-9]{8,10}-[a-z0-9]{5}$', pod_name)
+        match = re.match(r"(.*)-[a-f0-9]{8,10}-[a-z0-9]{5}$", pod_name)
         if match:
             clean_name = match.group(1)
-        
+
         # Pattern 2: replicaset without deployment (metrics-server-7bf7d58749-lrjgz)
-        elif re.match(r'(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$', pod_name):
-            clean_name = re.match(r'(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$', pod_name).group(1)
-        
+        elif re.match(r"(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$", pod_name):
+            clean_name = re.match(r"(.*)-[a-z0-9]{9,10}-[a-z0-9]{5}$", pod_name).group(
+                1
+            )
+
         # Pattern 3: daemonset pods (speaker-d7xtj)
-        elif re.match(r'(.*)-[a-z0-9]{5}$', pod_name):
-            clean_name = re.match(r'(.*)-[a-z0-9]{5}$', pod_name).group(1)
-        
+        elif re.match(r"(.*)-[a-z0-9]{5}$", pod_name):
+            clean_name = re.match(r"(.*)-[a-z0-9]{5}$", pod_name).group(1)
+
         # No pattern matched, return original
         else:
             clean_name = pod_name
-        
+
         # Add namespace back if it was present
         if namespace:
             return f"{clean_name}.{namespace}"
@@ -116,7 +119,7 @@ class K8sPodResolver(BaseResolver):
         logging.info(f"Request for {qname}")
 
         if request.q.qtype == QTYPE.PTR:
-            if qname.lower().rstrip('.').endswith('.in-addr.arpa'):
+            if qname.lower().rstrip(".").endswith(".in-addr.arpa"):
                 parts = qname.split(".")
                 if len(parts) >= 5:
                     # Reverse the octets
