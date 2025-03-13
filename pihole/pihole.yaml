@@ -3,238 +3,19 @@ kind: ConfigMap
 metadata:
   name: unbound
 data:
-  unbound.conf: |
+  listening-port.conf: |
     server:
-        ###########################################################################
-        # BASIC SETTINGS
-        ###########################################################################
-        # Set the working directory for the program
-        directory: "/opt/unbound/etc/unbound"
-        
-        # Root hints file
-        root-hints: "/opt/unbound/etc/unbound/root.hints"
-        
-        # Listen on all interfaces on port 5335
-        interface: 0.0.0.0@5335
-        
-        # Drop privileges after binding the port
-        username: "_unbound"
-        
-        # Prevent daemon mode
-        do-daemonize: no
-        
-        # Enable chroot for security
-        chroot: "/opt/unbound/etc/unbound"
-        
-        # IPv6 settings - disabled for environments without native IPv6
-        do-ip6: no
-        prefer-ip6: no
-        
-        # Cache TTL limits
-        cache-max-ttl: 86400  # 1 day maximum TTL
-        cache-min-ttl: 0      # Respect authoritative TTLs
-        
-        # EDNS buffer size - DNS Flag Day 2020 recommendation
-        edns-buffer-size: 1232
-        
-        # Randomize RR order in responses
-        rrset-roundrobin: yes
+        port: 5335
+        verbosity: 2
+  cachedb.conf: |
+    server:
+      module-config: "validator cachedb iterator"
 
-        ###########################################################################
-        # LOGGING
-        ###########################################################################
-        # Minimal logging for production environments
-        verbosity: 1          # Slightly increased from 0 to catch critical issues
-        use-syslog: no        # Disable syslog
-        logfile: ""           # Empty string means log to stderr (console)
-        log-time-ascii: yes   # Add timestamps to log entries
-        log-local-actions: no
-        log-queries: no
-        log-replies: no
-        log-servfail: yes     # Log SERVFAIL responses to help with debugging
-
-        ###########################################################################
-        # ACCESS CONTROL
-        ###########################################################################
-        # Only allow recursion from trusted networks
-        access-control: 127.0.0.1/32 allow     # Allow localhost
-        access-control: 192.168.2.0/24 allow   # Allow your home network
-        access-control: 10.42.0.0/16 allow     # Allow K3s internal pod network
-        access-control: 10.43.0.0/16 allow     # Allow K3s external service network
-        access-control: 0.0.0.0/0 refuse       # Refuse all others
-        # Uncomment if IPv6 is enabled
-        # access-control: fc00::/7 allow
-        # access-control: ::1/128 allow
-        
-        # Default action for unlisted networks
-        access-control: 0.0.0.0/0 refuse
-
-        ###########################################################################
-        # PRIVACY SETTINGS
-        ###########################################################################
-        # QNAME minimization to improve privacy
-        qname-minimisation: yes
-        
-        # Use NSEC aggressively to reduce queries and improve privacy
-        aggressive-nsec: yes
-        
-        # Timeout handling for UDP ports
-        delay-close: 10000
-        
-        # Negative cache size (increased for better performance)
-        neg-cache-size: 8M
-        
-        # Don't query localhost
-        do-not-query-localhost: no
-
-        ###########################################################################
-        # SECURITY SETTINGS
-        ###########################################################################
-        # DNSSEC validation (uncomment to enable)
-        # auto-trust-anchor-file: "/opt/unbound/etc/unbound/root.key"
-        
-        # Hardening options
-        harden-glue: yes
-        harden-dnssec-stripped: yes
-        harden-algo-downgrade: yes
-        harden-below-nxdomain: yes
-        harden-large-queries: yes
-        harden-short-bufsize: yes
-        harden-referral-path: yes  # Enabled for better security
-        
-        # Prevent DNS rebinding attacks
-        private-address: 10.0.0.0/8
-        private-address: 192.168.0.0/16
-        private-address: 169.254.0.0/16
-        # Uncomment if IPv6 is enabled
-        # private-address: fd00::/8
-        # private-address: fe80::/10
-        # private-address: ::ffff:0:0/96
-        
-        # Limit exposure of server information
-        hide-identity: yes
-        hide-version: yes
-        identity: "DNS"
-        
-        # Limit DNS amplification attacks
-        deny-any: yes
-        
-        # Use 0x20 bit encoding for protection against DNS poisoning
-        use-caps-for-id: yes
-        
-        # Rate limiting
-        ratelimit: 1000
-        
-        # Prevent some DNS poisoning attacks
-        unwanted-reply-threshold: 10000
-        
-        # Clean additional section
-        val-clean-additional: yes
-        
-        # TLS certificate bundle for secure outgoing connections
-        tls-cert-bundle: /etc/ssl/certs/ca-certificates.crt
-        
-        # HTTP user agent
-        hide-http-user-agent: no
-        http-user-agent: "DNS"
-
-        ###########################################################################
-        # PERFORMANCE SETTINGS
-        ###########################################################################
-        # Thread count - adjust based on CPU cores
-        num-threads: 4
-        
-        # Cache settings - optimal for systems with 4GB+ RAM
-        msg-cache-size: 256m       # Doubled from original
-        rrset-cache-size: 512m     # Doubled from original
-        
-        # Slab settings - match to num-threads
-        msg-cache-slabs: 4
-        rrset-cache-slabs: 4
-        infra-cache-slabs: 4
-        key-cache-slabs: 4
-        
-        # Query handling
-        num-queries-per-thread: 4096
-        outgoing-range: 8192
-        incoming-num-tcp: 20       # Increased from 10
-        
-        # Performance optimizations
-        prefetch: yes
-        prefetch-key: yes
-        minimal-responses: yes
-        serve-expired: yes
-        serve-expired-ttl: 3600    # Added parameter to limit time served
-        so-reuseport: yes
-
-        ###########################################################################
-        # LOCAL ZONE
-        ###########################################################################
-        # Uncomment to include local zone files
-        # include: /opt/unbound/etc/unbound/a-records.conf
-        # include: /opt/unbound/etc/unbound/srv-records.conf
-
-        ###########################################################################
-        # FORWARD ZONE
-        ###########################################################################
-        # Uncomment to include forward records
-        # include: /opt/unbound/etc/unbound/forward-records.conf
-
-    remote-control:
-        control-enable: yes
----
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: download-root-hints
-spec:
-  schedule: "0 0 16 * *"
-  successfulJobsHistoryLimit: 0
-  failedJobsHistoryLimit: 1
-  concurrencyPolicy: Forbid
-  jobTemplate:
-    spec:
-      backoffLimit: 1
-      template:
-        metadata:
-          labels:
-            app: download-root-hints
-            part-of: pihole
-        spec:
-          volumes:
-            - name: pihole-pvc
-              persistentVolumeClaim:
-                claimName: pihole-pvc
-          affinity:
-            podAffinity:
-              requiredDuringSchedulingIgnoredDuringExecution:
-                - labelSelector:
-                    matchExpressions:
-                      - key: "part-of"
-                        operator: In
-                        values:
-                          - pihole
-                  topologyKey: "kubernetes.io/hostname"
-          containers:
-            - image: nucio.nowhere:30038/download-root-hints:latest
-              imagePullPolicy: Always
-              name: download-root-hints
-              volumeMounts:
-                - mountPath: "/tmp/unbound_config"
-                  subPath: "unbound"
-                  name: pihole-pvc
-              resources:
-                limits:
-                  cpu: 200m
-                  memory: 200Mi
-                requests:
-                  cpu: 100m
-                  memory: 100Mi
-          restartPolicy: Never
-          dnsPolicy: "None"
-          dnsConfig:
-            nameservers:
-              - 10.43.0.22
+    cachedb:
+      backend: "redis"
+      redis-server-host: localhost
+      redis-server-port: 6379
+      redis-expire-records: yes
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -256,16 +37,6 @@ spec:
     spec:
       hostNetwork: false
       hostname: pihole
-      affinity:
-        podAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: "part-of"
-                    operator: In
-                    values:
-                      - pihole
-              topologyKey: "kubernetes.io/hostname"
       containers:
         - name: pihole
           image: pihole/pihole:latest
@@ -278,7 +49,7 @@ spec:
                 - "NET_RAW"
                 - "SYS_NICE"
                 - "CHOWN"
-                - "SYS_TIME "
+                - "SYS_TIME"
           ports:
             - containerPort: 80
               name: pihole-http
@@ -297,7 +68,7 @@ spec:
               protocol: UDP
           env:
             - name: TZ
-              value: "EU/Dublin"
+              value: "Europe/Dublin"
             - name: FTLCONF_webserver_api_password
               valueFrom:
                 secretKeyRef:
@@ -343,16 +114,26 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: mvance/unbound:latest
+        - image: redis:latest
+          imagePullPolicy: Always
+          name: redis
+          resources:
+            limits:
+              cpu: 40m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+        - image: klutchell/unbound:latest
           imagePullPolicy: Always
           name: unbound
           volumeMounts:
-            - mountPath: "/opt/unbound/etc/unbound/"
-              subPath: "unbound"
-              name: pihole-pvc
             - name: confmap-vol
-              subPath: "unbound.conf"
-              mountPath: "/opt/unbound/etc/unbound/unbound.conf"
+              subPath: "listening-port.conf"
+              mountPath: "/etc/unbound/custom.conf.d/listening-port.conf"
+            - name: confmap-vol
+              subPath: "cachedb.conf"
+              mountPath: "/etc/unbound/custom.conf.d/cachedb.conf"
           startupProbe:
             tcpSocket:
               port: 5335
