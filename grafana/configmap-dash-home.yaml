@@ -983,7 +983,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\"}) ",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\",chip_name=\"coretemp\"}) ",
               "legendFormat": "nucio",
               "range": true,
               "refId": "A"
@@ -994,7 +994,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\"}) ",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\",chip_name=\"coretemp\"}) ",
               "hide": false,
               "instant": false,
               "legendFormat": "quario",
