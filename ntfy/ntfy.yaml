@@ -41,11 +41,11 @@ spec:
           args: ["serve"]
           resources:
             limits:
-              cpu: 500m
-              memory: 128Mi
-            requests:
               cpu: 200m
-              memory: 100Mi
+              memory: 200Mi
+            requests:
+              cpu: 50m
+              memory: 50Mi
           ports:
             - containerPort: 80
               name: http
