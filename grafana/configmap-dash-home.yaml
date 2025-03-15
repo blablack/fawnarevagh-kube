@@ -185,7 +185,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_time_seconds{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - node_boot_time_seconds{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}",
+              "expr": "avg by (instance) (node_time_seconds{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - node_boot_time_seconds{instance=\"192.168.2.2:9100\",job=\"node-exporter\"})",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -247,7 +247,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_time_seconds{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - node_boot_time_seconds{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}",
+              "expr": "avg by (instance) (node_time_seconds{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - node_boot_time_seconds{instance=\"192.168.2.3:9100\",job=\"node-exporter\"})",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -393,7 +393,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_MemTotal_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - node_memory_MemFree_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - (node_memory_Cached_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"})",
+              "expr": "avg(node_memory_MemTotal_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - node_memory_MemFree_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} - (node_memory_Cached_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}))",
               "legendFormat": "RAM Used",
               "range": true,
               "refId": "A"
@@ -404,7 +404,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "node_memory_Cached_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}",
+              "expr": "avg(node_memory_Cached_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\"})",
               "hide": false,
               "instant": false,
               "legendFormat": "RAM Cache + Buffer",
@@ -552,7 +552,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "node_memory_MemTotal_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - node_memory_MemFree_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - (node_memory_Cached_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"})",
+              "expr": "avg(node_memory_MemTotal_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - node_memory_MemFree_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} - (node_memory_Cached_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}))",
               "legendFormat": "RAM Used",
               "range": true,
               "refId": "A"
@@ -563,7 +563,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "node_memory_Cached_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}",
+              "expr": "avg(node_memory_Cached_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_Buffers_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"} + node_memory_SReclaimable_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\"})",
               "hide": false,
               "instant": false,
               "legendFormat": "RAM Cache + Buffer",
@@ -659,7 +659,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8)",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -670,7 +670,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -766,7 +766,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8)",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -777,7 +777,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -875,7 +875,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "100 - ((node_filesystem_avail_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device!~'rootfs'} * 100) / node_filesystem_size_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\",mountpoint=\"/\"})",
+              "expr": "100 - avg by (mountpoint) ((node_filesystem_avail_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device!~'rootfs',mountpoint=\"/\"} * 100) / node_filesystem_size_bytes{instance=\"192.168.2.2:9100\",job=\"node-exporter\",mountpoint=\"/\"})",
               "legendFormat": "nucio",
               "range": true,
               "refId": "A"
@@ -886,7 +886,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "100 - ((node_filesystem_avail_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device!~'rootfs'} * 100) / node_filesystem_size_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\",mountpoint=\"/\"})",
+              "expr": "100 - avg by (mountpoint) ((node_filesystem_avail_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device!~'rootfs',mountpoint=\"/\"} * 100) / node_filesystem_size_bytes{instance=\"192.168.2.3:9100\",job=\"node-exporter\",mountpoint=\"/\"})",
               "hide": false,
               "instant": false,
               "legendFormat": "quario",
@@ -983,7 +983,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\",chip_name=\"coretemp\"}) ",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[5m]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
               "legendFormat": "nucio",
               "range": true,
               "refId": "A"
@@ -994,7 +994,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[5m]) * on(chip) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\",chip_name=\"coretemp\"}) ",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[5m]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
               "hide": false,
               "instant": false,
               "legendFormat": "quario",
@@ -1102,7 +1102,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval])",
+              "expr": "avg(irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -1113,7 +1113,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval])*-1",
+              "expr": "avg(irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -1213,7 +1213,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "100-(100/raidTotalSize*raidFreeSize)",
+              "expr": "avg(100-(100/raidTotalSize*raidFreeSize))",
               "legendFormat": "Volume",
               "range": true,
               "refId": "A"
