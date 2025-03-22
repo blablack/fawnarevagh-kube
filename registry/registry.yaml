@@ -52,7 +52,7 @@ spec:
     spec:
       containers:
         - name: docker-registry
-          image: registry
+          image: registry:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 5000

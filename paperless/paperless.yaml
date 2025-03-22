@@ -44,7 +44,7 @@ spec:
             requests:
               cpu: 10m
               memory: 50Mi
-        - image: docker.io/library/redis:7
+        - image: docker.io/library/redis:latest
           imagePullPolicy: Always
           name: redis
           volumeMounts:
