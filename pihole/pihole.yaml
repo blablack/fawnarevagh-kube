@@ -5,8 +5,7 @@ metadata:
 data:
   listening-port.conf: |
     server:
-        port: 5335
-        verbosity: 2
+      port: 5335
   cachedb.conf: |
     server:
       module-config: "validator cachedb iterator"
@@ -16,6 +15,10 @@ data:
       redis-server-host: localhost
       redis-server-port: 6379
       redis-expire-records: yes
+  dnssec.conf: |
+    server:
+      harden-glue: no
+      harden-dnssec-stripped: no
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -134,6 +137,9 @@ spec:
             - name: confmap-vol
               subPath: "cachedb.conf"
               mountPath: "/etc/unbound/custom.conf.d/cachedb.conf"
+            - name: confmap-vol
+              subPath: "dnssec.conf"
+              mountPath: "/etc/unbound/custom.conf.d/dnssec.conf"
           startupProbe:
             tcpSocket:
               port: 5335
