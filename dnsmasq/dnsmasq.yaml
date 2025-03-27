@@ -22,6 +22,7 @@ data:
     dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,1d
     dhcp-host=48:B0:2D:4F:77:6B,192.168.2.188,shield,1d
     dhcp-host=DC:68:EB:10:78:77,192.168.2.86,switch,1d
+    dhcp-host=BC:97:40:03:91:77,192.168.2.87,solar-panels,1d
 
     dhcp-host=B4:75:0E:72:00:F5,192.168.2.20,wemo1,1d
     dhcp-host=94:10:3E:69:D1:2D,192.168.2.21,wemo2,1d
