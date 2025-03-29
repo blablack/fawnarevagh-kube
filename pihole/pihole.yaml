@@ -6,15 +6,6 @@ data:
   listening-port.conf: |
     server:
       port: 5335
-  cachedb.conf: |
-    server:
-      module-config: "validator cachedb iterator"
-
-    cachedb:
-      backend: "redis"
-      redis-server-host: localhost
-      redis-server-port: 6379
-      redis-expire-records: yes
   dnssec.conf: |
     server:
       harden-glue: no
@@ -117,16 +108,6 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: redis:latest
-          imagePullPolicy: Always
-          name: redis
-          resources:
-            limits:
-              cpu: 40m
-              memory: 200Mi
-            requests:
-              cpu: 10m
-              memory: 10Mi
         - image: klutchell/unbound:latest
           imagePullPolicy: Always
           name: unbound
@@ -134,9 +115,6 @@ spec:
             - name: confmap-vol
               subPath: "listening-port.conf"
               mountPath: "/etc/unbound/custom.conf.d/listening-port.conf"
-            - name: confmap-vol
-              subPath: "cachedb.conf"
-              mountPath: "/etc/unbound/custom.conf.d/cachedb.conf"
             - name: confmap-vol
               subPath: "dnssec.conf"
               mountPath: "/etc/unbound/custom.conf.d/dnssec.conf"
