@@ -69,11 +69,11 @@ spec:
           name: redis
           resources:
             limits:
-              cpu: 40m
-              memory: 200Mi
+              cpu: 100m
+              memory: 400Mi
             requests:
-              cpu: 10m
-              memory: 10Mi
+              cpu: 40m
+              memory: 50Mi
         - image: ghcr.io/immich-app/immich-server:release
           imagePullPolicy: Always
           name: immich-server

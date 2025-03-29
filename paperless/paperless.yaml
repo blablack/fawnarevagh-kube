@@ -44,7 +44,7 @@ spec:
             requests:
               cpu: 10m
               memory: 50Mi
-        - image: docker.io/library/redis:latest
+        - image: redis:latest
           imagePullPolicy: Always
           name: redis
           volumeMounts:
@@ -53,11 +53,11 @@ spec:
               name: paperless-pvc
           resources:
             limits:
-              cpu: 20m
-              memory: 200Mi
+              cpu: 100m
+              memory: 400Mi
             requests:
-              cpu: 10m
-              memory: 10Mi
+              cpu: 40m
+              memory: 50Mi
         - image: paperlessngx/paperless-ngx:latest
           imagePullPolicy: Always
           name: paperless
