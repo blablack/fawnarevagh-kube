@@ -6,6 +6,7 @@ data:
   listening-port.conf: |
     server:
       port: 5335
+      verbosity: 2
   dnssec.conf: |
     server:
       harden-glue: no
