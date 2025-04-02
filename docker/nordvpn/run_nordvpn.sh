@@ -171,7 +171,7 @@ sleep 30s
 clean_meshnet
 
 while true; do
-	#kill_process_if_running "norduserd"
+	kill_process_if_running "norduserd"
 	#kill_process_if_running "nordfileshare"
 
 	[[ -n ${MESHNET} ]] && /add_to_meshnet.sh
