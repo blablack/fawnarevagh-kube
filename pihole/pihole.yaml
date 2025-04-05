@@ -9,6 +9,7 @@ data:
       verbosity: 2
   dnssec.conf: |
     server:
+      module-config: "iterator"
       harden-glue: no
       harden-dnssec-stripped: no
 ---
@@ -142,11 +143,11 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 40m
-              memory: 150Mi
+              cpu: 500m
+              memory: 256Mi
             requests:
-              cpu: 10m
-              memory: 50Mi
+              cpu: 50m
+              memory: 128Mi
       volumes:
         - name: pihole-pvc
           persistentVolumeClaim:
