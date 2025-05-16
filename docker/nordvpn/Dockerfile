@@ -8,8 +8,8 @@ RUN curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-release
 RUN apt-get install -y /tmp/nordrepo.deb 
 RUN apt-get update -y 
 RUN apt-get dist-upgrade -y
-RUN apt-get install -y jq iputils-ping nordvpn=3.19.2
-#RUN apt-get install -y jq iputils-ping nordvpn
+#RUN apt-get install -y jq iputils-ping nordvpn=3.19.2
+RUN apt-get install -y jq iputils-ping nordvpn
 RUN apt-get remove -y nordvpn-release 
 RUN apt-get autoremove -y 
 RUN apt-get autoclean -y 
