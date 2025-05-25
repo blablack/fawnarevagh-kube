@@ -14,11 +14,12 @@ spec:
     metadata:
       labels:
         app: debug-nordvpn
+        part-of: debug-nordvpn
     spec:
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
-          imagePullPolicy: IfNotPresent
-          name: debug-nordvpn
+          imagePullPolicy: Always
+          name: nordvpn
           lifecycle:
             postStart:
               exec:
@@ -31,23 +32,20 @@ spec:
                   name: nordvpn-token
                   key: password
             - name: COUNTRY
-              value: "Ireland"
+              value: "P2P"
             - name: NETWORK
-              value: "192.168.2.0/24;172.16.0.0/24"
+              value: "192.168.2.0/24;10.42.0.0/16;10.43.0.0/16"
+            - name: PORTS
+              value: "8112,6881,9696,8080,53"
             - name: DNS
-              value: "1.1.1.1"
+              value: "10.43.0.22"
+            - name: MESHNET
+              value: "True"
           securityContext:
             privileged: true
             capabilities:
               add:
                 - NET_ADMIN
-          resources:
-            limits:
-              cpu: 100m
-              memory: 150Mi
-            requests:
-              cpu: 10m
-              memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
