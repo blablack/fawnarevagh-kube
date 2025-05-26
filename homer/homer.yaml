@@ -142,8 +142,6 @@ data:
             target: "_blank"
             logo: "http://192.168.2.201/admin/img/logo.svg"
             subtitle: "DNS Server"
-            type: "PiHole"
-            apikey: "7a46672e5ab60ab59ceb90a8535e0fdaeba81230e065ea98dd363a016acad35d"
           - name: "dnsmasq"
             url: "http://192.168.2.208/"
             target: "_blank"
