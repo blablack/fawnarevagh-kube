@@ -1,4 +1,0 @@
-fastapi==0.115.11
-uvicorn==0.34.0
-uptime-kuma-api==1.2.1
-tenacity==9.0.0
