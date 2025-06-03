@@ -246,7 +246,7 @@ spec:
     spec:
       terminationGracePeriodSeconds: 5
       containers:
-        - image: twinproduction/gatus
+        - image: twinproduction/gatus:latest
           imagePullPolicy: Always
           name: gatus
           ports:
