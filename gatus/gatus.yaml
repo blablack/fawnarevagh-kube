@@ -1,0 +1,313 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gatus
+data:
+  config.yaml: |
+    alerting:
+      ntfy:
+        topic: "uptime"
+        url: "http://192.168.2.220"
+        priority: 4
+        default-alert:
+          failure-threshold: 3
+          send-on-resolved: true
+    endpoints:
+      - name: dnsmasq
+        group: dns
+        url: 10.43.0.23
+        interval: 5m
+        dns:
+          query-name: "wiz_c0cb9d"
+          query-type: "A"
+        conditions:
+          - "[DNS_RCODE] == NOERROR"
+        alerts:
+          - type: ntfy
+      - name: Flaresolverr
+        group: service
+        url: "http://10.43.0.24:8191/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Grafana
+        group: service
+        url: "http://192.168.2.222:3000/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Headlamp
+        group: service
+        url: "http://192.168.2.223/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: HomeAssistant
+        group: service
+        url: "http://192.168.2.223/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Homer
+        group: service
+        url: "http://192.168.2.200/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Immich
+        group: service
+        url: "http://192.168.2.210/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Jenkins
+        group: service
+        url: "http://192.168.2.213/login"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: k8s-pod-resolver
+        group: service
+        url: "http://10.43.0.26:8080/healthz"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Nasio
+        group: hardware
+        url: "icmp://192.168.2.4"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Node-RED
+        group: service
+        url: "http://10.43.0.26:8080/healthz"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: ntfy
+        group: service
+        url: "http://192.168.2.220/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Nucio
+        group: hardware
+        url: "icmp://192.168.2.2"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Officio
+        group: hardware
+        url: "icmp://192.168.2.6"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Paperless
+        group: service
+        url: "http://192.168.2.216/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: PiHole
+        group: dns
+        url: 192.168.2.201
+        interval: 5m
+        dns:
+          query-name: "google.com"
+          query-type: "A"
+        conditions:
+          - "[DNS_RCODE] == NOERROR"
+        alerts:
+          - type: ntfy
+      - name: Plex
+        group: service
+        url: "http://192.168.2.204:32400/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Prometheus
+        group: service
+        url: "http://10.43.0.20:9090/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Prowlarr
+        group: service
+        url: "http://192.168.2.207/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: qBittorrent
+        group: service
+        url: "http://192.168.2.209:8112/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Quario
+        group: hardware
+        url: "icmp://192.168.2.3"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Radarr
+        group: service
+        url: "http://192.168.2.217/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Sonarr
+        group: service
+        url: "http://192.168.2.203/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: SyncthingAurelien
+        group: service
+        url: "http://192.168.2.211:8384/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: SyncthingYvonne
+        group: service
+        url: "http://192.168.2.212:8384/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Tdarr
+        group: service
+        url: "http://192.168.2.221/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gatus
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: gatus
+  template:
+    metadata:
+      labels:
+        app: gatus
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - image: twinproduction/gatus
+          imagePullPolicy: Always
+          name: gatus
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          resources:
+            limits:
+              cpu: 250m
+              memory: 100M
+            requests:
+              cpu: 50m
+              memory: 30M
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 5
+          volumeMounts:
+            - mountPath: /config
+              name: gatus-config
+      volumes:
+        - configMap:
+            name: gatus
+          name: gatus-config
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gatus
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.219
+spec:
+  externalTrafficPolicy: Cluster
+  selector:
+    app: gatus
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
