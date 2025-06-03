@@ -71,8 +71,6 @@ kubectl apply -f $SCRIPT_DIR/../jenkins/jenkins.yaml
 kubectl apply -f $SCRIPT_DIR/../ntfy/ntfy-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../ntfy/ntfy.yaml
 
-#kubectl apply -f $SCRIPT_DIR/../uptime-kuma/uptime-kuma-pvc.yaml
-#kubectl apply -f $SCRIPT_DIR/../uptime-kuma/uptime-kuma.yaml
 kubectl apply -f $SCRIPT_DIR/../gatus/gatus.yaml
 
 kubectl apply -f $SCRIPT_DIR/../syncthing/syncthing-aurelien-pvc.yaml

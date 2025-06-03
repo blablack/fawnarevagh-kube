@@ -50,7 +50,7 @@ data:
           - type: ntfy
       - name: HomeAssistant
         group: service
-        url: "http://192.168.2.223/"
+        url: "http://192.168.2.206:8123/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -98,7 +98,7 @@ data:
           - type: ntfy
       - name: Node-RED
         group: service
-        url: "http://10.43.0.26:8080/healthz"
+        url: "http://192.168.2.205"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
