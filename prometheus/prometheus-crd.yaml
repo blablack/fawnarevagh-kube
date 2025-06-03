@@ -4,7 +4,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: alertmanagerconfigs.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -10805,7 +10805,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: alertmanagers.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -20156,7 +20156,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: podmonitors.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -21369,7 +21369,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: probes.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -22549,7 +22549,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: prometheusagents.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -25392,7 +25392,8 @@ spec:
                 type: array
               convertClassicHistogramsToNHCB:
                 description: |-
-                  Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+                  Whether to convert all scraped classic histograms into a native
+                  histogram with custom buckets.
 
                   It requires Prometheus >= v3.4.0.
                 type: boolean
@@ -27307,8 +27308,10 @@ spec:
                 - Values
                 type: string
               nameValidationScheme:
-                description: Specifies the validation scheme for metric and label
-                  names.
+                description: |-
+                  Specifies the validation scheme for metric and label names.
+
+                  It requires Prometheus >= v2.55.0.
                 enum:
                 - UTF8
                 - Legacy
@@ -33436,7 +33439,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: prometheuses.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -37017,7 +37020,8 @@ spec:
                 type: array
               convertClassicHistogramsToNHCB:
                 description: |-
-                  Whether to convert all scraped classic histograms into a native histogram with custom buckets.
+                  Whether to convert all scraped classic histograms into a native
+                  histogram with custom buckets.
 
                   It requires Prometheus >= v3.4.0.
                 type: boolean
@@ -38965,8 +38969,10 @@ spec:
                 - Values
                 type: string
               nameValidationScheme:
-                description: Specifies the validation scheme for metric and label
-                  names.
+                description: |-
+                  Specifies the validation scheme for metric and label names.
+
+                  It requires Prometheus >= v2.55.0.
                 enum:
                 - UTF8
                 - Legacy
@@ -46589,7 +46595,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: prometheusrules.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -46749,7 +46755,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: scrapeconfigs.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -56433,6 +56439,26 @@ spec:
                   Prometheus uses the default value (e.g. /metrics).
                 minLength: 1
                 type: string
+              nameEscapingScheme:
+                description: |-
+                  Metric name escaping mode to request through content negotiation.
+
+                  It requires Prometheus >= v3.4.0.
+                enum:
+                - AllowUTF8
+                - Underscores
+                - Dots
+                - Values
+                type: string
+              nameValidationScheme:
+                description: |-
+                  Specifies the validation scheme for metric and label names.
+
+                  It requires Prometheus >= v3.0.0.
+                enum:
+                - UTF8
+                - Legacy
+                type: string
               nativeHistogramBucketLimit:
                 description: |-
                   If there are more than this many buckets in a native histogram,
@@ -59269,7 +59295,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: servicemonitors.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -60504,7 +60530,7 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.18.0
-    operator.prometheus.io/version: 0.82.2
+    operator.prometheus.io/version: 0.83.0
   name: thanosrulers.monitoring.coreos.com
 spec:
   group: monitoring.coreos.com
@@ -66264,6 +66290,12 @@ spec:
                     type: object
                 type: object
                 x-kubernetes-map-type: atomic
+              ruleQueryOffset:
+                description: |-
+                  The default rule group's query offset duration to use.
+                  It requires Thanos >= v0.38.0.
+                pattern: ^(0|(([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?)$
+                type: string
               ruleSelector:
                 description: |-
                   PrometheusRule objects to be selected for rule evaluation. An empty
@@ -69773,7 +69805,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.82.2
+    app.kubernetes.io/version: 0.83.0
   name: prometheus-operator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -69790,7 +69822,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.82.2
+    app.kubernetes.io/version: 0.83.0
   name: prometheus-operator
 rules:
 - apiGroups:
@@ -69898,7 +69930,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.82.2
+    app.kubernetes.io/version: 0.83.0
   name: prometheus-operator
   namespace: monitoring
 spec:
@@ -69914,19 +69946,19 @@ spec:
       labels:
         app.kubernetes.io/component: controller
         app.kubernetes.io/name: prometheus-operator
-        app.kubernetes.io/version: 0.82.2
+        app.kubernetes.io/version: 0.83.0
     spec:
       automountServiceAccountToken: true
       containers:
       - args:
         - --kubelet-service=kube-system/kubelet
-        - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.82.2
+        - --prometheus-config-reloader=quay.io/prometheus-operator/prometheus-config-reloader:v0.83.0
         - --kubelet-endpoints=true
         - --kubelet-endpointslice=false
         env:
         - name: GOGC
           value: "30"
-        image: quay.io/prometheus-operator/prometheus-operator:v0.82.2
+        image: quay.io/prometheus-operator/prometheus-operator:v0.83.0
         name: prometheus-operator
         ports:
         - containerPort: 8080
@@ -69960,7 +69992,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.82.2
+    app.kubernetes.io/version: 0.83.0
   name: prometheus-operator
   namespace: monitoring
 ---
@@ -69970,7 +70002,7 @@ metadata:
   labels:
     app.kubernetes.io/component: controller
     app.kubernetes.io/name: prometheus-operator
-    app.kubernetes.io/version: 0.82.2
+    app.kubernetes.io/version: 0.83.0
   name: prometheus-operator
   namespace: monitoring
 spec:
