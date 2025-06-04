@@ -15,7 +15,6 @@ kubectl apply -f $SCRIPT_DIR/../persistent-volumes/longhorn.yaml
 
 kubectl apply -f $SCRIPT_DIR/../registry/registry-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
-kubectl apply -f $SCRIPT_DIR/../registry/registry-ui.yaml
 
 kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
 

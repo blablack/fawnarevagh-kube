@@ -69,7 +69,7 @@ metadata:
   namespace: kube-system
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.223
+    metallb.io/loadBalancerIPs: 192.168.2.215
 spec:
   externalTrafficPolicy: Cluster
   ports:
