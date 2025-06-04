@@ -42,7 +42,7 @@ data:
           - type: ntfy
       - name: Headlamp
         group: service
-        url: "http://192.168.2.223/"
+        url: "http://192.168.2.215/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
