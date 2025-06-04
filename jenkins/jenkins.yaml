@@ -109,10 +109,10 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 700m
+              cpu: 2000m
               memory: 2500Mi
             requests:
-              cpu: 100m
+              cpu: 500m
               memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
