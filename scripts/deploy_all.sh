@@ -97,8 +97,8 @@ kubectl apply -f $SCRIPT_DIR/../sonarr/sonarr-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../sonarr/sonarr.yaml
 kubectl apply -f $SCRIPT_DIR/../radarr/radarr-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../radarr/radarr.yaml
-kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr-pvc.yaml
-kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr.yaml
+#kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr-pvc.yaml
+#kubectl apply -f $SCRIPT_DIR/../tdarr/tdarr.yaml
 kubectl apply -f $SCRIPT_DIR/../flaresolverr/flaresolverr.yaml
 
 kubectl apply -f $SCRIPT_DIR/../nordvpn/nordvpn-pvc.yaml
