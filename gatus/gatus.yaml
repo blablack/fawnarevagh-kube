@@ -122,6 +122,14 @@ data:
           - type: ntfy
       - name: Officio
         group: hardware
+        url: "icmp://192.168.2.5"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Asusio
+        group: hardware
         url: "icmp://192.168.2.6"
         interval: 5m
         conditions:
@@ -219,15 +227,6 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
-      - name: Tdarr
-        group: service
-        url: "http://192.168.2.221/"
-        interval: 5m
-        conditions:
-          - "[STATUS] == 200"
-        alerts:
-          - type: ntfy
-
 ---
 apiVersion: apps/v1
 kind: Deployment
