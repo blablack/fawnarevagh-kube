@@ -33,6 +33,7 @@ data:
     dhcp-host=DC:68:EB:10:78:77,192.168.2.17,switch,1d
     dhcp-host=BC:97:40:03:91:77,192.168.2.18,solar-panels,1d
     dhcp-host=98:E2:55:82:CD:14,192.168.2.19,switch2,1d
+    dhcp-host=98:E2:55:F1:68:2B,192.168.2.19,switch2,1d
 
     # Set gateway as Router. Following two lines are identical.
     dhcp-option=3,192.168.2.1
