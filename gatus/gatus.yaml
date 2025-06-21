@@ -50,7 +50,7 @@ data:
           - type: ntfy
       - name: HomeAssistant
         group: service
-        url: "http://192.168.2.206:8123/"
+        url: "http://192.168.2.2:8123/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -303,7 +303,7 @@ metadata:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.219
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   selector:
     app: gatus
   ports:

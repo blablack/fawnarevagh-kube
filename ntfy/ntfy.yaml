@@ -86,7 +86,7 @@ metadata:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.220
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   selector:
     app: ntfy
   ports:
