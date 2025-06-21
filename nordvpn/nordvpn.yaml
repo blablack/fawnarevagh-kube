@@ -230,7 +230,7 @@ metadata:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.207
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   selector:
     app: nordvpn
   ports:
@@ -247,7 +247,7 @@ metadata:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.209
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   selector:
     app: nordvpn
   ports:

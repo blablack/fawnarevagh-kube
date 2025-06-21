@@ -71,7 +71,7 @@ metadata:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.215
 spec:
-  externalTrafficPolicy: Cluster
+  externalTrafficPolicy: Local
   ports:
     - port: 80
       targetPort: 4466
