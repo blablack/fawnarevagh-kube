@@ -67,7 +67,7 @@ spec:
             exec:
               command:
                 - /check_nordvpn_connection.sh
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
@@ -75,7 +75,7 @@ spec:
             exec:
               command:
                 - /check_nordvpn_connection.sh
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
@@ -118,7 +118,7 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
@@ -126,7 +126,7 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 5
             failureThreshold: 5
@@ -167,25 +167,25 @@ spec:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 30
-            timeoutSeconds: 60
+            timeoutSeconds: 30
             failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 120
-            timeoutSeconds: 60
+            timeoutSeconds: 30
             failureThreshold: 5
           livenessProbe:
             httpGet:
               path: /
               port: 8112
-            initialDelaySeconds: 60
+            initialDelaySeconds: 30
             periodSeconds: 120
-            timeoutSeconds: 60
+            timeoutSeconds: 30
             failureThreshold: 5
           env:
             - name: PUID
