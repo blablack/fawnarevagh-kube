@@ -128,14 +128,6 @@ data:
           - "[CONNECTED] == true"
         alerts:
           - type: ntfy
-      - name: Asusio
-        group: hardware
-        url: "icmp://192.168.2.6"
-        interval: 5m
-        conditions:
-          - "[CONNECTED] == true"
-        alerts:
-          - type: ntfy
       - name: Paperless
         group: service
         url: "http://192.168.2.216/"
