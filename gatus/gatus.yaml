@@ -13,6 +13,14 @@ data:
           failure-threshold: 3
           send-on-resolved: true
     endpoints:
+      - name: Cleanuparr
+        group: service
+        url: "http://192.168.2.206/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: dnsmasq
         group: dns
         url: 10.43.0.23
