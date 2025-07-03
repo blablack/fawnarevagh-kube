@@ -34,9 +34,24 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 
     wget https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -O argocd.yaml
 
-    kubectl apply --namespace argocd -f argocd-config.yaml
     kubectl apply --namespace argocd -f argocd.yaml
     kubectl apply --namespace argocd -f argocd-service.yaml
+    kubectl apply --namespace argocd -f argocd-applicationset.yaml
+    kubectl apply --namespace argocd -f argocd-config.yaml
+)
+
+(
+    cd $SCRIPT_DIR/../reloader
+
+    kubectl apply -f reloader.yaml
+)
+
+
+(
+    cd $SCRIPT_DIR/../authentik
+
+    kubectl apply -f authentik-pvc.yaml
+    kubectl apply -f authentik.yaml
 )
 
 (

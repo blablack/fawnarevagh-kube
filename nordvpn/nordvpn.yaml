@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: nordvpn
+  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -212,6 +213,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: nordvpn
+  namespace: default
 spec:
   clusterIP: None
   ports:
@@ -226,6 +228,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: prowlarr
+  namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.207
@@ -243,6 +246,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: qbittorrent
+  namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.209
