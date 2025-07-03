@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: gatus
+  namespace: default
 data:
   config.yaml: |
     alerting:
@@ -248,6 +249,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: gatus
+  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -315,6 +317,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: gatus
+  namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.219

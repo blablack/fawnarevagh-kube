@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: flaresolverr
+  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -60,6 +61,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flaresolverr-internal
+  namespace: default
 spec:
   clusterIP: 10.43.0.24
   ports:
