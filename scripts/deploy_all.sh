@@ -36,8 +36,8 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 
     kubectl apply --namespace argocd -f argocd.yaml
     kubectl apply --namespace argocd -f argocd-service.yaml
-    kubectl apply --namespace argocd -f argocd-applicationset.yaml
     kubectl apply --namespace argocd -f argocd-config.yaml
+    kubectl apply --namespace argocd -f argocd-applicationset.yaml
 )
 
 (
