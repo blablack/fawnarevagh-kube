@@ -1,0 +1,303 @@
+piVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: authentik-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: authentik-secrets
+type: Opaque
+stringData:
+  AUTHENTIK_SECRET_KEY: "your-secret-key-here" # Replace with actual secret key
+  PG_PASS: "authentik" # Replace with actual password
+  PG_USER: "authentik"
+  PG_DB: "authentik"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: authentik
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: authentik
+    spec:
+      volumes:
+        - name: authentik-pvc
+          persistentVolumeClaim:
+            claimName: authentik-pvc
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock
+            type: Socket
+      containers:
+        - image: postgres:16-alpine
+          imagePullPolicy: Always
+          name: postgresql
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_PASS
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_DB
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "postgresql"
+              name: authentik-pvc
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+            requests:
+              cpu: 10m
+              memory: 200Mi
+        - image: redis:alpine
+          imagePullPolicy: Always
+          name: redis
+          command: ["redis-server"]
+          args: ["--save", "60", "1", "--loglevel", "warning"]
+          volumeMounts:
+            - mountPath: "/data"
+              subPath: "redis"
+              name: authentik-pvc
+          startupProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 3
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+        - image: ghcr.io/goauthentik/server:2025.6.3
+          imagePullPolicy: Always
+          name: authentik-server
+          command: ["ak"]
+          args: ["server"]
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: AUTHENTIK_SECRET_KEY
+            - name: AUTHENTIK_REDIS__HOST
+              value: "localhost"
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "localhost"
+            - name: AUTHENTIK_POSTGRESQL__USER
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_USER
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_DB
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_PASS
+          ports:
+            - containerPort: 9000
+              name: http
+            - containerPort: 9443
+              name: https
+          volumeMounts:
+            - mountPath: "/media"
+              subPath: "media"
+              name: authentik-pvc
+            - mountPath: "/templates"
+              subPath: "custom-templates"
+              name: authentik-pvc
+          startupProbe:
+            httpGet:
+              path: /-/health/live/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 10
+          livenessProbe:
+            httpGet:
+              path: /-/health/live/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /-/health/ready/
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1500Mi
+            requests:
+              cpu: 10m
+              memory: 300Mi
+        - image: ghcr.io/goauthentik/server:2025.6.3
+          imagePullPolicy: Always
+          name: authentik-worker
+          command: ["ak"]
+          args: ["worker"]
+          securityContext:
+            runAsUser: 0
+            runAsGroup: 0
+          env:
+            - name: AUTHENTIK_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: AUTHENTIK_SECRET_KEY
+            - name: AUTHENTIK_REDIS__HOST
+              value: "localhost"
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "localhost"
+            - name: AUTHENTIK_POSTGRESQL__USER
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_USER
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_DB
+            - name: AUTHENTIK_POSTGRESQL__PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: authentik-secrets
+                  key: PG_PASS
+          volumeMounts:
+            - mountPath: "/var/run/docker.sock"
+              name: docker-sock
+            - mountPath: "/media"
+              subPath: "media"
+              name: authentik-pvc
+            - mountPath: "/certs"
+              subPath: "certs"
+              name: authentik-pvc
+            - mountPath: "/templates"
+              subPath: "custom-templates"
+              name: authentik-pvc
+          resources:
+            limits:
+              cpu: 500m
+              memory: 1000Mi
+            requests:
+              cpu: 10m
+              memory: 200Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentik
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.221 # Change this IP as needed
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: authentik
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: https
+      protocol: TCP
+      port: 9443
+      targetPort: 9443
+  type: LoadBalancer
