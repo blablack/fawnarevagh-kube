@@ -1,0 +1,33 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: root-apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/blablack/fawnarevagh-kube.git
+        revision: HEAD
+        directories:
+          - path: "*"
+          - path: "argocd"
+            exclude: true
+          - path: "ansible"
+            exclude: true
+          - path: "docker"
+            exclude: true
+          - path: "persistent-volumes"
+            exclude: true
+          - path: "scripts"
+            exclude: true
+  template:
+    metadata:
+      name: "{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/blablack/fawnarevagh-kube.git
+        targetRevision: HEAD
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
