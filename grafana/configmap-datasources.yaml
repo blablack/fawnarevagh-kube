@@ -14,3 +14,4 @@ kind: ConfigMap
 metadata:
   creationTimestamp: null
   name: grafana-datasources
+  namespace: default
