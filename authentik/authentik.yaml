@@ -1,4 +1,4 @@
-piVersion: v1
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: authentik-pvc
@@ -42,10 +42,6 @@ spec:
         - name: authentik-pvc
           persistentVolumeClaim:
             claimName: authentik-pvc
-        - name: docker-sock
-          hostPath:
-            path: /var/run/docker.sock
-            type: Socket
       containers:
         - image: postgres:16-alpine
           imagePullPolicy: Always
@@ -257,8 +253,6 @@ spec:
                   name: authentik-secrets
                   key: PG_PASS
           volumeMounts:
-            - mountPath: "/var/run/docker.sock"
-              name: docker-sock
             - mountPath: "/media"
               subPath: "media"
               name: authentik-pvc
