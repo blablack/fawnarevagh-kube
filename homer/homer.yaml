@@ -50,7 +50,7 @@ data:
         url: "#infrastructure"
 
     services:
-      - name: "My apps"
+      - name: "Personal Apps"
         icon: "fas fa-cloud"
         items:
           - name: "Immich"
@@ -93,13 +93,13 @@ data:
             subtitle: "Movies"
 
       - name: "arr Backends"
-        icon: "fas fa-photo-video"
+        icon: "fas fa-download"
         items:
           - name: "QBittorrent"
             url: "http://192.168.2.209:8112/"
             target: "_blank"
             logo: "assets/apps/qbittorrent.png"
-            subtitle: "Bittorrent Client"
+            subtitle: "Torrent Client"
           - name: "Prowlarr"
             url: "http://192.168.2.207/"
             target: "_blank"
@@ -111,14 +111,9 @@ data:
             logo: "assets/apps/cleanuparr.png"
             subtitle: "Cleaner"
 
-      - name: "Home"
+      - name: "Home Automation"
         icon: "fas fa-home"
         items:
-          - name: "Nasio"
-            url: "http://192.168.2.4:5000/"
-            target: "_blank"
-            logo: "assets/apps/dsm.png"
-            subtitle: "Our NAS"
           - name: "Home Assistant"
             url: "http://192.168.2.2:8123/"
             target: "_blank"
@@ -144,8 +139,8 @@ data:
         url: "#"
 
     services:
-      - name: "Infrastructure"
-        icon: "fas fa-cloud"
+      - name: "Network Services"
+        icon: "fas fa-network-wired"
         items:
           - name: "Pi-hole"
             url: "http://192.168.2.201/admin"
@@ -157,16 +152,51 @@ data:
             target: "_blank"
             logo: "assets/apps/dnsmasq.png"
             subtitle: "DHCP Server"
+
+      - name: "DevOps"
+        icon: "fas fa-cube"
+        items:
+          - name: "Authentik"
+            url: "http://192.168.2.221:9000/"
+            target: "_blank"
+            logo: "assets/apps/authentik.webp"
+            subtitle: "Identity Provider"
+          - name: "ArgoCD"
+            url: "http://192.168.2.215/"
+            target: "_blank"
+            logo: "assets/apps/argocd.png"
+            subtitle: "GitOps"
+          - name: "Jenkins"
+            url: "http://192.168.2.213/"
+            target: "_blank"
+            logo: "assets/apps/jenkins.svg"
+            subtitle: "HomeLab Pipelines"
+          - name: "LongHorn"
+            url: "http://192.168.2.214/"
+            target: "_blank"
+            logo: "assets/apps/longhorn.png"
+            subtitle: "Kubernetes Storage"
+
+      - name: "Monitoring & Alerts"
+        icon: "fas fa-chart-line"
+        items:
           - name: "Gatus"
             url: "http://192.168.2.219/"
             target: "_blank"
             logo: "assets/apps/gatus.svg"
-            subtitle: "Monitoring"
+            subtitle: "Service Health Monitor"
+
           - name: "Grafana"
             url: "http://192.168.2.222:3000/"
             target: "_blank"
             logo: "assets/apps/grafana.svg"
-            subtitle: "Monitoring"
+            subtitle: "Metrics & Dashboards"
+
+          - name: "ntfy"
+            url: "http://192.168.2.220/"
+            target: "_blank"
+            logo: "assets/apps/ntfy.svg"
+            subtitle: "Push Notifications"
 
       - name: "Hardware"
         icon: "fas fa-server"
@@ -186,43 +216,15 @@ data:
             target: "_blank"
             logo: "assets/apps/tplink.png"
             subtitle: "Garage Access Point"
-          - name: "IDrive E2"
-            url: "https://app.idrivee2.com/dashboard"
-            target: "_blank"
-            logo: "assets/apps/idrive.png"
-            subtitle: "Cloud Backup"
 
-      - name: "Kubernetes"
-        icon: "fas fa-cube"
-        items:
-          - name: "ArgoCD"
-            url: "http://192.168.2.215/"
-            target: "_blank"
-            logo: "assets/apps/argocd.png"
-            subtitle: "GitOps"
-          - name: "Jenkins"
-            url: "http://192.168.2.213/"
-            target: "_blank"
-            logo: "assets/apps/jenkins.svg"
-            subtitle: "HomeLab Pipelines"
-          - name: "LongHorn"
-            url: "http://192.168.2.214/"
-            target: "_blank"
-            logo: "assets/apps/longhorn.png"
-            subtitle: "Kubernetes Storage"
-
-      - name: "Notifications"
-        icon: "fas fa-envelope"
-        items:
-          - name: "ntfy"
-            url: "http://192.168.2.220/"
-            target: "_blank"
-            logo: "assets/apps/ntfy.svg"
-            subtitle: "Notifications"
-
-      - name: "Syncthing"
+      - name: "Storage"
         icon: "fas fa-file"
         items:
+          - name: "Nasio"
+            url: "http://192.168.2.4:5000/"
+            target: "_blank"
+            logo: "assets/apps/dsm.png"
+            subtitle: "Our NAS"
           - name: "Syncthing Aurélien"
             url: "http://192.168.2.211:8384/"
             target: "_blank"
@@ -233,6 +235,20 @@ data:
             target: "_blank"
             logo: "assets/apps/syncthing.png"
             subtitle: "File Sync Yvonne"
+
+      - name: "Cloud Services"
+        icon: "fas fa-cloud"
+        items:
+          - name: "GitHub"
+            url: "https://github.com/blablack/fawnarevagh-kube"
+            target: "_blank"
+            logo: "assets/apps/GitHub.png"
+            subtitle: "Version Control"
+          - name: "IDrive E2"
+            url: "https://app.idrivee2.com/dashboard"
+            target: "_blank"
+            logo: "assets/apps/idrive.png"
+            subtitle: "Cloud Backup"
 ---
 apiVersion: apps/v1
 kind: Deployment
