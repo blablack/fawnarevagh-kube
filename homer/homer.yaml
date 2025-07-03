@@ -249,7 +249,7 @@ data:
             url: "https://app.idrivee2.com/dashboard"
             target: "_blank"
             logo: "assets/apps/idrive.png"
-            subtitle: "Cloud Backup"
+            subtitle: "Cloud Backu"
 ---
 apiVersion: apps/v1
 kind: Deployment
