@@ -13,6 +13,14 @@ data:
           failure-threshold: 3
           send-on-resolved: true
     endpoints:
+      - name: ArgoCD
+        group: service
+        url: "http://192.168.2.215/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: Cleanuparr
         group: service
         url: "http://192.168.2.206/"
@@ -43,14 +51,6 @@ data:
       - name: Grafana
         group: service
         url: "http://192.168.2.222:3000/"
-        interval: 5m
-        conditions:
-          - "[STATUS] == 200"
-        alerts:
-          - type: ntfy
-      - name: Headlamp
-        group: service
-        url: "http://192.168.2.215/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -131,6 +131,14 @@ data:
       - name: Officio
         group: hardware
         url: "icmp://192.168.2.5"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Garragio
+        group: hardware
+        url: "icmp://192.168.2.6"
         interval: 5m
         conditions:
           - "[CONNECTED] == true"
@@ -222,6 +230,14 @@ data:
       - name: SyncthingYvonne
         group: service
         url: "http://192.168.2.212:8384/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Warracker
+        group: service
+        url: "http://192.168.2.218/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"

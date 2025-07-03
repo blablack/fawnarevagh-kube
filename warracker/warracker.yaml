@@ -1,0 +1,163 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: warracker
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: warracker
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: warracker
+    spec:
+      volumes:
+        - name: warracker-pvc
+          persistentVolumeClaim:
+            claimName: warracker-pvc
+      containers:
+        - image: postgres:15-alpine
+          imagePullPolicy: Always
+          name: postgres
+          env:
+            - name: POSTGRES_DB
+              value: "warranty_db"
+            - name: POSTGRES_USER
+              value: "warranty_user"
+            - name: POSTGRES_PASSWORD
+              value: "warranty_password"
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "postgresql"
+              name: warracker-pvc
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - warranty_user
+                - -d
+                - warranty_db
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - warranty_user
+                - -d
+                - warranty_db
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - warranty_user
+                - -d
+                - warranty_db
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 10Mi
+        - image: ghcr.io/sassanix/warracker/main:latest
+          imagePullPolicy: Always
+          name: warracker
+          env:
+            - name: DB_HOST
+              value: "localhost"
+            - name: DB_NAME
+              value: "warranty_db"
+            - name: DB_USER
+              value: "warranty_user"
+            - name: DB_PASSWORD
+              value: "warranty_password"
+            - name: SECRET_KEY
+              value: "your_strong_default_secret_key_here"
+            - name: MAX_UPLOAD_MB
+              value: "32"
+            - name: FRONTEND_URL
+              value: "http://192.168.2.218"
+            - name: APP_BASE_URL
+              value: "http://192.168.2.218"
+            - name: WARRACKER_MEMORY_MODE
+              value: "optimized"
+            - name: PYTHONUNBUFFERED
+              value: "1"
+          ports:
+            - containerPort: 80
+              name: http
+          startupProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 60
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 5
+          volumeMounts:
+            - mountPath: "/data/uploads"
+              subPath: "warracker-uploads"
+              name: warracker-pvc
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 100Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: warracker
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.218
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: warracker
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

@@ -16,8 +16,6 @@ kubectl apply -f $SCRIPT_DIR/../persistent-volumes/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
 
-kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
-
 (
     cd $SCRIPT_DIR/../intel-gpu-plugin
     wget -O intel-gpu-plugin.yaml https://raw.githubusercontent.com/intel/intel-device-plugins-for-kubernetes/refs/heads/main/deployments/gpu_plugin/base/intel-gpu-plugin.yaml
@@ -27,6 +25,18 @@ kubectl apply -f $SCRIPT_DIR/../headlamp/headlamp.yaml
           - "-shared-dev-num"\
           - "2"' ./intel-gpu-plugin.yaml
     kubectl apply -f intel-gpu-plugin.yaml
+)
+
+(
+    cd $SCRIPT_DIR/../argocd
+
+    kubectl apply -f argocd-namespace.yaml
+
+    wget https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml -O argocd.yaml
+
+    kubectl apply --namespace argocd -f argocd-config.yaml
+    kubectl apply --namespace argocd -f argocd.yaml
+    kubectl apply --namespace argocd -f argocd-service.yaml
 )
 
 (
@@ -84,6 +94,9 @@ kubectl apply -f $SCRIPT_DIR/../homer/homer.yaml
 
 kubectl apply -f $SCRIPT_DIR/../paperless/paperless-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../paperless/paperless.yaml
+
+kubectl apply -f $SCRIPT_DIR/../warracker/warracker-pvc.yaml
+kubectl apply -f $SCRIPT_DIR/../warracker/warracker.yaml
 
 kubectl apply -f $SCRIPT_DIR/../home-assistant/home-assistant-pvc.yaml
 kubectl apply -f $SCRIPT_DIR/../home-assistant/home-assistant.yaml

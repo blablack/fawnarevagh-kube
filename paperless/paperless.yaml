@@ -37,6 +37,42 @@ spec:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql_16"
               name: paperless-pvc
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
           resources:
             limits:
               cpu: 100m
