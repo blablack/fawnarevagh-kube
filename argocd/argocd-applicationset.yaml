@@ -22,6 +22,8 @@ spec:
             exclude: true
           - path: "intel-gpu-plugin"
             exclude: true
+          - path: "prometheus"
+            exclude: true
   template:
     metadata:
       name: "{{path.basename}}"
@@ -37,3 +39,5 @@ spec:
         automated:
           prune: true
           selfHeal: true
+        syncOptions:
+          - ServerSideApply=true
