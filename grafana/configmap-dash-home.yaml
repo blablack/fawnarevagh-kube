@@ -1,4 +1,9 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: grafana-dashboard-home
+  namespace: default
 data:
   data.json: |-
     {
@@ -1994,7 +1999,3 @@ data:
       "version": 4,
       "weekStart": ""
     }
-kind: ConfigMap
-metadata:
-  creationTimestamp: null
-  name: grafana-dashboard-home
