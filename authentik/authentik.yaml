@@ -1,16 +1,4 @@
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: authentik-pvc
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: my-longhorn
-  resources:
-    requests:
-      storage: 5Gi
----
-apiVersion: v1
 kind: Secret
 metadata:
   name: authentik-secrets
@@ -42,6 +30,9 @@ spec:
         - name: authentik-pvc
           persistentVolumeClaim:
             claimName: authentik-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
       containers:
         - image: postgres:16-alpine
           imagePullPolicy: Always
@@ -181,13 +172,6 @@ spec:
               name: http
             - containerPort: 9443
               name: https
-          volumeMounts:
-            - mountPath: "/media"
-              subPath: "media"
-              name: authentik-pvc
-            - mountPath: "/templates"
-              subPath: "custom-templates"
-              name: authentik-pvc
           startupProbe:
             httpGet:
               path: /-/health/live/
@@ -253,15 +237,8 @@ spec:
                   name: authentik-secrets
                   key: PG_PASS
           volumeMounts:
-            - mountPath: "/media"
-              subPath: "media"
-              name: authentik-pvc
-            - mountPath: "/certs"
-              subPath: "certs"
-              name: authentik-pvc
-            - mountPath: "/templates"
-              subPath: "custom-templates"
-              name: authentik-pvc
+            - mountPath: /dev/shm
+              name: dshm
           resources:
             limits:
               cpu: 500m
@@ -280,7 +257,7 @@ metadata:
   name: authentik
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.221 # Change this IP as needed
+    metallb.io/loadBalancerIPs: 192.168.2.221
 spec:
   externalTrafficPolicy: Local
   selector:
@@ -290,8 +267,4 @@ spec:
       protocol: TCP
       port: 9000
       targetPort: 9000
-    - name: https
-      protocol: TCP
-      port: 9443
-      targetPort: 9443
   type: LoadBalancer
