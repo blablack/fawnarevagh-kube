@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: dnsmasq
+  namespace: default
 data:
   dnsmasq.conf: |
     # Set the interface on which dnsmasq operates.
@@ -64,6 +65,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: dnsmasq
+  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -150,6 +152,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dnsmasq-internal
+  namespace: default
 spec:
   clusterIP: 10.43.0.23
   ports:
