@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: unbound
+  namespace: default
 data:
   listening-port.conf: |
     server:
@@ -17,6 +18,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: pihole
+  namespace: default
 spec:
   replicas: 1
   revisionHistoryLimit: 0
@@ -164,6 +166,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pihole-external1
+  namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.201
@@ -199,6 +202,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pihole-external2
+  namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.202
@@ -234,6 +238,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: pihole-internal
+  namespace: default
 spec:
   clusterIP: 10.43.0.22
   ports:

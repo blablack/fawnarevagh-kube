@@ -20,6 +20,8 @@ spec:
             exclude: true
           - path: "scripts"
             exclude: true
+          - path: "intel-gpu-plugin"
+            exclude: true
   template:
     metadata:
       name: "{{path.basename}}"
