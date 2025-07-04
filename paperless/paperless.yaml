@@ -161,6 +161,8 @@ spec:
                   name: paperless-password
             - name: PAPERLESS_APPS
               value: allauth.socialaccount.providers.openid_connect
+            - name: PAPERLESS_ACCOUNT_DEFAULT_HTTP_PROTOCOL
+              value: "http"
             - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
               valueFrom:
                 secretKeyRef:
