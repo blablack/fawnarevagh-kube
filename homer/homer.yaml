@@ -160,7 +160,7 @@ data:
           - name: "VSCode"
             url: "http://192.168.2.223/"
             target: "_blank"
-            logo: "assets/apps/vscode.png"
+            logo: "assets/apps/vscode.svg"
             subtitle: "IDE"
           - name: "Authentik"
             url: "http://192.168.2.221:9000/"
