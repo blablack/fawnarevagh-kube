@@ -157,11 +157,6 @@ data:
       - name: "DevOps"
         icon: "fas fa-cube"
         items:
-          - name: "VSCode"
-            url: "http://192.168.2.223/"
-            target: "_blank"
-            logo: "assets/apps/vscode.svg"
-            subtitle: "IDE"
           - name: "Authentik"
             url: "http://192.168.2.221:9000/"
             target: "_blank"
