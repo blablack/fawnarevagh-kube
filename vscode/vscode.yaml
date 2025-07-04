@@ -1,0 +1,84 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vscode-server
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: vscode-server
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: vscode-server
+    spec:
+      volumes:
+        - name: vscode-server-pvc
+          persistentVolumeClaim:
+            claimName: vscode-server-pvc
+      containers:
+        - image: nucio.nowhere:30038/vscode:latest
+          imagePullPolicy: Always
+          name: vscode-server
+          volumeMounts:
+            - mountPath: "/home/coder"
+              name: vscode-server-pvc
+          env:
+            - name: TZ
+              value: "EU/Dublin"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+            requests:
+              cpu: 200m
+              memory: 500Mi
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vscode-server
+  namespace: default
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.223 
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: vscode-server
+  ports:
+    - port: 80
+      targetPort: 8080
+  type: LoadBalancer
