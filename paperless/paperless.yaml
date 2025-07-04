@@ -34,6 +34,26 @@ spec:
               value: "paperless"
             - name: POSTGRES_INITDB_ARGS
               value: "--data-checksums"
+            - name: PAPERLESS_APPS
+              value: allauth.socialaccount.providers.openid_connect
+            - name: PAPERLESS_SOCIALACCOUNT_PROVIDERS
+              value: |
+                {
+                  "openid_connect": {
+                    "APPS": [
+                      {
+                        "provider_id": "authentik",
+                        "name": "Authentik",
+                        "client_id": "A6CKPWClientyJi20famWIoxzEZvZcHEcK2N2d8jtwNQMS",
+                        "secret": "7FRQubDqioNL2UVY0yhSy39M76gUH7L4BwqU9pgcM9QKM3d7NfAbrlHNz4bG8alijM5rhHbJ7sgLQaiZ0DwbaIs2zZkG95fLtB6Jz3eKzyxKKX7gF8EhVTlSHyP92BtN",
+                        "settings": {
+                          "server_url": "http://192.168.2.221:9000/application/o/<application_slug>/.well-known/openid-configuration"
+                        }
+                      }
+                    ],
+                    "OAUTH_PKCE_ENABLED": "True"
+                  }
+                }
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql_16"
