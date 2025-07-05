@@ -20,6 +20,9 @@ spec:
         - name: warracker-pvc
           persistentVolumeClaim:
             claimName: warracker-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
       containers:
         - image: postgres:15-alpine
           imagePullPolicy: Always
@@ -146,8 +149,8 @@ spec:
             failureThreshold: 5
           volumeMounts:
             - mountPath: "/data/uploads"
-              subPath: "warracker-uploads"
-              name: warracker-pvc
+              subPath: "Kubernetes/Warracker"
+              name: nasio-nfs-pvc
           resources:
             limits:
               cpu: 100m
