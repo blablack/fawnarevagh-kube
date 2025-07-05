@@ -102,6 +102,21 @@ spec:
               value: "optimized"
             - name: PYTHONUNBUFFERED
               value: "1"
+            - name: OIDC_ENABLED
+              value: "true"
+            - name: OIDC_PROVIDER_NAME
+              value: "authentik"
+            - name: OIDC_CLIENT_ID
+              value: "FKv4y9bB7PMJ1FrAWFAn0K77w2SFdxJkUFgCt4cL"
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: oidc_secret
+                  name: warracker
+            - name: OIDC_ISSUER_URL
+              value: "http://192.168.2.221:9000/application/o/warracker/"
+            - name: OIDC_SCOPE
+              value: "openid email profile"
           ports:
             - containerPort: 80
               name: http
