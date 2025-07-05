@@ -105,7 +105,7 @@ spec:
             - name: OIDC_ENABLED
               value: "true"
             - name: OIDC_PROVIDER_NAME
-              value: "authentik"
+              value: "oidc"
             - name: OIDC_CLIENT_ID
               value: "FKv4y9bB7PMJ1FrAWFAn0K77w2SFdxJkUFgCt4cL"
             - name: OIDC_CLIENT_SECRET
