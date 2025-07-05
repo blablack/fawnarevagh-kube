@@ -36,7 +36,7 @@ spec:
                   apk add --no-cache rsync curl
                   echo "Starting backup at $(date)"
 
-                  if rsync -av --delete \
+                  if rsync -av --delete --no-owner --no-group \
                     /usr/src/paperless/media/ \
                     /backup/; then
                     echo "Backup completed successfully at $(date)"
