@@ -125,8 +125,8 @@ spec:
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  key: mealie
-                  name: oidc_secret
+                  name: mealie
+                  key: oidc_secret
             - name: OIDC_SIGNUP_ENABLED
               value: "true"
             - name: OIDC_USER_GROUP
