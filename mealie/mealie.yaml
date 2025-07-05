@@ -99,7 +99,7 @@ spec:
             - name: PGID
               value: "1000"
             - name: TZ
-              value: "America/Anchorage"
+              value: "Europe/Dublin"
             - name: BASE_URL
               value: "https://mealie.yourdomain.com"
             - name: DB_ENGINE
@@ -114,6 +114,27 @@ spec:
               value: "5432"
             - name: POSTGRES_DB
               value: "mealie"
+            - name: OIDC_AUTH_ENABLED
+              value: "true"
+            - name: OIDC_PROVIDER_NAME
+              value: "authentik"
+            - name: OIDC_CONFIGURATION_URL
+              value: "http://192.168.2.221:9000/application/o/mealie/.well-known/openid-configuration"
+            - name: OIDC_CLIENT_ID
+              value: "nvz3wHnrwumIUbpXQSyGPpRQ6NLyjvBLohFXO7SF"
+            - name: OIDC_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: mealie
+                  name: oidc_secret
+            - name: OIDC_SIGNUP_ENABLED
+              value: "true"
+            - name: OIDC_USER_GROUP
+              value: "Mealie Users"
+            - name: OIDC_ADMIN_GROUP
+              value: "Mealie Admins"
+            - name: OIDC_REMEMBER_ME
+              value: "true"
           startupProbe:
             httpGet:
               path: /
