@@ -37,7 +37,7 @@ spec:
                   echo "Starting backup at $(date)"
 
                   if rsync -av --delete --no-owner --no-group \
-                    /usr/src/paperless/media/ \
+                    /usr/src/paperless/media/documents/ \
                     /backup/; then
                     echo "Backup completed successfully at $(date)"
                     curl -H "Tags: tada" -H "Priority: low" -d "Paperless backup completed successfully" http://192.168.2.220/backup
@@ -61,4 +61,4 @@ spec:
             - name: nasio-nfs-pvc
               persistentVolumeClaim:
                 claimName: nasio-nfs-pvc
-          restartPolicy: OnFailure
+          restartPolicy: Never
