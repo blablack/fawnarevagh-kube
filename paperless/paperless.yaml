@@ -15,14 +15,22 @@ spec:
     metadata:
       labels:
         app: paperless
+        part-of: paperless
     spec:
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "part-of"
+                    operator: In
+                    values:
+                      - paperless
+              topologyKey: "kubernetes.io/hostname"
       volumes:
         - name: paperless-pvc
           persistentVolumeClaim:
             claimName: paperless-pvc
-        - name: nasio-nfs-pvc
-          persistentVolumeClaim:
-            claimName: nasio-nfs-pvc
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       containers:
         - image: docker.io/library/postgres:16
@@ -108,12 +116,6 @@ spec:
             - mountPath: /usr/src/paperless/media
               subPath: "paperless/media"
               name: paperless-pvc
-            - mountPath: "/data/uploads"
-              subPath: "Kubernetes"
-              name: nasio-nfs-pvc
-            #- mountPath: "/usr/src/paperless/media"
-            #  subPath: "Kubernetes/Paperless"
-            #  name: nasio-nfs-pvc
             - mountPath: /usr/src/paperless/export
               subPath: "paperless/export"
               name: paperless-pvc
