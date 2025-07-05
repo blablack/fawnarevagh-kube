@@ -51,8 +51,6 @@ spec:
                   subPath: "paperless/media"
                   name: paperless-pvc
                   readOnly: true
-                - name: nfs-volume
-                  mountPath: /nfs-backup
                 - mountPath: "/backup"
                   subPath: "Kubernetes/Paperless"
                   name: nasio-nfs-pvc
