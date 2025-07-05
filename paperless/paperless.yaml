@@ -109,7 +109,7 @@ spec:
               subPath: "paperless/media"
               name: paperless-pvc
             - mountPath: "/data/uploads"
-              subPath: "Kubernetes/Paperless"
+              subPath: "Kubernetes"
               name: nasio-nfs-pvc
             #- mountPath: "/usr/src/paperless/media"
             #  subPath: "Kubernetes/Paperless"
