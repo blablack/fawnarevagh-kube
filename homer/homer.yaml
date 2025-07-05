@@ -54,19 +54,23 @@ data:
       - name: "Personal Apps"
         icon: "fas fa-cloud"
         items:
+          - name: "Mealie"
+            url: "http://192.168.2.223/"
+            target: "_blank"
+            logo: "assets/apps/mealie.svg"
+            subtitle: "Recipes"
+
           - name: "Immich"
             url: "http://192.168.2.210/"
             target: "_blank"
             logo: "assets/apps/immich.png"
             subtitle: "Photos and Videos"
-            keywords: "photo video"
 
           - name: "Paperless"
             url: "http://192.168.2.216/"
             target: "_blank"
             logo: "assets/apps/paperless.jpg"
             subtitle: "Documents"
-            type: "PaperlessNG"
 
           - name: "Warracker"
             url: "http://192.168.2.218/"
