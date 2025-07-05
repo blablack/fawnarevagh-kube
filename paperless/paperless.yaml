@@ -23,6 +23,23 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Changing ownership to 1000:1000..."
+              chown -R 1000:1000 /usr/src/paperless/media || echo "chown failed, setting permissions instead"
+              chmod -R 755 /usr/src/paperless/media
+              echo "Permissions fixed"
+          volumeMounts:
+            - mountPath: "/usr/src/paperless/media"
+              subPath: "Kubernetes/Paperless"
+              name: nasio-nfs-pvc
+          securityContext:
+            runAsUser: 0
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       containers:
         - image: docker.io/library/postgres:16
