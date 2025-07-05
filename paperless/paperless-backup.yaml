@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: paperless-backup
+  namespace: default
+spec:
+  schedule: "0 0 15 * *"
+  successfulJobsHistoryLimit: 0
+  failedJobsHistoryLimit: 1
+  concurrencyPolicy: Forbid
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          labels:
+            part-of: paperless
+        spec:
+          affinity:
+            podAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                - labelSelector:
+                    matchExpressions:
+                      - key: "part-of"
+                        operator: In
+                        values:
+                          - paperless
+                  topologyKey: "kubernetes.io/hostname"
+          containers:
+            - name: backup
+              image: alpine:latest
+              imagePullPolicy: Always
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  apk add --no-cache rsync curl
+                  echo "Starting backup at $(date)"
+
+                  if rsync -av --delete \
+                    /usr/src/paperless/media/ \
+                    /backup/; then
+                    echo "Backup completed successfully at $(date)"
+                    curl -H "Tags: tada" -H "Priority: low" -d "Paperless backup completed successfully" http://192.168.2.220/backup
+                  else
+                    echo "Backup failed at $(date)"
+                    curl -H "Tags: warning" -H "Priority: high" -d "Paperless backup FAILED" http://192.168.2.220/backup
+                    exit 1
+                  fi
+              volumeMounts:
+                - mountPath: /usr/src/paperless/media
+                  subPath: "paperless/media"
+                  name: paperless-pvc
+                  readOnly: true
+                - name: nfs-volume
+                  mountPath: /nfs-backup
+                - mountPath: "/backup"
+                  subPath: "Kubernetes/Paperless"
+                  name: nasio-nfs-pvc
+          volumes:
+            - name: paperless-pvc
+              persistentVolumeClaim:
+                claimName: paperless-pvc
+            - name: nasio-nfs-pvc
+              persistentVolumeClaim:
+                claimName: nasio-nfs-pvc
+          restartPolicy: OnFailure
