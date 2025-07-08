@@ -1,19 +1,19 @@
-FROM python:3.12.8-slim-bookworm
+FROM python:slim
 
-ENV DEBIAN_FRONTEND noninteractive 
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update 
-RUN apt-get -y dist-upgrade 
-RUN apt-get install -y rsync sshpass python3 inetutils-ping 
-RUN apt-get autoremove -y 
-RUN apt-get autoclean -y 
-RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
+WORKDIR /app
 
-COPY ./requirements.txt ./
+RUN apt-get update && \
+    apt-get -y dist-upgrade && \
+    apt-get install -y --no-install-recommends rsync sshpass inetutils-ping && \
+    apt-get autoremove -y && \
+    apt-get autoclean -y && \
+    rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
 
-RUN pip install --no-cache-dir --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt picsync.py ./
 
-COPY picsync.py ./ 
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-CMD python3 picsync.py
+CMD ["python3", "picsync.py"]
