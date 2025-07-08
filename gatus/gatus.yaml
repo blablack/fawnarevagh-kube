@@ -22,6 +22,14 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
+      - name: Authentik
+        group: service
+        url: "http://192.168.2.221:9000/-/health/live/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: Cleanuparr
         group: service
         url: "http://192.168.2.206/"
@@ -92,6 +100,14 @@ data:
       - name: k8s-pod-resolver
         group: service
         url: "http://10.43.0.26:8080/healthz"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Mealie
+        group: service
+        url: "http://192.168.2.223/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
