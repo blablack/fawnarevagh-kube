@@ -2,19 +2,18 @@ FROM ubuntu:latest
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get update -y 
-RUN apt-get install -y curl
-RUN curl https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn-release/nordvpn-release_1.0.0_all.deb --output /tmp/nordrepo.deb 
-RUN apt-get install -y /tmp/nordrepo.deb 
-RUN apt-get update -y 
-RUN apt-get dist-upgrade -y
-RUN apt-get install -y jq iputils-ping nordvpn=3.20.2
-#RUN apt-get install -y jq iputils-ping nordvpn=4.0.0
-#RUN apt-get install -y jq iputils-ping nordvpn
-RUN apt-get remove -y nordvpn-release 
-RUN apt-get autoremove -y 
-RUN apt-get autoclean -y 
-RUN rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/* 
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends curl jq iputils-ping && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/nordvpn_3.20.2_amd64.deb --output /tmp/nordrepo.deb 
+#RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn-release_[^" >]*_all.deb' | sort -V | tail -n1) --output /tmp/nordrepo.deb 
+RUN apt-get install -y /tmp/nordrepo.deb && \
+    rm -rf /tmp/* /var/cache/apt/archives/* /var/tmp/*
+
+WORKDIR /
 
 COPY run_nordvpn.sh / 
 RUN chmod +x run_nordvpn.sh
@@ -30,6 +29,8 @@ RUN chmod +x check_nordvpn_connection.sh
 
 COPY get_mesh_name.sh / 
 RUN chmod +x get_mesh_name.sh
-RUN mkdir /config
+RUN mkdir -p /config
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s CMD /check_nordvpn_connection.sh || exit 1
 
 CMD /run_nordvpn.sh
