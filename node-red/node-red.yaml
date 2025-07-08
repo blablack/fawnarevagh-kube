@@ -57,24 +57,6 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-      initContainers:
-        - image: alpine:latest
-          imagePullPolicy: Always
-          name: init-assets-folder
-          command: ["chmod"]
-          args: ["777", "/data"]
-          securityContext:
-            privileged: true
-          volumeMounts:
-            - mountPath: "/data"
-              name: node-red-pvc
-          resources:
-            limits:
-              cpu: 200m
-              memory: 200Mi
-            requests:
-              cpu: 50m
-              memory: 50Mi
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
