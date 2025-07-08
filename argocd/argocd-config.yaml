@@ -20,5 +20,5 @@ metadata:
 data:
   policy.csv: |
     p, role:admin, *, *, *, allow
-    g, blablack, role:admin
+    g, ArgoCD Admins, role:admin
   policy.default: "role:readonly"
