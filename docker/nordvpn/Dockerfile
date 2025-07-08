@@ -8,8 +8,8 @@ RUN apt-get update -y && \
     apt-get install -y --no-install-recommends curl jq iputils-ping && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/nordvpn_3.20.2_amd64.deb --output /tmp/nordrepo.deb 
-#RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn-release_[^" >]*_all.deb' | sort -V | tail -n1) --output /tmp/nordrepo.deb 
+RUN curl -k -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/nordvpn_3.20.2_amd64.deb --output /tmp/nordrepo.deb 
+#RUN curl -k -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn-release_[^" >]*_all.deb' | sort -V | tail -n1) --output /tmp/nordrepo.deb 
 RUN apt-get install -y /tmp/nordrepo.deb && \
     rm -rf /tmp/* /var/cache/apt/archives/* /var/tmp/*
 
