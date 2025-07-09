@@ -120,7 +120,8 @@ setup_nordvpn() {
 	[[ -n ${MESHNET} ]] && nordvpn set meshnet on
 
 	nordvpn set technology nordlynx
-	nordvpn set killswitch on
+	nordvpn set killswitch off
+	nordvpn set firewall off
 	nordvpn set cybersec off
 	nordvpn set tray disabled
 	nordvpn set notify disabled
