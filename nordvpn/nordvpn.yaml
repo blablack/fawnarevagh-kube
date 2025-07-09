@@ -37,7 +37,7 @@ spec:
           emptyDir:
             medium: Memory
       containers:
-        - image: nucio.nowhere:30038/nordvpn:latest
+        - image: nucio.nowhere:30038/nordvpn4:latest
           imagePullPolicy: Always
           name: nordvpn
           volumeMounts:
