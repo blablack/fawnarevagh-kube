@@ -6,8 +6,11 @@
 DOCKER_NET="$(ip -o addr show dev eth0 | awk '$3 == "inet" {print $4}')"
 
 setup_nordvpn() {
-	/etc/init.d/nordvpn stop
 	/etc/init.d/nordvpn start
+
+	while [ ! -S /run/nordvpn/nordvpnd.sock ]; do
+		sleep 0.25
+	done
 
 	echo "n" | nordvpn login --token $NORDVPN_TOKEN 
 	
@@ -50,7 +53,6 @@ cleanup() {
 }
 trap cleanup SIGTERM SIGINT EXIT
 
-kill_switch
 setup_nordvpn
 
 nordvpn connect ${CONNECT} || exit 1
