@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nordvpn4-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nordvpn4
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: nordvpn4
+  template:
+    metadata:
+      labels:
+        app: nordvpn4
+    spec:
+      volumes:
+        - name: nordvpn4-pvc
+          persistentVolumeClaim:
+            claimName: nordvpn4-pvc
+      containers:
+        - name: nordvpn41
+          image: nucio.nowhere:30038/nordvpn4:latest
+          imagePullPolicy: Always
+          command: ["/bin/sleep", "3650d"]
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "nordvpn4_1"
+              name: nordvpn4-pvc
+          securityContext:
+            privileged: true
+          env:
+            - name: NORDVPN_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: nordvpn-token
+                  key: password
+            - name: COUNTRY
+              value: "P2P"
+            - name: NETWORK
+              value: "192.168.2.0/24;10.42.0.0/16;10.43.0.0/16"
+            - name: PORTS
+              value: "8112,6881,9696,8080,53"
+            - name: DNS
+              value: "10.43.0.22"
+            - name: MESHNET
+              value: "True"
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
