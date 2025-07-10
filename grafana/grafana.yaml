@@ -77,8 +77,6 @@ spec:
               value: "http://192.168.2.221:9000/application/o/grafana/end-session/"
             - name: GF_AUTH_OAUTH_AUTO_LOGIN
               value: "true"
-            - name: GF_SERVER_ROOT_URL
-              value: "http://192.168.2.222:3000/"
           ports:
             - containerPort: 3000
               name: http
