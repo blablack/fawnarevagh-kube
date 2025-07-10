@@ -64,7 +64,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   key: oidc_secret
-                  name: grafana
+                  name: grafana-password
             - name: GF_AUTH_GENERIC_OAUTH_SCOPES
               value: "openid profile email"
             - name: GF_AUTH_GENERIC_OAUTH_AUTH_UR
