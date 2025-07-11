@@ -1,0 +1,18 @@
+data:
+  url: http://192.168.2.215
+  dex.config: |
+    connectors:
+    - config:
+        issuer: http://192.168.2.221:9000/application/o/argocd/
+        clientID: LhRF42giAPt8yhbHKJYWZeQdqeF6NgJvRSZUtyoJ
+        clientSecret: $dex.authentik.clientSecret
+        insecureEnableGroups: true
+        insecureSkipVerify: true
+        scopes:
+          - openid
+          - profile
+          - email
+          - groups
+      name: authentik
+      type: oidc
+      id: authentik
