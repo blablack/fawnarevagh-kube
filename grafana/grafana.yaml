@@ -67,7 +67,7 @@ spec:
                   name: grafana-password
             - name: GF_AUTH_GENERIC_OAUTH_SCOPES
               value: "openid profile email"
-            - name: GF_AUTH_GENERIC_OAUTH_AUTH_UR
+            - name: GF_AUTH_GENERIC_OAUTH_AUTH_URL
               value: "http://192.168.2.221:9000/application/o/authorize/"
             - name: GF_AUTH_GENERIC_OAUTH_TOKEN_URL
               value: "http://192.168.2.221:9000/application/o/token/"
@@ -76,7 +76,13 @@ spec:
             - name: GF_AUTH_SIGNOUT_REDIRECT_URL
               value: "http://192.168.2.221:9000/application/o/grafana/end-session/"
             - name: GF_AUTH_OAUTH_AUTO_LOGIN
-              value: "true"
+              value: "false"
+            - name: GF_AUTH_GENERIC_OAUTH_ROLE_ATTRIBUTE_PATH
+              value: "contains(groups, 'Grafana Admins') && 'Admin' || contains(groups, 'Grafana Editors') && 'Editor' || 'Viewer'"
+            - name: GF_SERVER_ROOT_URL
+              value: "http://192.168.2.222:3000"
+            - name: GF_AUTH_GENERIC_OAUTH_TLS_SKIP_VERIFY_INSECURE
+              value: "true" # Only if using HTTP instead of HTTPS
           ports:
             - containerPort: 3000
               name: http

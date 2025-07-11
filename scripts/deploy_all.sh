@@ -37,6 +37,7 @@ kubectl apply -f $SCRIPT_DIR/../registry/registry.yaml
     kubectl apply --force-conflicts --server-side --namespace argocd -f argocd.yaml
     kubectl apply --namespace argocd -f argocd-service.yaml
     kubectl apply --namespace argocd -f argocd-config.yaml
+    kubectl patch configmap argocd-cm -n argocd --patch-file argocd-dex-config.yaml
     kubectl apply --namespace argocd -f argocd-applicationset.yaml
 )
 
