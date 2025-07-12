@@ -175,6 +175,16 @@ clean_meshnet() {
     fi
 }
 
+kill_process_if_running() {
+	local process_name="$1"
+	if pgrep -x "$process_name" >/dev/null; then
+		pkill -x "$process_name"
+		log "Killed process: $process_name"
+	else
+		log "Process not running: $process_name"
+	fi
+}
+
 cleanup() {
     log "Received shutdown signal, cleaning up..."
     
@@ -229,12 +239,19 @@ main() {
         log "Starting meshnet maintenance loop..."
         while true; do
             /add_to_meshnet.sh || log "WARNING: Meshnet setup failed"
+
+            kill_process_if_running "norduserd"
+	        kill_process_if_running "nordfileshare"
+
             sleep 15m
         done
     else
         log "VPN setup complete, keeping container alive..."
         # Keep container running
         while true; do
+            kill_process_if_running "norduserd"
+	        kill_process_if_running "nordfileshare"
+
             sleep 1h
         done
     fi
