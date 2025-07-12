@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN apt-get update && \
     apt-get -y dist-upgrade && \
-    apt-get install -y --no-install-recommends rsync sshpass inetutils-ping && \
+    apt-get install -y rsync sshpass inetutils-ping && \
     apt-get autoremove -y && \
     apt-get autoclean -y && \
     rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
