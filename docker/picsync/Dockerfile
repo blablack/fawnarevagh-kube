@@ -17,10 +17,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Copy application code
 COPY picsync.py ./
 
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser && \
-    chown -R appuser:appuser /app
-
-USER appuser
-
 CMD ["python3", "picsync.py"]
