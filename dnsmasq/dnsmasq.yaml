@@ -22,13 +22,13 @@ data:
     # To enable dnsmasq's DHCP server functionality.
     dhcp-range=192.168.2.10,192.168.2.199,255.255.255.0,1d
 
-    dhcp-host=B4:75:0E:72:00:F5,192.168.2.10,wemo1,1d
-    dhcp-host=94:10:3E:69:D1:2D,192.168.2.11,wemo2,1d
-    dhcp-host=B4:75:0E:72:02:C5,192.168.2.12,wemo3,1d
+    dhcp-host=3C:6A:D2:CA:F1:44,192.168.2.10,tapo1,1d
+    dhcp-host=3C:6A:D2:CA:F6:84,192.168.2.11,tapo2,1d
+    dhcp-host=E4:FA:C4:18:F2:3E,192.168.2.12,tapo3,1d
 
-    dhcp-host=E4:FA:C4:19:09:64,192.168.2.13,tapo1,1d
-    dhcp-host=E4:FA:C4:19:0E:46,192.168.2.14,tapo2,1d
-    dhcp-host=E4:FA:C4:19:0E:4C,192.168.2.15,tapo3,1d
+    dhcp-host=E4:FA:C4:19:09:64,192.168.2.13,tapo4,1d
+    dhcp-host=E4:FA:C4:19:0E:46,192.168.2.14,tapo5,1d
+    dhcp-host=E4:FA:C4:19:0E:4C,192.168.2.15,tapo6,1d
 
     dhcp-host=48:B0:2D:4F:77:6B,192.168.2.16,shield,1d
     dhcp-host=DC:68:EB:10:78:77,192.168.2.17,switch,1d
