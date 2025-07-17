@@ -67,7 +67,7 @@ data:
           - type: ntfy
       - name: HomeAssistant
         group: service
-        url: "http://192.168.2.2:8123/"
+        url: "http://192.168.2.224/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
