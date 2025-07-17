@@ -16,13 +16,10 @@ spec:
       labels:
         app: home-assistant
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: nucio
       volumes:
         - name: home-assistant-pvc
           persistentVolumeClaim:
             claimName: home-assistant-pvc
-      hostNetwork: true
       containers:
         - image: homeassistant/home-assistant:latest
           name: home-assistant
@@ -65,3 +62,22 @@ spec:
       dnsConfig:
         nameservers:
           - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: home-assistant
+  namespace: default
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.224
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: home-assistant
+  ports:
+    - name: http-80
+      protocol: TCP
+      port: 80
+      targetPort: 8123
+  type: LoadBalancer
