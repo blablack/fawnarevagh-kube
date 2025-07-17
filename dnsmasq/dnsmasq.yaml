@@ -66,6 +66,9 @@ kind: Deployment
 metadata:
   name: dnsmasq
   namespace: default
+  annotations:
+    reloader.stakater.com/rollout-strategy: "restart"
+    reloader.stakater.com/auto: "true"
 spec:
   replicas: 1
   revisionHistoryLimit: 0
