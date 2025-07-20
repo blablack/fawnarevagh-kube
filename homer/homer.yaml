@@ -54,12 +54,6 @@ data:
       - name: "Personal Apps"
         icon: "fas fa-cloud"
         items:
-          - name: "Mealie"
-            url: "http://192.168.2.223/"
-            target: "_blank"
-            logo: "assets/apps/mealie.svg"
-            subtitle: "Recipes"
-
           - name: "Immich"
             url: "http://192.168.2.210/"
             target: "_blank"
