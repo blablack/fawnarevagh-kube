@@ -97,7 +97,7 @@ spec:
       containers:
         - name: dnsmasq
           image: nucio.nowhere:30038/dnsmasq:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
               add: ["NET_ADMIN"]

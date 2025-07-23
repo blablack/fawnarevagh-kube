@@ -77,7 +77,7 @@ spec:
       serviceAccountName: admin-jenkins
       containers:
         - image: jenkins/jenkins:lts
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: jenkins
           volumeMounts:
             - mountPath: "/var/jenkins_home"

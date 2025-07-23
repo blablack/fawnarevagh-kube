@@ -23,7 +23,7 @@ spec:
                 claimName: nasio-nfs-pvc
           containers:
             - image: nucio.nowhere:30038/picsync:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               env:
                 - name: SSHPASS_PASSWORD
                   valueFrom:

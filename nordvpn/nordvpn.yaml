@@ -38,7 +38,7 @@ spec:
             medium: Memory
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: nordvpn
           volumeMounts:
             - mountPath: "/config"
@@ -55,7 +55,7 @@ spec:
                   name: nordvpn-token
                   key: password
             - name: COUNTRY
-              value: "P2P"
+              value: "IRELAND"
             - name: NETWORK
               value: "192.168.2.0/24;10.42.0.0/16;10.43.0.0/16"
             - name: PORTS
@@ -101,7 +101,7 @@ spec:
               cpu: 100m
               memory: 500Mi
         - image: linuxserver/prowlarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: prowlarr
           volumeMounts:
             - mountPath: "/config"
@@ -147,7 +147,7 @@ spec:
               cpu: 50m
               memory: 50Mi
         - image: linuxserver/qbittorrent:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: qbittorrent
           ports:
             - containerPort: 8112

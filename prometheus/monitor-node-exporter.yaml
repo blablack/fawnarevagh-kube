@@ -86,7 +86,7 @@ spec:
             - --collector.netclass.ignored-devices=^(veth.*)$
             - --collector.netdev.device-exclude=^(veth.*)$
           image: quay.io/prometheus/node-exporter:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: node-exporter
           resources:
             limits:

@@ -28,7 +28,7 @@ spec:
             medium: Memory
       containers:
         - image: plexinc/pms-docker:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: plex
           volumeMounts:
             - mountPath: "/config"

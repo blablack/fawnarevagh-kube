@@ -53,7 +53,7 @@ spec:
       containers:
         - name: k8s-pod-resolver
           image: nucio.nowhere:30038/k8s-pod-resolver:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 53
               protocol: UDP
