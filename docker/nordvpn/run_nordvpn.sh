@@ -1,180 +1,261 @@
 #!/bin/bash
-[[ -n ${DEBUG} ]] && set -x
+set -euo pipefail
 
-[[ -n ${COUNTRY} && -z ${CONNECT} ]] && CONNECT=${COUNTRY}
+# Enable debug mode if requested
+[[ -n ${DEBUG:-} ]] && set -x
 
-DOCKER_NET="$(ip -o addr show dev eth0 | awk '$3 == "inet" {print $4}')"
-
-kill_switch() {
-	iptables -F
-	iptables -X
-	iptables -P INPUT DROP
-	iptables -P FORWARD DROP
-	iptables -P OUTPUT DROP
-	iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT -i lo -j ACCEPT
-	iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A FORWARD -i lo -j ACCEPT
-	iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A OUTPUT -o lo -j ACCEPT
-	iptables -A OUTPUT -o tap+ -j ACCEPT
-	iptables -A OUTPUT -o tun+ -j ACCEPT
-	iptables -A OUTPUT -o nordlynx -j ACCEPT
-	iptables -t nat -A POSTROUTING -o tap+ -j MASQUERADE
-	iptables -t nat -A POSTROUTING -o tun+ -j MASQUERADE
-	iptables -t nat -A POSTROUTING -o nordlynx -j MASQUERADE
-
-	iptables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
-	iptables -A OUTPUT -p udp -m udp --dport 51820 -j ACCEPT
-	iptables -A OUTPUT -p tcp -m tcp --dport 1194 -j ACCEPT
-	iptables -A OUTPUT -p udp -m udp --dport 1194 -j ACCEPT
-	iptables -A OUTPUT -p tcp -m tcp --dport 443 -j ACCEPT
-
-	if [[ -n ${DOCKER_NET} ]]; then
-		iptables -A INPUT -s "${DOCKER_NET}" -j ACCEPT
-		iptables -A FORWARD -d "${DOCKER_NET}" -j ACCEPT
-		iptables -A FORWARD -s "${DOCKER_NET}" -j ACCEPT
-		iptables -A OUTPUT -d "${DOCKER_NET}" -j ACCEPT
-	fi
-	[[ -n ${NETWORK} ]] && for net in ${NETWORK//[;,]/ }; do return_route "${net}"; done
-
-	ip6tables -F 2>/dev/null
-	ip6tables -X 2>/dev/null
-	ip6tables -P INPUT DROP 2>/dev/null
-	ip6tables -P FORWARD DROP 2>/dev/null
-	ip6tables -P OUTPUT DROP 2>/dev/null
-	ip6tables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null
-	ip6tables -A INPUT -p icmp -j ACCEPT 2>/dev/null
-	ip6tables -A INPUT -i lo -j ACCEPT 2>/dev/null
-	ip6tables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null
-	ip6tables -A FORWARD -p icmp -j ACCEPT 2>/dev/null
-	ip6tables -A FORWARD -i lo -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -o lo -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -o tap+ -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -o tun+ -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -o nordlynx -j ACCEPT 2>/dev/null
-
-	ip6tables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -p udp -m udp --dport 51820 -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -p tcp -m tcp --dport 1194 -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -p udp -m udp --dport 1194 -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -p tcp -m tcp --dport 443 -j ACCEPT 2>/dev/null
-
-	local docker6_network="$(ip -o addr show dev eth0 | awk '$3 == "inet6" {print $4; exit}')"
-	if [[ -n ${docker6_network} ]]; then
-		ip6tables -A INPUT -s "${docker6_network}" -j ACCEPT 2>/dev/null
-		ip6tables -A FORWARD -d "${docker6_network}" -j ACCEPT 2>/dev/null
-		ip6tables -A FORWARD -s "${docker6_network}" -j ACCEPT 2>/dev/null
-		ip6tables -A OUTPUT -d "${docker6_network}" -j ACCEPT 2>/dev/null
-	fi
-	[[ -n ${NETWORK6} ]] && for net in ${NETWORK6//[;,]/ }; do return_route6 "${net}"; done
-
-	white_list "api.nordvpn.com"
-	[[ -n ${WHITELIST} ]] && for domain in ${WHITELIST//[;,]/ }; do white_list "${domain}"; done
+# Logging function
+log() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $*" >&2
 }
 
-return_route() { # Add a route back to your network, so that return traffic works
-	local network="$1" gw=$(ip route | awk '/default/ {print $3}')
-	ip route | grep -q "$network" || ip route add to "$network" via "$gw" dev eth0
-	iptables -A INPUT -s "$network" -j ACCEPT
-	iptables -A FORWARD -d "$network" -j ACCEPT
-	iptables -A FORWARD -s "$network" -j ACCEPT
-	iptables -A OUTPUT -d "$network" -j ACCEPT
+# Configuration and defaults
+CONNECT=${CONNECT:-${COUNTRY:-}}
+DOCKER_NET="$(ip -o addr show dev eth0 | awk '$3 == "inet" {print $4}' 2>/dev/null || echo "")"
+MAX_RETRIES=3
+
+# Validate required variables
+if [[ -z ${NORDVPN_TOKEN:-} ]]; then
+    log "ERROR: NORDVPN_TOKEN is required"
+    exit 1
+fi
+
+# Validate network detection
+if [[ -z $DOCKER_NET ]]; then
+    log "WARNING: Could not detect Docker network"
+fi
+
+setup_nordvpn() {
+    log "Starting NordVPN setup..."
+    
+    # Start NordVPN daemon
+    /etc/init.d/nordvpn start
+    
+    # Wait for daemon with timeout
+    local timeout=30
+    local count=0
+    while [ ! -S /run/nordvpn/nordvpnd.sock ]; do
+        if [ $count -ge $timeout ]; then
+            log "ERROR: NordVPN daemon failed to start within ${timeout}s"
+            exit 1
+        fi
+        sleep 1
+        ((count++))
+    done
+    
+    log "NordVPN daemon started successfully"
+    
+    # Login to NordVPN
+    if ! echo "n" | nordvpn login --token "$NORDVPN_TOKEN"; then
+        log "ERROR: Failed to login to NordVPN"
+        exit 1
+    fi
+    
+    log "Successfully logged in to NordVPN"
+    
+    # Configure NordVPN settings
+    log "Configuring NordVPN settings..."
+    
+    # Enable meshnet if requested
+    if [[ -n ${MESHNET:-} ]]; then
+        log "Enabling meshnet..."
+        nordvpn set meshnet on
+    fi
+    
+    # Core settings
+    nordvpn set killswitch on
+    nordvpn set cybersec off
+    nordvpn set tray disabled
+    nordvpn set notify disabled
+    nordvpn set analytics disabled
+    
+    # Configure DNS if specified
+    if [[ -n ${DNS:-} ]]; then
+        log "Setting DNS servers: ${DNS}"
+        nordvpn set dns ${DNS//[;,]/ }
+    fi
+    
+    # Whitelist Docker network
+    if [[ -n ${DOCKER_NET} ]]; then
+        log "Whitelisting Docker network: ${DOCKER_NET}"
+        nordvpn whitelist add subnet "${DOCKER_NET}"
+    fi
+    
+    # Whitelist additional networks
+    if [[ -n ${NETWORK:-} ]]; then
+        log "Whitelisting additional networks: ${NETWORK}"
+        for net in ${NETWORK//[;,]/ }; do
+            nordvpn whitelist add subnet "${net}"
+        done
+    fi
+    
+    # Whitelist ports
+    if [[ -n ${PORTS:-} ]]; then
+        log "Whitelisting ports: ${PORTS}"
+        for port in ${PORTS//[;,]/ }; do
+            nordvpn whitelist add port "${port}"
+        done
+    fi
+    
+    # Display version and settings
+    nordvpn -version
+    nordvpn settings
+    
+    log "NordVPN setup completed successfully"
 }
 
-return_route6() { # Add a route back to your network, so that return traffic works
-	local network="$1" gw=$(ip -6 route | awk '/default/{print $3}')
-	ip -6 route | grep -q "$network" || ip -6 route add to "$network" via "$gw" dev eth0
-	ip6tables -A INPUT -s "$network" -j ACCEPT 2>/dev/null
-	ip6tables -A FORWARD -d "$network" -j ACCEPT 2>/dev/null
-	ip6tables -A FORWARD -s "$network" -j ACCEPT 2>/dev/null
-	ip6tables -A OUTPUT -d "$network" -j ACCEPT 2>/dev/null
+validate_config() {
+    log "Validating configuration..."
+    
+    # Check if NordVPN is accessible
+    if ! timeout 10 nordvpn countries >/dev/null 2>&1; then
+        log "ERROR: Cannot access NordVPN service"
+        exit 1
+    fi
+    
+    # Validate connection target if specified
+    if [[ -n ${CONNECT} ]]; then
+        if ! nordvpn countries | grep -qi "${CONNECT}"; then
+            log "WARNING: '${CONNECT}' may not be a valid country/server"
+        fi
+    fi
+    
+    log "Configuration validation completed"
 }
 
-white_list() { # Allow unsecured traffic for an specific domain
-	local domain=$(echo "$1" | sed 's/^.*:\/\///;s/\/.*$//')
-	iptables -A OUTPUT -o eth0 -d ${domain} -j ACCEPT
-	ip6tables -A OUTPUT -o eth0 -d ${domain} -j ACCEPT 2>/dev/null
+connect_vpn() {
+    local max_retries=${MAX_RETRIES}
+    local retry=0
+    local target="${CONNECT:-auto}"
+    
+    while [ $retry -lt $max_retries ]; do
+        log "Attempting to connect to ${target} (attempt $((retry + 1))/$max_retries)"
+        
+        if nordvpn connect "${target}"; then
+            log "Successfully connected to VPN"
+            return 0
+        fi
+        
+        ((retry++))
+        if [ $retry -lt $max_retries ]; then
+            log "Connection failed, retrying in 10 seconds..."
+            sleep 10
+        fi
+    done
+    
+    log "ERROR: Failed to connect after $max_retries attempts"
+    return 1
+}
+
+clean_meshnet() {
+    if [[ -z ${MESHNET:-} ]]; then
+        return 0
+    fi
+    
+    log "Cleaning up meshnet configuration..."
+    
+    if [ -f "/config/mesh_peer_name" ]; then
+        local peer_name
+        peer_name=$(cat /config/mesh_peer_name)
+        log "Removing meshnet peer: ${peer_name}"
+        
+        if nordvpn mesh peer remove "${peer_name}"; then
+            log "Successfully removed meshnet peer"
+        else
+            log "WARNING: Failed to remove meshnet peer"
+        fi
+    else
+        log "No mesh_peer_name found, skipping peer removal"
+    fi
+    
+    # Get new mesh name if script exists
+    if [[ -x "/get_mesh_name.sh" ]]; then
+        log "Getting new mesh name..."
+        /get_mesh_name.sh
+    fi
 }
 
 kill_process_if_running() {
 	local process_name="$1"
 	if pgrep -x "$process_name" >/dev/null; then
 		pkill -x "$process_name"
-		echo "Killed process: $process_name"
+		log "Killed process: $process_name"
 	else
-		echo "Process not running: $process_name"
+		log "Process not running: $process_name"
 	fi
-}
-
-setup_nordvpn() {
-	pkill nordvpnd
-	mkdir -p /run/nordvpn
-	rm -f /run/nordvpn/nordvpnd.sock
-	nordvpnd &
-	while [ ! -S /run/nordvpn/nordvpnd.sock ]; do
-		sleep 0.25
-	done
-
-	nordvpn login --token $NORDVPN_TOKEN &&
-		[[ -n ${MESHNET} ]] && nordvpn set meshnet on
-
-	nordvpn set technology nordlynx
-	nordvpn set killswitch on
-	nordvpn set cybersec off
-	nordvpn set tray disabled
-	nordvpn set notify disabled
-	nordvpn set analytics disabled
-
-	[[ -n ${DNS} ]] && nordvpn set dns ${DNS//[;,]/ }
-	[[ -n ${DOCKER_NET} ]] && nordvpn whitelist add subnet ${DOCKER_NET}
-	[[ -n ${NETWORK} ]] && for net in ${NETWORK//[;,]/ }; do nordvpn whitelist add subnet "${net}"; done
-	[[ -n ${PORTS} ]] && for port in ${PORTS//[;,]/ }; do nordvpn whitelist add port "${port}"; done
-
-	nordvpn -version && nordvpn settings
-
-	mkdir -p /dev/net
-	[[ -c /dev/net/tun ]] || mknod -m 0666 /dev/net/tun c 10 200
-}
-
-clean_meshnet() {
-	if [ -f "/config/mesh_peer_name" ]; then
-		echo "Removing meshnet peer:"
-		cat /config/mesh_peer_name
-		nordvpn mesh peer remove $(cat /config/mesh_peer_name)
-	else
-		echo "No mesh_peer_name found"
-	fi
-
-	[[ -n ${MESHNET} ]] && /get_mesh_name.sh
 }
 
 cleanup() {
-	nordvpn disconnect
-
-	pkill nordvpnd
-	trap - SIGTERM SIGINT EXIT
-	exit 0
+    log "Received shutdown signal, cleaning up..."
+    
+    # Clean meshnet first
+    clean_meshnet
+    
+    # Disconnect VPN
+    if nordvpn status | grep -q "Status: Connected"; then
+        log "Disconnecting from VPN..."
+        nordvpn disconnect || log "WARNING: Failed to disconnect cleanly"
+    fi
+    
+    # Stop daemon
+    log "Stopping NordVPN daemon..."
+    /etc/init.d/nordvpn stop || log "WARNING: Failed to stop daemon cleanly"
+    
+    log "Cleanup completed"
+    exit 0
 }
+
+# Set up signal handlers
 trap cleanup SIGTERM SIGINT EXIT
 
-kill_switch
-setup_nordvpn
+# Main execution
+main() {
+    log "Starting NordVPN Docker container..."
+    
+    # Setup NordVPN
+    setup_nordvpn
+    
+    # Validate configuration
+    validate_config
+    
+    # Connect to VPN
+    if ! connect_vpn; then
+        log "ERROR: Initial VPN connection failed"
+        exit 1
+    fi
+    
+    # Show connection status
+    nordvpn status
+    
+    # Initial wait for connection to stabilize
+    log "Waiting for connection to stabilize..."
+    sleep 30
+    
+    # Clean up any existing meshnet configuration
+    clean_meshnet
+    
+    # Run meshnet setup periodically if enabled
+    if [[ -n ${MESHNET:-} ]] && [[ -x "/add_to_meshnet.sh" ]]; then
+        log "Starting meshnet maintenance loop..."
+        while true; do
+            /add_to_meshnet.sh || log "WARNING: Meshnet setup failed"
 
-nordvpn connect ${CONNECT} || exit 1
+            kill_process_if_running "norduserd"
+	        kill_process_if_running "nordfileshare"
 
-nordvpn status
+            sleep 15m
+        done
+    else
+        log "VPN setup complete, keeping container alive..."
+        # Keep container running
+        while true; do
+            kill_process_if_running "norduserd"
+	        kill_process_if_running "nordfileshare"
 
-sleep 30s
+            sleep 1h
+        done
+    fi
+}
 
-clean_meshnet
-
-while true; do
-	kill_process_if_running "norduserd"
-	kill_process_if_running "nordfileshare"
-
-	[[ -n ${MESHNET} ]] && /add_to_meshnet.sh
-
-	sleep 15m
-done
+# Run main function
+main "$@"
