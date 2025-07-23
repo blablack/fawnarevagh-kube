@@ -6,8 +6,8 @@ spec:
   template:
     spec:
       containers:
-      - name: intel-gpu-plugin
-        imagePullPolicy: Always
-        args:
-        - "-shared-dev-num"
-        - "2"
+        - name: intel-gpu-plugin
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-shared-dev-num"
+            - "2"

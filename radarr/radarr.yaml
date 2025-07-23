@@ -25,7 +25,7 @@ spec:
             claimName: nasio-nfs-pvc
       containers:
         - image: linuxserver/radarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: radarr
           volumeMounts:
             - mountPath: "/config"

@@ -275,7 +275,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - image: twinproduction/gatus:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: gatus
           ports:
             - containerPort: 8080

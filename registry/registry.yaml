@@ -55,7 +55,7 @@ spec:
       containers:
         - name: docker-registry
           image: registry:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
               protocol: TCP
