@@ -159,10 +159,14 @@ clean_meshnet() {
         peer_name=$(cat /config/mesh_peer_name)
         log "Removing meshnet peer: ${peer_name}"
         
-        if nordvpn mesh peer remove "${peer_name}"; then
-            log "Successfully removed meshnet peer"
+        if [[ -n "${peer_name}" ]]; then
+            if nordvpn mesh peer remove "${peer_name}"; then
+                log "Successfully removed meshnet peer"
+            else
+                log "WARNING: Failed to remove meshnet peer"
+            fi
         else
-            log "WARNING: Failed to remove meshnet peer"
+            log "No peer_name found in /config/mesh_peer_name, skipping removal"
         fi
     else
         log "No mesh_peer_name found, skipping peer removal"
