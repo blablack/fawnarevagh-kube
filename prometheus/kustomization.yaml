@@ -4,13 +4,20 @@ kind: Kustomization
 namespace: monitoring
 
 resources:
-- https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
+  - namespace.yaml
+  - https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/master/bundle.yaml
+  - prometheus-rbac.yaml
+  - prometheus.yaml
+  - monitor-node-exporter.yaml
+  - monitor-longhorn.yaml
+  - monitor-kubelet.yaml
+  - monitor-snmp.yaml
 
 patches:
-- target:
-    kind: Namespace
-    name: default
-  patch: |-
-    - op: replace
-      path: /metadata/name
-      value: monitoring
+  - target:
+      kind: Namespace
+      name: default
+    patch: |-
+      - op: replace
+        path: /metadata/name
+        value: monitoring
