@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Longhorn PV Resize Script
-# This script creates a new smaller PV, copies data, and updates deployments
+# Simplified PV Data Copy Script
+# This script creates a new smaller PV, copies data, then cleans up the new PVC while keeping the PV
 
 set -e
 
@@ -19,16 +19,15 @@ COPY_IMAGE="alpine:latest"
 usage() {
     echo "Usage: $0 [OPTIONS]"
     echo "Options:"
-    echo "  -p, --pvc-name          Name of the PVC to resize"
+    echo "  -p, --pvc-name          Name of the source PVC to copy from"
     echo "  -n, --namespace         Namespace (default: default)"
-    echo "  -s, --new-size          New size (e.g., 100Mi, 500Mi, 1Gi)"
-    echo "  -d, --deployment        Deployment name using the PVC"
+    echo "  -s, --new-size          New PV size (e.g., 100Mi, 500Mi, 1Gi)"
     echo "  -c, --storage-class     Storage class (default: longhorn)"
     echo "      --dry-run           Show what would be done without executing"
     echo "  -h, --help              Show this help"
     echo ""
     echo "Example:"
-    echo "  $0 -p my-app-data -n production -s 200Mi -d my-app"
+    echo "  $0 -p my-app-data -n production -s 200Mi"
 }
 
 log() {
@@ -62,10 +61,6 @@ while [[ $# -gt 0 ]]; do
             NEW_SIZE="$2"
             shift 2
             ;;
-        -d|--deployment)
-            DEPLOYMENT_NAME="$2"
-            shift 2
-            ;;
         -c|--storage-class)
             STORAGE_CLASS="$2"
             shift 2
@@ -92,7 +87,7 @@ STORAGE_CLASS=${STORAGE_CLASS:-longhorn}
 DRY_RUN=${DRY_RUN:-false}
 
 # Validate required parameters
-if [[ -z "$PVC_NAME" || -z "$NEW_SIZE" || -z "$DEPLOYMENT_NAME" ]]; then
+if [[ -z "$PVC_NAME" || -z "$NEW_SIZE" ]]; then
     error "Missing required parameters"
     usage
     exit 1
@@ -104,8 +99,7 @@ if ! [[ "$NEW_SIZE" =~ ^[0-9]+[MG]i?$ ]]; then
     exit 1
 fi
 
-NEW_PVC_NAME="${PVC_NAME}-new"
-BACKUP_PVC_NAME="${PVC_NAME}-backup"
+NEW_PVC_NAME="${PVC_NAME}-new-$(date +%s)"
 
 check_prerequisites() {
     log "Checking prerequisites..."
@@ -122,28 +116,14 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check if deployment exists
-    if ! kubectl get deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" &> /dev/null; then
-        error "Deployment '$DEPLOYMENT_NAME' not found in namespace '$NAMESPACE'"
-        exit 1
-    fi
-    
     # Get current PVC size
     CURRENT_SIZE=$(kubectl get pvc "$PVC_NAME" -n "$NAMESPACE" -o jsonpath='{.spec.resources.requests.storage}')
     log "Current PVC size: $CURRENT_SIZE"
-    log "New PVC size: $NEW_SIZE"
-    
-    # Get PVC mount path from deployment
-    MOUNT_PATH=$(kubectl get deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" -o jsonpath='{.spec.template.spec.containers[0].volumeMounts[?(@.name=="'$PVC_NAME'")].mountPath}')
-    if [[ -z "$MOUNT_PATH" ]]; then
-        error "Could not find mount path for PVC '$PVC_NAME' in deployment '$DEPLOYMENT_NAME'"
-        exit 1
-    fi
-    log "Mount path: $MOUNT_PATH"
+    log "New PV size: $NEW_SIZE"
 }
 
-get_actual_usage() {
-    log "Checking actual disk usage..."
+show_disk_usage() {
+    log "Checking current disk usage..."
     
     # Create a temporary pod to check usage
     cat << EOF | kubectl apply -f -
@@ -156,7 +136,7 @@ spec:
   containers:
   - name: usage-checker
     image: $COPY_IMAGE
-    command: ['sh', '-c', 'df -h /data && echo "=== Directory usage ===" && du -sh /data/* 2>/dev/null || echo "No files found" && echo "=== Total usage ===" && du -sh /data']
+    command: ['sh', '-c', 'df -h /data && echo "=== Directory usage (excluding lost+found) ===" && du -sh /data/* 2>/dev/null | grep -v "/data/lost+found" || echo "No files found" && echo "=== Total usage ===" && du -sh /data']
     volumeMounts:
     - name: data
       mountPath: /data
@@ -173,45 +153,10 @@ EOF
         return
     fi
 
-    # Wait for pod to start and complete (but don't wait for "Ready" state)
+    # Wait for pod to complete
     log "Waiting for usage check to complete..."
-    
-    # Wait up to 60 seconds for the pod to complete
-    local timeout=60
-    local elapsed=0
-    while [ $elapsed -lt $timeout ]; do
-        local phase=$(kubectl get pod ${TEMP_POD_NAME}-usage -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
-        
-        case $phase in
-            "Succeeded")
-                log "Usage check completed successfully"
-                break
-                ;;
-            "Failed")
-                error "Usage check failed"
-                kubectl describe pod ${TEMP_POD_NAME}-usage -n "$NAMESPACE"
-                kubectl delete pod ${TEMP_POD_NAME}-usage -n "$NAMESPACE" --ignore-not-found=true
-                return
-                ;;
-            "Running"|"Pending"|"ContainerCreating")
-                if [ $((elapsed % 10)) -eq 0 ]; then
-                    log "Pod status: $phase (waiting...)"
-                fi
-                ;;
-            "NotFound")
-                error "Pod not found"
-                return
-                ;;
-        esac
-        
-        sleep 2
-        elapsed=$((elapsed + 2))
-    done
-    
-    if [ $elapsed -ge $timeout ]; then
-        warning "Usage check timed out after ${timeout}s"
-        kubectl describe pod ${TEMP_POD_NAME}-usage -n "$NAMESPACE"
-    fi
+    kubectl wait --for=condition=Ready pod/${TEMP_POD_NAME}-usage -n "$NAMESPACE" --timeout=60s 2>/dev/null || true
+    sleep 3
     
     # Get usage info
     log "Current disk usage:"
@@ -253,10 +198,10 @@ EOF
 }
 
 copy_data() {
-    log "Copying data from old PVC to new PVC..."
+    log "Copying data from old PVC to new PV (excluding lost+found folder)..."
     
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "[DRY RUN] Would copy data from $PVC_NAME to $NEW_PVC_NAME"
+        log "[DRY RUN] Would copy data from $PVC_NAME to $NEW_PVC_NAME (excluding lost+found)"
         return
     fi
     
@@ -270,7 +215,27 @@ spec:
   containers:
   - name: data-copier
     image: $COPY_IMAGE
-    command: ['sh', '-c', 'echo "Starting copy..." && cp -av /old-data/. /new-data/ && sync && echo "Copy completed successfully"']
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+    command: ['sh', '-c', '
+      echo "Installing rsync..." && 
+      apk add --no-cache rsync && 
+      echo "Starting copy process..." && 
+      echo "Source data:" && 
+      ls -la /old-data/ && 
+      echo "Copying with rsync (excluding lost+found)..." && 
+      rsync -avH --numeric-ids --exclude="lost+found" /old-data/ /new-data/ && 
+      sync && 
+      echo "Copy completed. New data:" && 
+      ls -la /new-data/ && 
+      echo "Disk usage:" && 
+      df -h /new-data && 
+      echo "Verification - files copied:" && 
+      find /new-data -type f | wc -l && 
+      echo "lost+found exclusion confirmed - checking if lost+found exists in source:" && 
+      if [ -d "/old-data/lost+found" ]; then echo "lost+found exists in source but was excluded"; else echo "No lost+found folder in source"; fi
+    ']
     volumeMounts:
     - name: old-data
       mountPath: /old-data
@@ -286,141 +251,115 @@ spec:
   restartPolicy: Never
 EOF
     
-    # Wait for pod to start, then follow logs
+    # Wait for pod to start
     log "Waiting for copy pod to start..."
-    local timeout=60
-    local elapsed=0
-    while [ $elapsed -lt $timeout ]; do
-        local phase=$(kubectl get pod $TEMP_POD_NAME -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
-        
-        if [[ "$phase" == "Running" ]]; then
-            log "Copy pod is running, following progress..."
-            break
-        elif [[ "$phase" == "Failed" ]]; then
-            error "Copy pod failed to start"
-            kubectl describe pod $TEMP_POD_NAME -n "$NAMESPACE"
-            kubectl delete pod $TEMP_POD_NAME -n "$NAMESPACE" --ignore-not-found=true
-            exit 1
-        fi
-        
-        if [ $((elapsed % 10)) -eq 0 ]; then
-            log "Pod status: $phase (waiting...)"
-        fi
-        
-        sleep 2
-        elapsed=$((elapsed + 2))
-    done
+    kubectl wait --for=condition=Ready pod/$TEMP_POD_NAME -n "$NAMESPACE" --timeout=60s 2>/dev/null || true
     
-    # Follow logs if pod is running
-    if kubectl get pod $TEMP_POD_NAME -n "$NAMESPACE" &>/dev/null; then
-        kubectl logs -f $TEMP_POD_NAME -n "$NAMESPACE" &
-        LOG_PID=$!
-    fi
+    # Follow logs
+    log "Following copy progress..."
+    kubectl logs -f $TEMP_POD_NAME -n "$NAMESPACE" &
+    LOG_PID=$!
     
-    # Wait for completion
-    log "Waiting for copy to complete (this may take a while)..."
-    timeout=600
-    elapsed=0
-    while [ $elapsed -lt $timeout ]; do
-        local phase=$(kubectl get pod $TEMP_POD_NAME -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "NotFound")
-        
-        case $phase in
-            "Succeeded")
-                success "Data copy completed successfully"
-                break
-                ;;
-            "Failed")
-                error "Data copy failed"
-                kubectl logs $TEMP_POD_NAME -n "$NAMESPACE"
-                kubectl delete pod $TEMP_POD_NAME -n "$NAMESPACE" --ignore-not-found=true
-                exit 1
-                ;;
-        esac
-        
-        sleep 5
-        elapsed=$((elapsed + 5))
-    done
+    # Wait for pod to complete (change this line)
+    log "Waiting for copy to complete..."
+    kubectl wait --for=condition=Ready=false pod/$TEMP_POD_NAME -n "$NAMESPACE" --timeout=600s || true
     
-    # Kill log following process if it's still running
+    # Wait a bit more to ensure the pod fully transitions to completed state
+    sleep 5
+    
+    # Kill log following process
     if [[ -n "$LOG_PID" ]]; then
         kill $LOG_PID 2>/dev/null || true
     fi
     
-    if [ $elapsed -ge $timeout ]; then
-        error "Copy operation timed out after ${timeout}s"
-        kubectl logs $TEMP_POD_NAME -n "$NAMESPACE"
-        kubectl delete pod $TEMP_POD_NAME -n "$NAMESPACE" --ignore-not-found=true
-        exit 1
+    # Check if copy was successful - try multiple times
+    local phase
+    for i in {1..10}; do
+        phase=$(kubectl get pod $TEMP_POD_NAME -n "$NAMESPACE" -o jsonpath='{.status.phase}' 2>/dev/null || echo "Unknown")
+        if [[ "$phase" == "Succeeded" ]]; then
+            break
+        fi
+        log "Waiting for pod to reach Succeeded state... (attempt $i/10, current: $phase)"
+        sleep 2
+    done
+    
+    if [[ "$phase" == "Succeeded" ]]; then
+        success "Data copy completed successfully (lost+found folder excluded)"
+    else
+        # Check the exit code of the container to see if it actually succeeded
+        local exit_code=$(kubectl get pod $TEMP_POD_NAME -n "$NAMESPACE" -o jsonpath='{.status.containerStatuses[0].state.terminated.exitCode}' 2>/dev/null || echo "unknown")
+        if [[ "$exit_code" == "0" ]]; then
+            success "Data copy completed successfully (container exit code: 0)"
+        else
+            error "Data copy failed with pod status: $phase, exit code: $exit_code"
+            kubectl logs $TEMP_POD_NAME -n "$NAMESPACE"
+            exit 1
+        fi
     fi
     
     # Cleanup copy pod
     kubectl delete pod $TEMP_POD_NAME -n "$NAMESPACE" --ignore-not-found=true
 }
 
-update_deployment() {
-    log "Updating deployment to use new PVC..."
+get_pv_name() {
+    log "Getting PV name for the new PVC..."
     
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "[DRY RUN] Would update deployment $DEPLOYMENT_NAME to use $NEW_PVC_NAME"
+        log "[DRY RUN] Would get PV name for $NEW_PVC_NAME"
+        NEW_PV_NAME="pvc-example-uuid"
         return
     fi
     
-    # Scale down deployment
-    log "Scaling down deployment..."
-    kubectl scale deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" --replicas=0
-    kubectl wait --for=condition=Available=false deployment/$DEPLOYMENT_NAME -n "$NAMESPACE" --timeout=120s
+    NEW_PV_NAME=$(kubectl get pvc "$NEW_PVC_NAME" -n "$NAMESPACE" -o jsonpath='{.spec.volumeName}')
+    if [[ -z "$NEW_PV_NAME" ]]; then
+        error "Could not get PV name for PVC $NEW_PVC_NAME"
+        exit 1
+    fi
     
-    # Update deployment to use new PVC
-    log "Updating PVC reference in deployment..."
-    kubectl patch deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" --type='json' \
-        -p='[{"op": "replace", "path": "/spec/template/spec/volumes/0/persistentVolumeClaim/claimName", "value": "'$NEW_PVC_NAME'"}]'
-    
-    # Scale back up
-    log "Scaling deployment back up..."
-    kubectl scale deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" --replicas=1
-    kubectl wait --for=condition=Available deployment/$DEPLOYMENT_NAME -n "$NAMESPACE" --timeout=120s
-    
-    success "Deployment updated successfully"
+    log "New PV name: $NEW_PV_NAME"
 }
 
-backup_old_pvc() {
-    log "Renaming old PVC to backup..."
+delete_pvc_keep_pv() {
+    log "Deleting new PVC while keeping the PV..."
     
     if [[ "$DRY_RUN" == "true" ]]; then
-        log "[DRY RUN] Would rename $PVC_NAME to $BACKUP_PVC_NAME"
+        log "[DRY RUN] Would delete PVC $NEW_PVC_NAME and update PV $NEW_PV_NAME policy"
         return
     fi
     
-    # Export old PVC
-    kubectl get pvc "$PVC_NAME" -n "$NAMESPACE" -o yaml > "/tmp/${PVC_NAME}-backup.yaml"
+    # Change PV reclaim policy to Retain (if not already)
+    log "Setting PV reclaim policy to Retain..."
+    kubectl patch pv "$NEW_PV_NAME" -p '{"spec":{"persistentVolumeReclaimPolicy":"Retain"}}'
     
-    # Create backup PVC with different name
-    sed "s/name: $PVC_NAME/name: $BACKUP_PVC_NAME/" "/tmp/${PVC_NAME}-backup.yaml" | \
-    kubectl apply -f -
+    # Delete the PVC
+    log "Deleting PVC $NEW_PVC_NAME..."
+    kubectl delete pvc "$NEW_PVC_NAME" -n "$NAMESPACE"
     
-    log "Old PVC backed up as $BACKUP_PVC_NAME"
-}
-
-finalize_rename() {
-    log "Finalizing PVC rename..."
+    # Wait a moment for the PV status to update
+    log "Waiting for PV status to update..."
+    sleep 5
     
-    if [[ "$DRY_RUN" == "true" ]]; then
-        log "[DRY RUN] Would rename $NEW_PVC_NAME to $PVC_NAME"
-        return
+    # Clear the claimRef to make PV available again
+    log "Clearing PV claimRef to make it available for new claims..."
+    kubectl patch pv "$NEW_PV_NAME" -p '{"spec":{"claimRef":null}}'
+    
+    # Verify PV is now Available
+    local pv_status
+    for i in {1..10}; do
+        pv_status=$(kubectl get pv "$NEW_PV_NAME" -o jsonpath='{.status.phase}')
+        if [[ "$pv_status" == "Available" ]]; then
+            break
+        fi
+        log "Waiting for PV to become Available... (attempt $i/10)"
+        sleep 2
+    done
+    
+    if [[ "$pv_status" == "Available" ]]; then
+        success "PVC deleted, PV $NEW_PV_NAME is now Available for reuse"
+    else
+        warning "PV $NEW_PV_NAME status is '$pv_status' instead of 'Available'"
+        log "You may need to manually verify the PV status"
     fi
-    
-    # Delete old PVC
-    kubectl delete pvc "$PVC_NAME" -n "$NAMESPACE"
-    
-    # Rename new PVC to original name
-    kubectl patch pvc "$NEW_PVC_NAME" -n "$NAMESPACE" --type='json' \
-        -p='[{"op": "replace", "path": "/metadata/name", "value": "'$PVC_NAME'"}]'
-    
-    # Update deployment back to original PVC name
-    kubectl patch deployment "$DEPLOYMENT_NAME" -n "$NAMESPACE" --type='json' \
-        -p='[{"op": "replace", "path": "/spec/template/spec/volumes/0/persistentVolumeClaim/claimName", "value": "'$PVC_NAME'"}]'
-    
-    success "PVC resize completed successfully"
 }
 
 cleanup() {
@@ -442,11 +381,11 @@ cleanup() {
 }
 
 main() {
-    log "Starting PVC resize process..."
-    log "PVC: $PVC_NAME"
+    log "Starting PV data copy process..."
+    log "Source PVC: $PVC_NAME"
     log "Namespace: $NAMESPACE"
-    log "New Size: $NEW_SIZE"
-    log "Deployment: $DEPLOYMENT_NAME"
+    log "New PV Size: $NEW_SIZE"
+    log "Note: lost+found folder will be excluded from copy"
     
     if [[ "$DRY_RUN" == "true" ]]; then
         warning "DRY RUN MODE - No changes will be made"
@@ -456,17 +395,42 @@ main() {
     trap cleanup EXIT
     
     check_prerequisites
-    get_actual_usage
-    
+    show_disk_usage
     create_new_pvc
     copy_data
-    update_deployment
+    get_pv_name
+    delete_pvc_keep_pv
     
-    log "Resize completed! Old PVC is still available as backup."
-    log "If everything works correctly, you can delete the old PVC:"
-    log "kubectl delete pvc $PVC_NAME -n $NAMESPACE"
-    
-    success "PVC resize operation completed successfully!"
+    success "Data copy completed successfully!"
+    echo ""
+    log "Summary:"
+    log "- Data copied from PVC '$PVC_NAME' to PV '$NEW_PV_NAME' (excluding lost+found)"
+    log "- New PV size: $NEW_SIZE"
+    log "- PV '$NEW_PV_NAME' is Available and ready for use"
+    echo ""
+    log "Next steps (manual):"
+    log "1. Update your deployment to use a new PVC that claims PV '$NEW_PV_NAME'"
+    log "2. Test your application"
+    log "3. Delete the old PVC '$PVC_NAME' when satisfied"
+    echo ""
+    log "Example PVC to claim the new PV:"
+    echo "---"
+    cat << EOF
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: $PVC_NAME
+  namespace: $NAMESPACE
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: $NEW_SIZE
+  storageClassName: $STORAGE_CLASS
+  volumeName: $NEW_PV_NAME
+EOF
+    echo "---"
 }
 
 # Run main function
