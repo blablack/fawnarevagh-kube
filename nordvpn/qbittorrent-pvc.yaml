@@ -9,5 +9,5 @@ spec:
   storageClassName: my-longhorn
   resources:
     requests:
-      storage: 1Gi
-  volumeName: pvc-6d56e0ee-1584-4ae7-937c-e885628c7ef1
+      storage: 200Mi
+  volumeName: pvc-3eef0fe7-1841-4029-a0de-54289039a220
