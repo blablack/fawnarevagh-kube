@@ -8,7 +8,6 @@ data:
     # Template: https://github.com/binwiederhier/ntfy/blob/main/server/server.yml
     base-url: http://192.168.2.220
     listen: ":80"
-    db: "/var/cache/ntfy/cache.db"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -29,9 +28,6 @@ spec:
         app: ntfy
     spec:
       volumes:
-        - name: ntfy-pvc
-          persistentVolumeClaim:
-            claimName: ntfy-pvc
         - name: config
           configMap:
             name: ntfy
@@ -72,8 +68,6 @@ spec:
             - name: config
               mountPath: "/etc/ntfy"
               readOnly: true
-            - name: ntfy-pvc
-              mountPath: "/var/cache/ntfy"
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
