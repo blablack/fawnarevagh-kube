@@ -33,7 +33,7 @@ spec:
       containers:
         - name: ubuntu
           image: ubuntu:oracular
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
           securityContext:
             privileged: true

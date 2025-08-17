@@ -38,7 +38,7 @@ spec:
       containers:
         - name: pihole
           image: pihole/pihole:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           securityContext:
             capabilities:
               add:
@@ -113,7 +113,7 @@ spec:
               cpu: 10m
               memory: 100Mi
         - image: klutchell/unbound:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: unbound
           volumeMounts:
             - name: confmap-vol

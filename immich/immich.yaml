@@ -28,7 +28,7 @@ spec:
           name: immich-postgres-vol
       containers:
         - image: ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.3.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: postgres
           env:
             - name: POSTGRES_USER
@@ -87,7 +87,7 @@ spec:
               cpu: 10m
               memory: 300Mi
         - image: redis:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: redis
           resources:
             limits:
@@ -97,7 +97,7 @@ spec:
               cpu: 40m
               memory: 50Mi
         - image: ghcr.io/immich-app/immich-server:release
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: immich-server
           env:
             - name: DB_HOSTNAME
@@ -156,7 +156,7 @@ spec:
               cpu: 10m
               memory: 100Mi
         - image: ghcr.io/immich-app/immich-machine-learning:release
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: immich-machine-learning
           env:
             - name: TRANSFORMERS_CACHE

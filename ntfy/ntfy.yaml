@@ -34,7 +34,7 @@ spec:
       containers:
         - name: ntfy
           image: binwiederhier/ntfy:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           args: ["serve"]
           resources:
             limits:

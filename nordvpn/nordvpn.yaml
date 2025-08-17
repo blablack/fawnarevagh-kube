@@ -38,7 +38,7 @@ spec:
             medium: Memory
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: nordvpn
           volumeMounts:
             - mountPath: "/config"
@@ -101,7 +101,7 @@ spec:
               cpu: 100m
               memory: 500Mi
         - image: linuxserver/prowlarr:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: prowlarr
           volumeMounts:
             - mountPath: "/config"
@@ -147,7 +147,7 @@ spec:
               cpu: 50m
               memory: 50Mi
         - image: linuxserver/qbittorrent:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: qbittorrent
           ports:
             - containerPort: 8112
