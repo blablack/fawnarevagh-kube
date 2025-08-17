@@ -25,7 +25,7 @@ spec:
             claimName: syncthing-aurelien-pvc
       containers:
         - image: syncthing/syncthing:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: syncthing-aurelien
           volumeMounts:
             - mountPath: "/nasio"

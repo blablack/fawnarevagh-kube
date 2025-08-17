@@ -2912,7 +2912,7 @@ spec:
             name: snmp-config
       containers:
         - image: prom/snmp-exporter:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: snmp-exporter
           ports:
             - containerPort: 9116

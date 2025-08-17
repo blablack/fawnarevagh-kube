@@ -30,7 +30,7 @@ spec:
       containers:
         - name: dnsmasq-ui
           image: nucio.nowhere:30038/dnsmasq-ui:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: TZ
               value: "Europe/Dublin"

@@ -42,7 +42,7 @@ spec:
           emptyDir: {}
       containers:
         - image: grafana/grafana:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: grafana
           env:
             - name: GF_SECURITY_ADMIN_USER

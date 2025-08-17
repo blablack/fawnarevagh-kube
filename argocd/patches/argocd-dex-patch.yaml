@@ -8,7 +8,7 @@ spec:
       initContainers:
         - name: wait-for-authentik
           image: curlimages/curl:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           command:
             - sh
             - -c

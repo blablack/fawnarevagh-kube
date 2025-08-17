@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - image: flaresolverr/flaresolverr:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: flaresolverr
           env:
             - name: TZ

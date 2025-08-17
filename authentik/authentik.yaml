@@ -37,7 +37,7 @@ spec:
             medium: Memory
       containers:
         - image: postgres:16-alpine
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: postgresql
           env:
             - name: POSTGRES_USER
@@ -97,7 +97,7 @@ spec:
               cpu: 10m
               memory: 200Mi
         - image: redis:alpine
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: redis
           command: ["redis-server"]
           args: ["--save", "60", "1", "--loglevel", "warning"]
@@ -140,7 +140,7 @@ spec:
               cpu: 10m
               memory: 50Mi
         - image: ghcr.io/goauthentik/server:2025.6.4
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: authentik-server
           command: ["ak"]
           args: ["server"]
@@ -206,7 +206,7 @@ spec:
               cpu: 10m
               memory: 300Mi
         - image: ghcr.io/goauthentik/server:2025.6.4
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: authentik-worker
           command: ["ak"]
           args: ["worker"]

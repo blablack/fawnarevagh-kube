@@ -23,7 +23,7 @@ spec:
       containers:
         - image: homeassistant/home-assistant:latest
           name: home-assistant
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           volumeMounts:
             - mountPath: "/config"
               name: home-assistant-pvc

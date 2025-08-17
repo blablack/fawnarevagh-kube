@@ -272,7 +272,7 @@ spec:
     spec:
       containers:
         - image: nucio.nowhere:30038/homer:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: homer
           volumeMounts:
             - name: confmap-vol
