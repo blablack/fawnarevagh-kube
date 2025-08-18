@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seafile-yvonne-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 200Mi
+  volumeName: pvc-a5596d99-6aa8-4d9a-93b5-d4e9ef6c9a28
