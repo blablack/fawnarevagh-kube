@@ -17,15 +17,12 @@ spec:
         app: seafile-yvonne
     spec:
       volumes:
-        - name: nasio-nfs-pvc
-          persistentVolumeClaim:
-            claimName: nasio-nfs-pvc
         - name: seafile-yvonne-pvc
           persistentVolumeClaim:
             claimName: seafile-yvonne-pvc
       containers:
         - name: mariadb
-          image: mariadb:10.11
+          image: mariadb:12.0.2
           env:
             - name: MARIADB_ROOT_PASSWORD
               value: "db_dev"
@@ -33,10 +30,6 @@ spec:
               value: "true"
             - name: MARIADB_DATABASE
               value: "seafile"
-            - name: MARIADB_USER
-              value: "seafile"
-            - name: MARIADB_PASSWORD
-              value: "seafile_password"
           ports:
             - containerPort: 3306
           volumeMounts:
@@ -46,7 +39,7 @@ spec:
           readinessProbe:
             exec:
               command:
-                - mysqladmin
+                - mariadb-admin
                 - ping
                 - -h
                 - localhost
@@ -59,7 +52,7 @@ spec:
           livenessProbe:
             exec:
               command:
-                - mysqladmin
+                - mariadb-admin
                 - ping
                 - -h
                 - localhost
@@ -69,22 +62,38 @@ spec:
             initialDelaySeconds: 60
             periodSeconds: 30
             timeoutSeconds: 5
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
         - name: memcached
           image: memcached:1.6.18
           args: ["-m", "256"]
           ports:
             - containerPort: 11211
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
         - name: seafile
-          image: seafileltd/seafile-mc:11.0-latest
+          image: seafileltd/seafile-mc:12.0-latest
           env:
             - name: DB_HOST
-              value: "192.168.2.223"
+              value: "127.0.0.1"
             - name: DB_ROOT_PASSWD
               value: "db_dev"
             - name: DB_USER
-              value: "seafile"
+              value: "root"
             - name: DB_USER_PASSWD
-              value: "seafile_password"
+              value: "db_dev"
+            - name: SEAFILE_LOG_TO_STDOUT
+              value: "true"
             - name: TIME_ZONE
               value: "Europe/Dublin"
             - name: SEAFILE_ADMIN_EMAIL
@@ -95,6 +104,8 @@ spec:
               value: "false"
             - name: SEAFILE_SERVER_HOSTNAME
               value: "192.168.2.223"
+            - name: SEAFILE_SERVER_PROTOCOL
+              value: "http"
           ports:
             - containerPort: 80
           volumeMounts:
@@ -113,7 +124,14 @@ spec:
               port: 80
             initialDelaySeconds: 180
             periodSeconds: 30
-      dnsPolicy: "None"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+      dnsPolicy: "ClusterFirst"
       dnsConfig:
         nameservers:
           - 10.43.0.22
@@ -134,9 +152,5 @@ spec:
     - port: 80
       targetPort: 80
       name: seafile-ui
-      protocol: TCP
-    - port: 3306
-      targetPort: 3306
-      name: mariadb
       protocol: TCP
   type: LoadBalancer
