@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: nextcloud-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 2Gi
+  #volumeName: pvc-1c412d80-8163-4015-9fda-e8b800bd99a6
