@@ -113,13 +113,6 @@ validate_config() {
         exit 1
     fi
     
-    # Validate connection target if specified
-    if [[ -n ${CONNECT} ]]; then
-        if ! nordvpn countries | grep -qi "${CONNECT}"; then
-            log "WARNING: '${CONNECT}' may not be a valid country/server"
-        fi
-    fi
-    
     log "Configuration validation completed"
 }
 

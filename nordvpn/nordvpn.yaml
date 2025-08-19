@@ -55,7 +55,7 @@ spec:
                   name: nordvpn-token
                   key: password
             - name: COUNTRY
-              value: "IRELAND"
+              value: "P2P"
             - name: NETWORK
               value: "192.168.2.0/24;10.42.0.0/16;10.43.0.0/16"
             - name: PORTS
