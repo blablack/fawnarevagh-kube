@@ -12,11 +12,9 @@ spec:
   storageClassName: nfs
   mountOptions:
     - hard
-    - nfsvers=4
-    - rsize=4096
-    - wsize=4096
-    - noacl
-    - nocto
+    - nfsvers=3
+    - rsize=32768
+    - wsize=32768
     - noatime
     - nodiratime
     - async
