@@ -36,6 +36,8 @@ spec:
               value: "nextcloud"
             - name: POSTGRES_PASSWORD
               value: "nextcloud"
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
           ports:
             - containerPort: 5432
           volumeMounts:
@@ -47,9 +49,9 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - paperless
+                - nextcloud
                 - -d
-                - paperless
+                - nextcloud
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -59,9 +61,9 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - paperless
+                - nextcloud
                 - -d
-                - paperless
+                - nextcloud
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
@@ -71,9 +73,9 @@ spec:
               command:
                 - pg_isready
                 - -U
-                - paperless
+                - nextcloud
                 - -d
-                - paperless
+                - nextcloud
             initialDelaySeconds: 5
             periodSeconds: 5
             timeoutSeconds: 5
