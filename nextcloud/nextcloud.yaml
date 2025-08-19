@@ -42,18 +42,91 @@ spec:
             - name: nextcloud-pvc
               subPath: postgres
               mountPath: /var/lib/postgresql/data
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - paperless
+                - -d
+                - paperless
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 100m
+              memory: 200Mi
+            requests:
+              cpu: 10m
+              memory: 50Mi
+        - image: redis:latest
+          imagePullPolicy: Always
+          name: redis
+          resources:
+            limits:
+              cpu: 100m
+              memory: 400Mi
+            requests:
+              cpu: 40m
+              memory: 50Mi
         - name: nextcloud
           image: nextcloud:latest
           imagePullPolicy: Always
+          env:
+            - name: POSTGRES_DB
+              value: "nextcloud" 
+            - name: POSTGRES_USER
+              value: "nextcloud"
+            - name: POSTGRES_PASSWORD
+              value: "nextcloud"
+            - name: POSTGRES_HOST
+              value: "localhost"
+            - name: NEXTCLOUD_DATA_DIR
+              value: "/data/data"
+            - name: REDIS_HOST
+              value: "localhost"
           ports:
             - containerPort: 80
           volumeMounts:
             - name: nextcloud-pvc
-              subPath: nextcloud
-              mountPath: /var/www/html
+              subPath: "nextcloud"
+              mountPath: "/var/www/html"
             - name: nasio-nfs-pvc
-              subPath: Kubernetes/
-              mountPath: /data/
+              subPath: "Kubernetes/NextCloud"
+              mountPath: "/data"
+          resources:
+            requests:
+              cpu: "1000m"
+              memory: "2048Mi"
+            limits:
+              cpu: "2000m"
+              memory: "4096Mi"
       dnsPolicy: "None"
       dnsConfig:
         nameservers:
