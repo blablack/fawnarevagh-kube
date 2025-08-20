@@ -8,14 +8,21 @@ resources:
   - https://github.com/argoproj/argo-cd/manifests/cluster-install?ref=stable
   - argocd-service.yaml
   - argocd-applicationset.yaml
-  - argocd-config.yaml
 
 patches:
   - path: patches/argocd-dex-patch.yaml
     target:
       kind: Deployment
       name: argocd-dex-server
-  - path: argocd-dex-config.yaml
+  - path: patches/argocd-dex-config.yaml
     target:
       kind: ConfigMap
       name: argocd-cm
+  - path: patches/argocd-cmd-params-patch.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-cmd-params-cm
+  - path: patches/argocd-rbac-patch.yaml
+    target:
+      kind: ConfigMap
+      name: argocd-rbac-cm
