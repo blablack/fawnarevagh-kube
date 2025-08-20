@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: jellyfin-pvc
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: "Delete=false"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 1Gi
+  volumeName: pvc-65256690-b2ad-40b5-919a-9661e1bcfc93
