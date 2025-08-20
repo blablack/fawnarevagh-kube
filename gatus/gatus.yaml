@@ -89,6 +89,14 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
+      - name: Jellyfin
+        group: service
+        url: "http://192.168.2.225:8096/"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: Jenkins
         group: service
         url: "http://192.168.2.213/login"
