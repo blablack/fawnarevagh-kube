@@ -13,7 +13,7 @@ data:
     - config:
         issuer: http://192.168.2.221:9000/application/o/argocd/
         clientID: LhRF42giAPt8yhbHKJYWZeQdqeF6NgJvRSZUtyoJ
-        clientSecret: $dex.authentik.clientSecret
+        clientSecret: 80J5CxMhktFUbUZ8VVN7kzvydlrL0aqJGZEPHQv2YJqpAEUL0kzapzMpk0R1d2mL6r0rwGFPMU6GDyzgE5HdH6aakq2qTdDfgEhIFfGP5P2kfS6Xg0yyTJ4dYHAznvBa
         insecureEnableGroups: true
         insecureSkipVerify: true
         scopes:
@@ -21,6 +21,6 @@ data:
           - profile
           - email
           - groups
-        name: authentik
-        type: oidc
-        id: authentik
+      name: authentik
+      type: oidc
+      id: authentik
