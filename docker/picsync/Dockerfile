@@ -1,15 +1,11 @@
-FROM ubuntu:latest
+FROM python:alpine
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-RUN groupadd --gid 1001 picsync && \
-    useradd --uid 1001 --gid picsync --create-home picsync
+RUN addgroup -g 1001 picsync && \
+    adduser -u 1001 -G picsync -h /home/picsync -s /bin/sh -D picsync
 
 WORKDIR /home/picsync
 
-RUN apt-get update && \
-    apt-get install -y rsync sshpass inetutils-ping && \
-    rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
+RUN apk add --no-cache rsync sshpass iputils
 
 COPY requirements.txt /home/picsync
 
