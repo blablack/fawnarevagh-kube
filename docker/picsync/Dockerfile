@@ -2,6 +2,8 @@ FROM python:slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 
+USER root
+
 #RUN groupadd --gid 1001 picsync && \
 #    useradd --uid 1001 --gid picsync --create-home picsync
 
