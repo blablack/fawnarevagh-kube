@@ -1,0 +1,130 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jellyfin
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: jellyfin
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: jellyfin
+    spec:
+      volumes:
+        - name: jellyfin-pvc
+          persistentVolumeClaim:
+            claimName: jellyfin-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+        - name: dshm
+          emptyDir:
+            medium: Memory
+      containers:
+        - image: jellyfin/jellyfin:latest
+          imagePullPolicy: Always
+          name: jellyfin
+          volumeMounts:
+            - mountPath: "/config"
+              subPath: "config"
+              name: jellyfin-pvc
+            - mountPath: "/cache"
+              subPath: "cache"
+              name: jellyfin-pvc
+            - mountPath: "/media"
+              name: nasio-nfs-pvc
+              readOnly: true
+            - mountPath: /dev/shm
+              name: dshm
+          env:
+            - name: PUID
+              value: "1026"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: "Europe/Dublin"
+            - name: JELLYFIN_PublishedServerUrl
+              value: "http://192.168.2.225:8096"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 30
+            timeoutSeconds: 5
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 15
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8096
+            initialDelaySeconds: 30
+            timeoutSeconds: 10
+          ports:
+            - containerPort: 8096
+              name: http
+              protocol: TCP
+            - containerPort: 8920
+              name: https
+              protocol: TCP
+            - containerPort: 1900
+              name: dlna-udp
+              protocol: UDP
+            - containerPort: 7359
+              name: discovery
+              protocol: UDP
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 4000Mi
+              gpu.intel.com/i915: 1000m
+            requests:
+              cpu: 100m
+              memory: 200Mi
+              gpu.intel.com/i915: 1000m
+      dnsPolicy: "None"
+      dnsConfig:
+        nameservers:
+          - 10.43.0.22
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jellyfin
+  namespace: default
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.225
+spec:
+  externalTrafficPolicy: Local
+  selector:
+    app: jellyfin
+  ports:
+    - port: 8096
+      targetPort: 8096
+      name: http
+      protocol: TCP
+    - port: 8920
+      targetPort: 8920
+      name: https
+      protocol: TCP
+    - port: 1900
+      targetPort: 1900
+      name: dlna-udp
+      protocol: UDP
+    - port: 7359
+      targetPort: 7359
+      name: discovery
+      protocol: UDP
+  type: LoadBalancer
