@@ -8,9 +8,8 @@ RUN groupadd --gid 1001 picsync && \
 WORKDIR /home/picsync
 
 RUN apt-get update && \
-    apt-get install -y nano
-    #apt-get install -y rsync sshpass inetutils-ping && \
-#    rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
+    apt-get install -y rsync sshpass inetutils-ping && \
+    rm -rf /tmp/* /var/cache/apt/archives/* /var/lib/apt/lists/* /var/tmp/*
 
 COPY requirements.txt /home/picsync
 
