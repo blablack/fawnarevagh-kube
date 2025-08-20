@@ -30,7 +30,7 @@
       ansible.builtin.copy:
         src: nucio/00-myconfig.yaml
         dest: /etc/netplan/
-        mode: '0600'
+        mode: "0600"
 
 - name: Setup network on Quario
   hosts: quario
@@ -49,8 +49,58 @@
   tasks:
     - name: Copy sysctl.conf
       ansible.builtin.copy:
-        src: all/sysctl.conf
-        dest: /etc/
+        src: all/99-mysysctl.conf
+        dest: /etc/sysctl.d/
+
+    - name: Copy limits configuration
+      ansible.builtin.copy:
+        src: all/10-limits.conf
+        dest: /etc/security/limits.d/
+
+- name: k3s limits configuration
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Create k3s systemd drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/k3s.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Copy k3s limits configuration
+      ansible.builtin.copy:
+        src: all/10-k3s-limits.conf
+        dest: /etc/systemd/system/k3s.service.d/
+
+- name: k3s-agent limits configuration
+  hosts: quario
+  become: true
+
+  tasks:
+    - name: Create k3s-agent systemd drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/system/k3s-agent.service.d
+        state: directory
+        mode: "0755"
+
+    - name: Copy k3s-agent limits configuration
+      ansible.builtin.copy:
+        src: all/10-k3s-limits.conf
+        dest: /etc/systemd/system/k3s-agent.service.d/
+
+- name: Setup network on Quario
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Apply sysctl settings
+      ansible.builtin.command:
+        cmd: sysctl --system
 
 - name: Setup network
   hosts: all
