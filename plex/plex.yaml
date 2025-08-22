@@ -99,10 +99,6 @@ spec:
               cpu: 100m
               memory: 200Mi
               gpu.intel.com/i915: 1000m
-      dnsPolicy: "None"
-      dnsConfig:
-        nameservers:
-          - 10.43.0.22
 ---
 apiVersion: v1
 kind: Service

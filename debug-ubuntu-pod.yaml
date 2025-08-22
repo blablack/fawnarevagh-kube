@@ -40,7 +40,3 @@ spec:
           volumeMounts:
             - name: ubuntu-pvc
               mountPath: /root
-      dnsPolicy: "None"
-      dnsConfig:
-        nameservers:
-          - 10.43.0.22

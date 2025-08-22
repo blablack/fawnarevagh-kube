@@ -124,6 +124,46 @@
         dest: /etc/hosts
         line: 192.168.2.3 quario.nowhere
 
+- name: Setup DNS switcher service
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy DNS switcher script from repo
+      copy:
+        src: all/dns-switcher.sh
+        dest: /usr/local/bin/dns-switcher.sh
+        mode: "0755"
+        owner: root
+        group: root
+
+    - name: Create systemd service file
+      copy:
+        src: all/dns-switcher.service
+        dest: /etc/systemd/system/dns-switcher.service
+        mode: "0644"
+        owner: root
+        group: root
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Enable and start DNS switcher service
+      systemd:
+        name: dns-switcher
+        enabled: yes
+        state: started
+
+    - name: Check service status
+      systemd:
+        name: dns-switcher
+        state: started
+      register: service_status
+
+    - name: Display service status
+      debug:
+        msg: "DNS switcher service is {{ service_status.status.ActiveState }}"
+
 - name: Install basic packages
   hosts: all
   become: true
