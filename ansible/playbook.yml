@@ -366,16 +366,6 @@
     - name: Reboot
       ansible.builtin.reboot:
 
-- name: Copy k3s resolv.conf
-  hosts: all
-  become: true
-
-  tasks:
-    - name: Copy resolv.conf
-      ansible.builtin.copy:
-        src: all/resolv.conf
-        dest: /etc/rancher/k3s/
-
 - name: Install k3s on Nucio
   hosts: nucio
   become: true
@@ -388,7 +378,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
+        cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
       when: not k3s_exist.stat.exists
 
 - name: Install k3s on Quario
@@ -413,7 +403,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_RESOLV_CONF="/etc/rancher/k3s/resolv.conf" K3S_TOKEN={{master_node_token['content'] | b64decode | trim}} sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_TOKEN={{master_node_token['content'] | b64decode | trim}} sh -s
       when: not k3s_exist.stat.exists
 
 - name: Setup Docker registry
