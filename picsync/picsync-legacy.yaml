@@ -58,7 +58,3 @@ spec:
                   cpu: 100m
                   memory: 100Mi
           restartPolicy: Never
-          dnsPolicy: "None"
-          dnsConfig:
-            nameservers:
-              - 10.43.0.22

@@ -157,10 +157,6 @@ spec:
         - configMap:
             name: unbound
           name: confmap-vol
-      dnsPolicy: "ClusterFirst"
-      dnsConfig:
-        nameservers:
-          - 10.43.0.22
 ---
 apiVersion: v1
 kind: Service
