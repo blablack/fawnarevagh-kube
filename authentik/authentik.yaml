@@ -140,7 +140,7 @@ spec:
               cpu: 10m
               memory: 50Mi
         - image: ghcr.io/goauthentik/server:2025.6.4
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: authentik-server
           command: ["ak"]
           args: ["server"]
