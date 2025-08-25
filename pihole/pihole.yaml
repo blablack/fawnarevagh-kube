@@ -75,8 +75,10 @@ spec:
                 secretKeyRef:
                   key: password
                   name: pihole-webpassword
-            - name: FTLCONF_dns_listeningMode
-              value: "all"
+            - name: FTLCONF_dns_reply_host_IPv4
+              value: '192.168.2.2'
+            - name: FTLCONF_dns_reply_host_force4
+              value: 'true'
           startupProbe:
             httpGet:
               path: /admin/login
