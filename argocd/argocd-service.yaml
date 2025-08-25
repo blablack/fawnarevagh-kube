@@ -6,6 +6,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.215
+    external-dns.alpha.kubernetes.io/hostname: argocd.nowhere
 spec:
   externalTrafficPolicy: Local
   ports:

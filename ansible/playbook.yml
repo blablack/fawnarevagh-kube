@@ -124,18 +124,34 @@
         dest: /etc/hosts
         line: 192.168.2.3 quario.nowhere
 
-- name: Setup DNS switcher service
-  hosts: all
+- name: Setup DNS switcher service Nucio
+  hosts: nucio
   become: true
   tasks:
     - name: Copy DNS switcher script from repo
       copy:
-        src: all/dns-switcher.sh
+        src: nucio/dns-switcher.sh
         dest: /usr/local/bin/dns-switcher.sh
         mode: "0755"
         owner: root
         group: root
 
+- name: Setup DNS switcher service Quario
+  hosts: quario
+  become: true
+  tasks:
+    - name: Copy DNS switcher script from repo
+      copy:
+        src: quario/dns-switcher.sh
+        dest: /usr/local/bin/dns-switcher.sh
+        mode: "0755"
+        owner: root
+        group: root
+
+- name: Setup DNS switcher service
+  hosts: all
+  become: true
+  tasks:
     - name: Create systemd service file
       copy:
         src: all/dns-switcher.service

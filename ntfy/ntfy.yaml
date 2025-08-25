@@ -77,6 +77,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.220
+    external-dns.alpha.kubernetes.io/hostname: ntfy.nowhere
 spec:
   externalTrafficPolicy: Local
   selector:

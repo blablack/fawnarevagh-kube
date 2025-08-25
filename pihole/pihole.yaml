@@ -33,8 +33,11 @@ spec:
         app: pihole
         part-of: pihole
     spec:
-      hostNetwork: false
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       hostname: pihole
+      nodeSelector:
+        kubernetes.io/hostname: nucio
       containers:
         - name: pihole
           image: pihole/pihole:latest
@@ -157,108 +160,3 @@ spec:
         - configMap:
             name: unbound
           name: confmap-vol
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pihole-external1
-  namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.201
-spec:
-  externalTrafficPolicy: Local
-  ports:
-    # pihole use Ports to expose (53, 80, 67, 443), the bare minimum ports required for Pi-holes HTTP and DNS services
-    - port: 80
-      targetPort: 80
-      name: port80
-      protocol: TCP
-    - port: 443
-      targetPort: 443
-      name: port443
-      protocol: TCP
-    - port: 53
-      targetPort: 53
-      protocol: TCP
-      name: port53
-    - port: 53
-      targetPort: 53
-      protocol: UDP
-      name: port53-udp
-    - port: 67
-      targetPort: 67
-      protocol: UDP
-      name: port67-udp
-  selector:
-    app: pihole
-  type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pihole-external2
-  namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.202
-spec:
-  externalTrafficPolicy: Local
-  ports:
-    # pihole use Ports to expose (53, 80, 67, 443), the bare minimum ports required for Pi-holes HTTP and DNS services
-    - port: 80
-      targetPort: 80
-      name: port80
-      protocol: TCP
-    - port: 443
-      targetPort: 443
-      name: port443
-      protocol: TCP
-    - port: 53
-      targetPort: 53
-      protocol: TCP
-      name: port53
-    - port: 53
-      targetPort: 53
-      protocol: UDP
-      name: port53-udp
-    - port: 67
-      targetPort: 67
-      protocol: UDP
-      name: port67-udp
-  selector:
-    app: pihole
-  type: LoadBalancer
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: pihole-internal
-  namespace: default
-spec:
-  clusterIP: 10.43.0.22
-  ports:
-    # pihole use Ports to expose (53, 80, 67, 443), the bare minimum ports required for Pi-holes HTTP and DNS services
-    - port: 80
-      targetPort: 80
-      name: port80
-      protocol: TCP
-    - port: 443
-      targetPort: 443
-      name: port443
-      protocol: TCP
-    - port: 53
-      targetPort: 53
-      protocol: TCP
-      name: port53
-    - port: 53
-      targetPort: 53
-      protocol: UDP
-      name: port53-udp
-    - port: 67
-      targetPort: 67
-      protocol: UDP
-      name: port67-udp
-  selector:
-    app: pihole
-  type: ClusterIP

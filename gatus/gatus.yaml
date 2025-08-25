@@ -38,17 +38,6 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
-      - name: dnsmasq
-        group: dns
-        url: 10.43.0.23
-        interval: 5m
-        dns:
-          query-name: "wiz_c0cb9d"
-          query-type: "A"
-        conditions:
-          - "[DNS_RCODE] == NOERROR"
-        alerts:
-          - type: ntfy
       - name: Flaresolverr
         group: service
         url: "http://10.43.0.24:8191/"
@@ -171,7 +160,7 @@ data:
           - type: ntfy
       - name: PiHole
         group: dns
-        url: 192.168.2.201
+        url: 192.168.2.2
         interval: 5m
         dns:
           query-name: "google.com"
@@ -336,6 +325,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.219
+    external-dns.alpha.kubernetes.io/hostname: gatus.nowhere
 spec:
   externalTrafficPolicy: Local
   selector:

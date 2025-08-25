@@ -138,6 +138,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.222
+    external-dns.alpha.kubernetes.io/hostname: grafana.nowhere
 spec:
   selector:
     app: grafana

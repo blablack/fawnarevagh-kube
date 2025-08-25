@@ -67,6 +67,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.206
+    external-dns.alpha.kubernetes.io/hostname: cleanuparr.nowhere
 spec:
   externalTrafficPolicy: Local
   selector:
