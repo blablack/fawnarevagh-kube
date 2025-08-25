@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tailscale
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: tailscale
+  template:
+    metadata:
+      labels:
+        app: tailscale
+    spec:
+      serviceAccountName: tailscale
+      containers:
+      - name: tailscale
+        image: tailscale/tailscale:latest
+        imagePullPolicy: Always
+        env:
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              name: tailscale
+              key: TS_AUTHKEY
+        - name: TS_ROUTES
+          value: "10.42.0.0/16,10.43.0.0/16,192.168.2.0/24"
+        - name: TS_ACCEPT_DNS
+          value: "false"
+        - name: TS_STATE_DIR
+          value: "/var/lib/tailscale"
+        - name: TS_EXTRA_ARGS
+          value: "--advertise-exit-node --accept-dns --advertise-connector" 
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: POD_UID
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.uid
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - NET_ADMIN
+        resources:
+            limits:
+              cpu: 500m
+              memory: 400Mi
+            requests:
+              cpu: 10m
+              memory: 100Mi
+        volumeMounts:
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
+        - name: tailscale-state
+          mountPath: /var/lib/tailscale
+      volumes:
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+      - name: tailscale-state
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: tailscale
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: tailscale
+  namespace: default
+rules:
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "update", "patch"]
+  resourceNames: ["tailscale"]
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["get", "create", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tailscale
+  namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: tailscale
+subjects:
+- kind: ServiceAccount
+  name: tailscale
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: tailscale
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tailscale
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: tailscale
+subjects:
+- kind: ServiceAccount
+  name: tailscale
+  namespace: default
