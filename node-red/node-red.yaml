@@ -66,6 +66,7 @@ metadata:
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.205
+    external-dns.alpha.kubernetes.io/hostname: node-red.nowhere
 spec:
   externalTrafficPolicy: Local
   selector:
