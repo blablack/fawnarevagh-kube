@@ -56,12 +56,6 @@ setup_nordvpn() {
     # Configure NordVPN settings
     log "Configuring NordVPN settings..."
     
-    # Enable meshnet if requested
-    if [[ -n ${MESHNET:-} ]]; then
-        log "Enabling meshnet..."
-        nordvpn set meshnet on
-    fi
-    
     # Core settings
     nordvpn set killswitch on
     nordvpn set cybersec off
@@ -140,38 +134,6 @@ connect_vpn() {
     return 1
 }
 
-clean_meshnet() {
-    if [[ -z ${MESHNET:-} ]]; then
-        return 0
-    fi
-    
-    log "Cleaning up meshnet configuration..."
-    
-    if [ -f "/config/mesh_peer_name" ]; then
-        local peer_name
-        peer_name=$(cat /config/mesh_peer_name)
-        log "Removing meshnet peer: ${peer_name}"
-        
-        if [[ -n "${peer_name}" ]]; then
-            if nordvpn mesh peer remove "${peer_name}"; then
-                log "Successfully removed meshnet peer"
-            else
-                log "WARNING: Failed to remove meshnet peer"
-            fi
-        else
-            log "No peer_name found in /config/mesh_peer_name, skipping removal"
-        fi
-    else
-        log "No mesh_peer_name found, skipping peer removal"
-    fi
-    
-    # Get new mesh name if script exists
-    if [[ -x "/get_mesh_name.sh" ]]; then
-        log "Getting new mesh name..."
-        /get_mesh_name.sh
-    fi
-}
-
 kill_process_if_running() {
 	local process_name="$1"
 	if pgrep -x "$process_name" >/dev/null; then
@@ -184,9 +146,6 @@ kill_process_if_running() {
 
 cleanup() {
     log "Received shutdown signal, cleaning up..."
-    
-    # Clean meshnet first
-    clean_meshnet
     
     # Disconnect VPN
     if nordvpn status | grep -q "Status: Connected"; then
@@ -228,30 +187,14 @@ main() {
     log "Waiting for connection to stabilize..."
     sleep 30
     
-    # Clean up any existing meshnet configuration
-    clean_meshnet
-    
-    # Run meshnet setup periodically if enabled
-    if [[ -n ${MESHNET:-} ]] && [[ -x "/add_to_meshnet.sh" ]]; then
-        log "Starting meshnet maintenance loop..."
-        while true; do
-            /add_to_meshnet.sh || log "WARNING: Meshnet setup failed"
+    log "VPN setup complete, keeping container alive..."
+    # Keep container running
+    while true; do
+        kill_process_if_running "norduserd"
+        kill_process_if_running "nordfileshare"
 
-            kill_process_if_running "norduserd"
-	        kill_process_if_running "nordfileshare"
-
-            sleep 15m
-        done
-    else
-        log "VPN setup complete, keeping container alive..."
-        # Keep container running
-        while true; do
-            kill_process_if_running "norduserd"
-	        kill_process_if_running "nordfileshare"
-
-            sleep 1h
-        done
-    fi
+        sleep 1h
+    done
 }
 
 # Run main function
