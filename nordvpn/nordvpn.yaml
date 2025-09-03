@@ -18,9 +18,6 @@ spec:
         part-of: nordvpn
     spec:
       volumes:
-        - name: nordvpn-pvc
-          persistentVolumeClaim:
-            claimName: nordvpn-pvc
         - name: prowlarr-pvc
           persistentVolumeClaim:
             claimName: prowlarr-pvc
@@ -40,9 +37,6 @@ spec:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
           name: nordvpn
-          volumeMounts:
-            - mountPath: "/config"
-              name: nordvpn-pvc
           lifecycle:
             postStart:
               exec:
@@ -62,8 +56,6 @@ spec:
               value: "8112,6881,9696,8080,53"
             - name: DNS
               value: "192.168.2.2"
-            - name: MESHNET
-              value: "True"
           startupProbe:
             exec:
               command:
