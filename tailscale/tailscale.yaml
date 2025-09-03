@@ -15,17 +15,10 @@ spec:
         app: tailscale
     spec:
       serviceAccountName: tailscale
-      volumes:
-        - name: tailscale-pvc
-          persistentVolumeClaim:
-            claimName: tailscale-pvc
       containers:
       - name: tailscale
         image: tailscale/tailscale:latest
         imagePullPolicy: Always
-        volumeMounts:
-          - mountPath: "/var/lib/tailscale"
-            name: tailscale-pvc
         env:
         - name: TS_AUTHKEY
           valueFrom:
@@ -63,14 +56,16 @@ spec:
         volumeMounts:
         - name: dev-net-tun
           mountPath: /dev/net/tun
-        - name: tailscale-state
+        - name: tailscale-pvc
           mountPath: /var/lib/tailscale
       volumes:
       - name: dev-net-tun
         hostPath:
           path: /dev/net/tun
-      - name: tailscale-state
-        emptyDir: {}
+      - name: tailscale-pvc
+        persistentVolumeClaim:
+          claimName: tailscale-pvc
+
 ---
 apiVersion: v1
 kind: ServiceAccount
