@@ -169,14 +169,14 @@ data:
           - "[DNS_RCODE] == NOERROR"
         alerts:
           - type: ntfy
-      - name: Plex
-        group: service
-        url: "http://192.168.2.204:32400/"
-        interval: 5m
-        conditions:
-          - "[STATUS] == 200"
-        alerts:
-          - type: ntfy
+      #- name: Plex
+      #  group: service
+      #  url: "http://192.168.2.204:32400/"
+      #  interval: 5m
+      #  conditions:
+      #    - "[STATUS] == 200"
+      #  alerts:
+      #    - type: ntfy
       - name: Prometheus
         group: service
         url: "http://10.43.0.20:9090/"
