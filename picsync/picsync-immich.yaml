@@ -24,6 +24,8 @@ spec:
           containers:
             - image: nucio.nowhere:30038/picsync:latest
               imagePullPolicy: Always
+              securityContext:
+                runAsUser: 0
               env:
                 - name: SSHPASS_PASSWORD
                   valueFrom:
