@@ -5,7 +5,7 @@ RUN addgroup -g 1001 picsync && \
 
 WORKDIR /home/picsync
 
-RUN apk add --no-cache rsync sshpass iputils
+RUN apk add --no-cache rsync sshpass iputils openssh-client
 
 COPY requirements.txt /home/picsync
 
