@@ -39,7 +39,6 @@ spec:
               name: jellyfin-pvc
             - mountPath: "/media"
               name: nasio-nfs-pvc
-              readOnly: true
             - mountPath: /dev/shm
               name: dshm
           env:
