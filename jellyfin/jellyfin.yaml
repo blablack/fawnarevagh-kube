@@ -30,6 +30,8 @@ spec:
           hostPath:
             path: /dev/dri
             type: Directory
+      nodeSelector:
+        kubernetes.io/hostname: quario
       containers:
         - image: jellyfin/jellyfin:latest
           imagePullPolicy: Always
