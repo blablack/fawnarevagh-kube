@@ -26,6 +26,10 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
       containers:
         - image: jellyfin/jellyfin:latest
           imagePullPolicy: Always
@@ -41,6 +45,8 @@ spec:
               name: nasio-nfs-pvc
             - mountPath: /dev/shm
               name: dshm
+            - mountPath: /dev/dri
+              name: dev-dri
           env:
             - name: PUID
               value: "1026"
