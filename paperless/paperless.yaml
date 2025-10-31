@@ -32,6 +32,7 @@ spec:
           persistentVolumeClaim:
             claimName: paperless-pvc
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
+      terminationGracePeriodSeconds: 60 
       containers:
         - image: docker.io/library/postgres:16
           imagePullPolicy: Always
@@ -47,7 +48,7 @@ spec:
               value: "--data-checksums"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
-              subPath: "postgresql_16"
+              subPath: "postgresql"
               name: paperless-pvc
           startupProbe:
             exec:
@@ -85,10 +86,18 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
             failureThreshold: 3
+          lifecycle:
+            preStop:  
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    su - postgres -c "pg_ctl stop -D /var/lib/postgresql/data/pgdata -m fast -t 30"
           resources:
             limits:
               cpu: 100m
-              memory: 200Mi
+              memory: 512Mi
             requests:
               cpu: 10m
               memory: 50Mi

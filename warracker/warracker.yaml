@@ -23,6 +23,7 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+      terminationGracePeriodSeconds: 60 
       containers:
         - image: postgres:15-alpine
           imagePullPolicy: Always
@@ -74,10 +75,18 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
             failureThreshold: 5
+          lifecycle:
+            preStop:  
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    su - postgres -c "pg_ctl stop -D /var/lib/postgresql/data/pgdata -m fast -t 30"
           resources:
             limits:
               cpu: 100m
-              memory: 200Mi
+              memory: 512Mi
             requests:
               cpu: 10m
               memory: 10Mi

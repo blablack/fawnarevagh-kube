@@ -5,12 +5,13 @@ metadata:
 spec:
   containers:
     - name: postgres
-      image: postgres:15-alpine
+      image: docker.io/library/postgres:16
       command: ["sleep", "infinity"]
       volumeMounts:
         - name: postgres-data
+          subPath: "postgresql"
           mountPath: /var/lib/postgresql/data
   volumes:
     - name: postgres-data
       persistentVolumeClaim:
-        claimName: warracker-pvc
+        claimName: paperless-pvc
