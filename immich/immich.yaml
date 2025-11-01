@@ -27,7 +27,7 @@ spec:
             name: immich-postgres
           name: immich-postgres-vol
       containers:
-        - image: ghcr.io/immich-app/postgres:16-vectorchord0.3.0-pgvectors0.3.0
+        - image: ghcr.io/immich-app/postgres:18-vectorchord0.5.3-pgvector0.8.1
           imagePullPolicy: Always
           name: postgres
           env:
@@ -86,7 +86,7 @@ spec:
             requests:
               cpu: 10m
               memory: 300Mi
-        - image: redis:latest
+        - image: valkey/valkey:latest
           imagePullPolicy: Always
           name: redis
           resources:
