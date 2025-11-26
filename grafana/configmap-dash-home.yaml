@@ -128,7 +128,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])) * 100) ",
+              "expr": "100 - (avg by (instance) (rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[$range])) * 100) ",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -664,7 +664,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8)",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -675,7 +675,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8)",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -771,7 +771,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*8)",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -782,7 +782,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$__rate_interval])*-8)",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -988,7 +988,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[5m]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.2:9100\",job=\"node-exporter\"}[$range]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.2:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
               "legendFormat": "nucio",
               "range": true,
               "refId": "A"
@@ -999,7 +999,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[5m]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
+              "expr": "avg(avg_over_time(node_hwmon_temp_celsius{instance=\"192.168.2.3:9100\",job=\"node-exporter\"}[$range]) * on(chip,pod) group_left(chip_name) node_hwmon_chip_names{instance='192.168.2.3:9100',job=\"node-exporter\",chip_name=\"coretemp\"})",
               "hide": false,
               "instant": false,
               "legendFormat": "quario",
@@ -1107,7 +1107,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval]))",
+              "expr": "avg(irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -1118,7 +1118,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$__rate_interval])*-1)",
+              "expr": "avg(irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -1333,7 +1333,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[5m])) by (container) * 100",
+              "expr": "sum(rate(container_cpu_usage_seconds_total{container!=\"\"}[$range])) by (container) * 100",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -1431,7 +1431,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "sum(rate(container_memory_rss{container!=\"\"}[5m])) by (container) * 100 ",
+              "expr": "sum(rate(container_memory_rss{container!=\"\"}[$range])) by (container) * 100 ",
               "legendFormat": "__auto",
               "range": true,
               "refId": "A"
@@ -1986,7 +1986,45 @@ data:
       "schemaVersion": 40,
       "tags": [],
       "templating": {
-        "list": []
+        "list": [
+          {
+            "current": {
+              "text": "60m",
+              "value": "60m"
+            },
+            "label": "Time Range",
+            "name": "range",
+            "options": [
+              {
+                "selected": false,
+                "text": "1m",
+                "value": "1m"
+              },
+              {
+                "selected": false,
+                "text": "5m",
+                "value": "5m"
+              },
+              {
+                "selected": false,
+                "text": "15m",
+                "value": "15m"
+              },
+              {
+                "selected": false,
+                "text": "30m",
+                "value": "30m"
+              },
+              {
+                "selected": true,
+                "text": "60m",
+                "value": "60m"
+              }
+            ],
+            "query": "1m, 5m, 15m, 30m, 60m",
+            "type": "custom"
+          }
+        ]
       },
       "time": {
         "from": "now-6h",
