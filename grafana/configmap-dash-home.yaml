@@ -664,7 +664,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range]))",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -675,7 +675,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range])*-1)",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.2:9100\",job=\"node-exporter\",device=\"eno1\"}[$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -771,7 +771,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range]))",
+              "expr": "avg(irate(node_network_receive_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -782,7 +782,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$$range])*-1)",
+              "expr": "avg(irate(node_network_transmit_bytes_total{instance=\"192.168.2.3:9100\",job=\"node-exporter\",device=\"eno1\"}[$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
@@ -1107,7 +1107,7 @@ data:
           "targets": [
             {
               "editorMode": "code",
-              "expr": "avg(irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$$range]))",
+              "expr": "avg(irate(ifHCInOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$range]))",
               "legendFormat": "rec",
               "range": true,
               "refId": "A"
@@ -1118,7 +1118,7 @@ data:
                 "uid": "8rTXXfF4z"
               },
               "editorMode": "code",
-              "expr": "avg(irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$$range])*-1)",
+              "expr": "avg(irate(ifHCOutOctets{job=\"snmp-exporter\",ifName=\"eth0\"}[$range])*-1)",
               "hide": false,
               "instant": false,
               "legendFormat": "trans",
