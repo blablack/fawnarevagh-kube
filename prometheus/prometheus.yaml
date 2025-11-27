@@ -39,10 +39,9 @@ spec:
         resources:
           requests:
             storage: 5Gi
-  additionalArgs:
-    - --storage.tsdb.retention.time=30d
-    - --storage.tsdb.retention.size=4900Mi
-    - --storage.tsdb.wal-compression
+  retention: "15d"
+  retentionSize: "4900MiB"
+  walCompression: true
 ---
 apiVersion: v1
 kind: Service
