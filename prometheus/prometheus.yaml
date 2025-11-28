@@ -32,9 +32,6 @@ spec:
           - longhorn-prometheus-servicemonitor
           - kubelet
           - snmp-exporter
-  retention: "30d"
-  retentionSize: "4900Mi"
-  walCompression: true
   storage:
     volumeClaimTemplate:
       spec:
@@ -42,6 +39,9 @@ spec:
         resources:
           requests:
             storage: 5Gi
+  retention: "15d"
+  retentionSize: "4900MiB"
+  walCompression: true
 ---
 apiVersion: v1
 kind: Service
