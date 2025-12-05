@@ -94,14 +94,6 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
-      - name: k8s-pod-resolver
-        group: service
-        url: "http://10.43.0.26:8080/healthz"
-        interval: 5m
-        conditions:
-          - "[STATUS] == 200"
-        alerts:
-          - type: ntfy
       - name: Nasio
         group: hardware
         url: "icmp://192.168.2.4"
