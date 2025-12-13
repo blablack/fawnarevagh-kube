@@ -151,7 +151,7 @@ data:
         alerts:
           - type: ntfy
       - name: PiHole
-        group: dns
+        group: infrastructure
         url: 192.168.2.2
         interval: 5m
         dns:
@@ -233,6 +233,17 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
+      - name: "tailscale-pod"
+        group: infrastructure
+        url: "http://tailscale.default.svc.cluster.local:9002/healthz"
+        interval: 30s
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: slack
+            description: "Tailscale pod is unhealthy"
+            failure-threshold: 2
+            send-on-resolved: true
       - name: Warracker
         group: service
         url: "http://192.168.2.218/"
