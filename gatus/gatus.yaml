@@ -233,17 +233,14 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
-      - name: "tailscale-pod"
+      - name: "Tailscale"
         group: infrastructure
         url: "http://tailscale.default.svc.cluster.local:9002/healthz"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
         alerts:
-          - type: slack
-            description: "Tailscale pod is unhealthy"
-            failure-threshold: 2
-            send-on-resolved: true
+          - type: ntfy
       - name: Warracker
         group: service
         url: "http://192.168.2.218/"
