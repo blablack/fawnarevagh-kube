@@ -236,7 +236,7 @@ data:
       - name: "tailscale-pod"
         group: infrastructure
         url: "http://tailscale.default.svc.cluster.local:9002/healthz"
-        interval: 30s
+        interval: 5m
         conditions:
           - "[STATUS] == 200"
         alerts:

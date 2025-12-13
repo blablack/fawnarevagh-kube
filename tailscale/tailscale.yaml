@@ -126,3 +126,17 @@ subjects:
   - kind: ServiceAccount
     name: tailscale
     namespace: default
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: tailscale
+  namespace: default
+spec:
+  selector:
+    app: tailscale  
+  ports:
+  - name: health
+    port: 9002
+    targetPort: 9002
+  type: ClusterIP
