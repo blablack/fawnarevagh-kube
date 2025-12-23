@@ -1,8 +1,11 @@
 [nucio]
-192.168.2.2
+nucio ansible_host=192.168.2.2
 
 [quario]
-192.168.2.3
+quario ansible_host=192.168.2.3
+
+[lumio]
+lumio ansible_host=192.168.2.5
 
 [all:vars]
 ansible_connection=ssh
