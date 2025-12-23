@@ -1,5 +1,5 @@
 - name: Setup network
-  hosts: all
+  hosts: nucio,quario,lumio
   become: true
 
   tasks:
@@ -10,6 +10,11 @@
     - name: Empty /etc/netplan
       ansible.builtin.shell:
         cmd: rm -rf /etc/netplan/*
+    - name: Copy Netplan configuration
+      ansible.builtin.copy:
+        src: "{{ inventory_hostname }}/00-myconfig.yaml"
+        dest: /etc/netplan/
+        mode: "0600"
 
 - name: Setup APT
   hosts: all
@@ -20,27 +25,10 @@
       ansible.builtin.copy:
         src: all/99-phased-updates
         dest: /etc/apt/apt.conf.d/
-
-- name: Setup network on Nucio
-  hosts: nucio
-  become: true
-
-  tasks:
-    - name: Copy Netplan configuration
+    - name: Configure unattended-upgrades
       ansible.builtin.copy:
-        src: nucio/00-myconfig.yaml
-        dest: /etc/netplan/
-        mode: "0600"
-
-- name: Setup network on Quario
-  hosts: quario
-  become: true
-
-  tasks:
-    - name: Copy Netplan configuration
-      ansible.builtin.copy:
-        src: quario/00-myconfig.yaml
-        dest: /etc/netplan/
+        src: all/20auto-upgrades
+        dest: /etc/apt/apt.conf.d/
 
 - name: Configure kernel
   hosts: all
@@ -89,7 +77,7 @@
         src: all/10-k3s-limits.conf
         dest: /etc/systemd/system/k3s-agent.service.d/
 
-- name: Setup network on Quario
+- name: Reload Systemd and apply sysctl
   hosts: all
   become: true
 
@@ -102,7 +90,7 @@
       ansible.builtin.command:
         cmd: sysctl --system
 
-- name: Setup network
+- name: Setup DNS
   hosts: all
   become: true
 
@@ -123,37 +111,25 @@
       lineinfile:
         dest: /etc/hosts
         line: 192.168.2.3 quario.nowhere
-
-- name: Setup DNS switcher service Nucio
-  hosts: nucio
-  become: true
-  tasks:
-    - name: Copy DNS switcher script from repo
-      copy:
-        src: nucio/dns-switcher.sh
-        dest: /usr/local/bin/dns-switcher.sh
-        mode: "0755"
-        owner: root
-        group: root
-
-- name: Setup DNS switcher service Quario
-  hosts: quario
-  become: true
-  tasks:
-    - name: Copy DNS switcher script from repo
-      copy:
-        src: quario/dns-switcher.sh
-        dest: /usr/local/bin/dns-switcher.sh
-        mode: "0755"
-        owner: root
-        group: root
+    - name: Add Lumio host to hosts
+      lineinfile:
+        dest: /etc/hosts
+        line: 192.168.2.5 lumio.nowhere
 
 - name: Setup DNS switcher service
-  hosts: all
+  hosts: nucio,quario,lumio
   become: true
   tasks:
+    - name: Copy DNS switcher script from repo
+      ansible.builtin.copy:
+        src: "{{ inventory_hostname }}/dns-switcher.sh"
+        dest: /usr/local/bin/dns-switcher.sh
+        mode: "0755"
+        owner: root
+        group: root
+
     - name: Create systemd service file
-      copy:
+      ansible.builtin.copy:
         src: all/dns-switcher.service
         dest: /etc/systemd/system/dns-switcher.service
         mode: "0644"
@@ -161,24 +137,14 @@
         group: root
 
     - name: Reload systemd daemon
-      systemd:
-        daemon_reload: yes
+      ansible.builtin.systemd:
+        daemon_reload: true
 
     - name: Enable and start DNS switcher service
-      systemd:
+      ansible.builtin.systemd:
         name: dns-switcher
-        enabled: yes
+        enabled: true
         state: started
-
-    - name: Check service status
-      systemd:
-        name: dns-switcher
-        state: started
-      register: service_status
-
-    - name: Display service status
-      debug:
-        msg: "DNS switcher service is {{ service_status.status.ActiveState }}"
 
 - name: Install basic packages
   hosts: all
@@ -193,7 +159,7 @@
           - bash-completion
 
 - name: Install intel packages
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -204,7 +170,7 @@
           - intel-gpu-tools
 
 - name: Install Cryptsetup
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -249,7 +215,7 @@
         cmd: timedatectl set-timezone Europe/Dublin
 
 - name: Install nfs-common
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -257,8 +223,40 @@
       ansible.builtin.apt:
         name: nfs-common
 
+- name: Install nfs-kernel-server
+  hosts: lumio
+  become: true
+
+  tasks:
+    - name: Install package
+      ansible.builtin.apt:
+        name: nfs-kernel-server
+
+- name: Setup NFS storage on Lumio
+  hosts: lumio
+  become: true
+
+  tasks:
+    - name: Create NFS storage directory
+      ansible.builtin.file:
+        path: /srv/nfs/k8s-storage
+        state: directory
+        owner: nobody
+        group: nogroup
+        mode: "0777"
+
+    - name: Configure NFS export
+      ansible.builtin.lineinfile:
+        path: /etc/exports
+        line: "/srv/nfs/k8s-storage  192.168.2.0/24(rw,sync,no_subtree_check)"
+        state: present
+
+    - name: Export NFS shares
+      ansible.builtin.shell:
+        cmd: exportfs -a
+
 - name: Install open-iscsi
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -267,7 +265,7 @@
         name: open-iscsi
 
 - name: Configure multipath
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -362,18 +360,6 @@
       vars:
         service_names: "{{ services|dict2items|map(attribute='value.name')|list }}"
 
-- name: Cleanup
-  hosts: all
-  become: true
-
-  tasks:
-    - name: Remove useless packages from the cache
-      ansible.builtin.apt:
-        autoclean: yes
-    - name: Remove dependencies that are no longer required
-      ansible.builtin.apt:
-        autoremove: yes
-
 - name: Reboot all machines
   hosts: all
   become: true
@@ -423,7 +409,7 @@
       when: not k3s_exist.stat.exists
 
 - name: Setup Docker registry
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -438,7 +424,7 @@
         dest: /etc/rancher/k3s/
 
 - name: Setup cronjob
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
@@ -453,7 +439,7 @@
         job: "k3s crictl rmi --prune"
 
 - name: Setup chattr cleanup
-  hosts: all
+  hosts: quario,nucio
   become: true
 
   tasks:
