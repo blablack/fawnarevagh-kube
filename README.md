@@ -30,7 +30,7 @@ kubectl -n kube-system create secret generic kubeconfig --from-file=kubeconfig=P
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
-kubectl create secret generic paperless-password --from-literal=password='MYPASSWORD' --from-literal=authentik='OIDCSECRET' 
+kubectl create secret generic paperless-password --from-literal=password='MYPASSWORD' --from-literal=authentik='{"openid_connect":{"APPS":[{"provider_id":"authentik","name":"Authentik","client_id":"A6CKPWyJi20famWIoxzEZvZcHEcK2N2d8jtwNQMS","secret":"SECRETKEY","settings":{"server_url":"http://192.168.2.221:9000/application/o/paperless/.well-known/openid-configuration"}}]}}'
 kubectl create secret generic grafana-password --from-literal=password='MYPASSWORD' --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic warracker --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic tailscale --from-literal=TS_AUTHKEY='TAILSCALEKEY'
