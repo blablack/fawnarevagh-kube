@@ -30,9 +30,10 @@ kubectl -n kube-system create secret generic kubeconfig --from-file=kubeconfig=P
 kubectl create secret generic pihole-webpassword --from-literal password=PIHOLEPASSWORD
 kubectl create secret generic picsync-sshpassword --from-literal password=SSHPASSWORD
 kubectl create secret generic nordvpn-token --from-literal password=NORDVPNTOKEN
-kubectl create secret generic paperless-password --from-literal password=PAPERLESSPASSWORD
-kubectl create secret generic grafana-password --from-literal password=GRAFANAPASSWORD
-kubectl create secret generic uptime-kuma-credentials --from-literal=username=USERNAME --from-literal=password=PASSWORD
+kubectl create secret generic paperless-password --from-literal=password='MYPASSWORD' --from-literal=authentik='OIDCSECRET' 
+kubectl create secret generic grafana-password --from-literal=password='MYPASSWORD' --from-literal=oidc_secret='OIDCSECRET'
+kubectl create secret generic warracker --from-literal=oidc_secret='OIDCSECRET'
+kubectl create secret generic tailscale --from-literal=TS_AUTHKEY='TAILSCALEKEY'
 ```
 
 ### Deployments
