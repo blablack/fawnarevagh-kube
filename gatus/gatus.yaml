@@ -126,7 +126,7 @@ data:
           - "[CONNECTED] == true"
         alerts:
           - type: ntfy
-      - name: Officio
+      - name: Lumio
         group: hardware
         url: "icmp://192.168.2.5"
         interval: 5m
@@ -134,9 +134,17 @@ data:
           - "[CONNECTED] == true"
         alerts:
           - type: ntfy
-      - name: Garragio
+      - name: Officio
         group: hardware
         url: "icmp://192.168.2.6"
+        interval: 5m
+        conditions:
+          - "[CONNECTED] == true"
+        alerts:
+          - type: ntfy
+      - name: Garragio
+        group: hardware
+        url: "icmp://192.168.2.7"
         interval: 5m
         conditions:
           - "[CONNECTED] == true"
