@@ -79,6 +79,10 @@ spec:
               value: '192.168.2.2'
             - name: FTLCONF_dns_reply_host_force4
               value: 'true'
+            - name: FTLCONF_misc_dnsmasq_lines
+              value: "dns-forward-max=300"
+            - name: FTLCONF_RATE_LIMIT
+              value: "10000/60"  
           startupProbe:
             httpGet:
               path: /admin/login
