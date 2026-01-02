@@ -33,8 +33,6 @@ spec:
                   key: TS_AUTHKEY
             - name: TS_ROUTES
               value: "10.42.0.0/16,10.43.0.0/16,192.168.2.0/24"
-            - name: TS_ACCEPT_DNS
-              value: "false"
             - name: TS_KUBE_SECRET
               value: "tailscale-state"  
             - name: TS_EXTRA_ARGS
@@ -89,6 +87,10 @@ rules:
     resources: ["secrets"]
     verbs: ["get", "update", "patch"]
     resourceNames: ["tailscale"]
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "update", "patch"]
+    resourceNames: ["tailscale-state"]
   - apiGroups: [""]
     resources: ["events"]
     verbs: ["get", "create", "patch"]
