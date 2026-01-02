@@ -60,16 +60,10 @@ spec:
           volumeMounts:
             - name: dev-net-tun
               mountPath: /dev/net/tun
-            - name: tailscale-pvc
-              mountPath: /var/lib/tailscale
       volumes:
         - name: dev-net-tun
           hostPath:
             path: /dev/net/tun
-        - name: tailscale-pvc
-          persistentVolumeClaim:
-            claimName: tailscale-pvc
-
 ---
 apiVersion: v1
 kind: ServiceAccount
