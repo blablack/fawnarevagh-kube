@@ -35,8 +35,8 @@ spec:
               value: "10.42.0.0/16,10.43.0.0/16,192.168.2.0/24"
             - name: TS_ACCEPT_DNS
               value: "false"
-            - name: TS_STATE_DIR
-              value: "/var/lib/tailscale"
+            - name: TS_KUBE_SECRET
+              value: "tailscale-state"  
             - name: TS_EXTRA_ARGS
               value: "--advertise-exit-node --accept-dns --advertise-connector"
             - name: POD_NAME
