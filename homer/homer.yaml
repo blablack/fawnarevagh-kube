@@ -248,11 +248,6 @@ data:
             target: "_blank"
             logo: "assets/apps/scaleway.png"
             subtitle: "Cloud Backup"
-          - name: "IDrive E2"
-            url: "https://app.idrivee2.com/dashboard"
-            target: "_blank"
-            logo: "assets/apps/idrive.png"
-            subtitle: "Cloud Backup"
 ---
 apiVersion: apps/v1
 kind: Deployment
