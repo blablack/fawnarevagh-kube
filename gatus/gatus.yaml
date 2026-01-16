@@ -126,14 +126,6 @@ data:
           - "[CONNECTED] == true"
         alerts:
           - type: ntfy
-      - name: Lumio
-        group: hardware
-        url: "icmp://192.168.2.5"
-        interval: 5m
-        conditions:
-          - "[CONNECTED] == true"
-        alerts:
-          - type: ntfy
       - name: Officio
         group: hardware
         url: "icmp://192.168.2.6"
