@@ -16,6 +16,9 @@ spec:
       labels:
         app: home-assistant
     spec:
+      hostNetwork: true
+      nodeSelector:
+        kubernetes.io/hostname: nucio
       volumes:
         - name: home-assistant-pvc
           persistentVolumeClaim:
