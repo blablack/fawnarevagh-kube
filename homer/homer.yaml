@@ -243,10 +243,10 @@ data:
             target: "_blank"
             logo: "assets/apps/github.png"
             subtitle: "Version Control"
-          - name: "IDrive E2"
-            url: "https://app.idrivee2.com/dashboard"
+          - name: "Scaleway"
+            url: "https://console.scaleway.com/"
             target: "_blank"
-            logo: "assets/apps/idrive.png"
+            logo: "assets/apps/scaleway.png"
             subtitle: "Cloud Backup"
 ---
 apiVersion: apps/v1
