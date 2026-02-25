@@ -54,6 +54,12 @@ data:
       - name: "Personal Apps"
         icon: "fas fa-cloud"
         items:
+          - name: "Mealie"
+            url: "https://mealie.nowhere/"
+            target: "_blank"
+            logo: "assets/apps/mealie.svg"
+            subtitle: "Cooking"
+
           - name: "Immich"
             url: "http://192.168.2.210/"
             target: "_blank"
@@ -151,6 +157,12 @@ data:
             target: "_blank"
             logo: "assets/apps/pi-hole.svg"
             subtitle: "DNS Server"
+                    
+          - name: "CA Certificate"
+            url: "http://ca.nowhere"
+            target: "_blank"
+            logo: "assets/apps/ca-certificate.png"
+            subtitle: "Blinky CA Certficate"
 
       - name: "DevOps"
         icon: "fas fa-cube"
