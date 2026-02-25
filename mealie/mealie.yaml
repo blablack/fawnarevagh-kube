@@ -101,7 +101,7 @@ spec:
             - name: TZ
               value: "Europe/Dublin"
             - name: BASE_URL
-              value: "http://192.168.2.223"
+              value: "https://mealie.nowhere"
             - name: DB_ENGINE
               value: "postgres"
             - name: POSTGRES_USER
@@ -171,6 +171,7 @@ spec:
         nameservers:
           - 10.43.0.22
 ---
+apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: mealie-tls
