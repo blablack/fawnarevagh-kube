@@ -183,6 +183,8 @@ spec:
     kind: ClusterIssuer
   dnsNames:
     - mealie.nowhere
+  privateKey:
+    rotationPolicy: Always
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
