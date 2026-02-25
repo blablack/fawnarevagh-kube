@@ -121,18 +121,18 @@ spec:
             - name: OIDC_CONFIGURATION_URL
               value: "http://192.168.2.221:9000/application/o/mealie/.well-known/openid-configuration"
             - name: OIDC_CLIENT_ID
-              value: "nvz3wHnrwumIUbpXQSyGPpRQ6NLyjvBLohFXO7SF"
+              value: "Pi4EqaksAIldJt49JG5chHpT3KWvMJt3Vg62WoDl"
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  key: mealie
-                  name: oidc_secret
+                  key: oidc_secret
+                  name: mealie
             - name: OIDC_SIGNUP_ENABLED
               value: "true"
             - name: OIDC_USER_GROUP
-              value: "Mealie Users"
+              value: "Regular Users"
             - name: OIDC_ADMIN_GROUP
-              value: "Mealie Admins"
+              value: "Blinky Admins"
             - name: OIDC_REMEMBER_ME
               value: "true"
           startupProbe:
