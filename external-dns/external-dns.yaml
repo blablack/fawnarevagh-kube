@@ -43,6 +43,8 @@ metadata:
   name: external-dns
   namespace: default
 spec:
+  replicas: 1
+  revisionHistoryLimit: 0
   strategy:
     type: Recreate
   selector:
