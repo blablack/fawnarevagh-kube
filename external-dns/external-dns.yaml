@@ -66,6 +66,7 @@ spec:
                   name: pihole-webpassword
           args:
             - --source=service
+            - --source=ingress
             - --registry=noop
             - --policy=upsert-only
             - --provider=pihole
