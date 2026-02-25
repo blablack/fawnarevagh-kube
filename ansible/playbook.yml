@@ -380,7 +380,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable traefik --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
+        cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
       when: not k3s_exist.stat.exists
 
 - name: Install k3s on Quario
