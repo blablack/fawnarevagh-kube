@@ -23,7 +23,7 @@ kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/nasio-nfs.yaml
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/longhorn.yaml
 
-kubectl annotate svc traefik -n kube-system metallb.io/loadBalancerIPs=192.168.2.226
+kubectl annotate svc traefik -n kube-system metallb.io/loadBalancerIPs=192.168.2.200
 
 (
     cd $SCRIPT_DIR/../intel-gpu-plugin

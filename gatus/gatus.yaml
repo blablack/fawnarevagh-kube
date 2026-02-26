@@ -64,8 +64,10 @@ data:
           - type: ntfy
       - name: Homer
         group: service
-        url: "http://192.168.2.200/"
+        url: "https://homer.nowhere/"
         interval: 5m
+        client:
+          insecure: true
         conditions:
           - "[STATUS] == 200"
         alerts:
@@ -90,6 +92,16 @@ data:
         group: service
         url: "http://192.168.2.213/login"
         interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Mealie
+        group: service
+        url: "https://mealie.nowhere/"
+        interval: 5m
+        client:
+          insecure: true
         conditions:
           - "[STATUS] == 200"
         alerts:
