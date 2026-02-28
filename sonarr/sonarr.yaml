@@ -76,15 +76,52 @@ kind: Service
 metadata:
   name: sonarr
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.203
-    external-dns.alpha.kubernetes.io/hostname: sonarr.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: sonarr
   ports:
     - port: 80
       targetPort: 8989
-  type: LoadBalancer
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: sonarr-tls
+  namespace: default
+spec:
+  secretName: sonarr-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - sonarr.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sonarr
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: sonarr.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - sonarr.nowhere
+      secretName: sonarr-tls
+  rules:
+    - host: sonarr.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: sonarr
+                port:
+                  number: 80

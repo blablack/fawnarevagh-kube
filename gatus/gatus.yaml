@@ -98,10 +98,8 @@ data:
           - type: ntfy
       - name: Mealie
         group: service
-        url: "https://mealie.nowhere/"
+        url: "http://mealie.default.svc.cluster.local:80"
         interval: 5m
-        client:
-          insecure: true
         conditions:
           - "[STATUS] == 200"
         alerts:
@@ -215,7 +213,7 @@ data:
           - type: ntfy
       - name: Radarr
         group: service
-        url: "http://192.168.2.217/"
+        url: "http://radarr.default.svc.cluster.local:80"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -223,7 +221,7 @@ data:
           - type: ntfy
       - name: Sonarr
         group: service
-        url: "http://192.168.2.203/"
+        url: "http://sonarr.default.svc.cluster.local:80"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
