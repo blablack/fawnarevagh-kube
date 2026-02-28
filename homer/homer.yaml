@@ -182,7 +182,7 @@ data:
         icon: "fas fa-chart-line"
         items:
           - name: "Gatus"
-            url: "http://192.168.2.219/"
+            url: "https://gatus.nowhere/"
             target: "_blank"
             logo: "assets/apps/gatus.svg"
             subtitle: "Service Health Monitor"
