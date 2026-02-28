@@ -316,15 +316,52 @@ kind: Service
 metadata:
   name: gatus
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.219
-    external-dns.alpha.kubernetes.io/hostname: gatus.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: gatus
   ports:
     - port: 80
       targetPort: 8080
-  type: LoadBalancer
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: gatus-tls
+  namespace: default
+spec:
+  secretName: gatus-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - gatus.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gatus
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: gatus.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - gatus.nowhere
+      secretName: gatus-tls
+  rules:
+    - host: gatus.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: gatus
+                port:
+                  number: 80
