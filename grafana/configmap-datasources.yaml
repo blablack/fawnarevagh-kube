@@ -6,7 +6,7 @@ data:
       - name: prometheus
         type: prometheus
         access: proxy
-        url: http://10.43.0.20:9090
+        url: http://prometheus.monitoring.svc.cluster.local:9090
         isDefault: true
         editable: false
         uid: "8rTXXfF4z"

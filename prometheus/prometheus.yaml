@@ -50,7 +50,6 @@ metadata:
   namespace: monitoring
 spec:
   type: ClusterIP
-  clusterIP: 10.43.0.20
   ports:
     - name: web
       port: 9090
