@@ -55,7 +55,7 @@ spec:
             - name: PORTS
               value: "8112,6881,9696,8080,53"
             - name: DNS
-              value: "192.168.2.2"
+              value: "10.43.0.10"
           startupProbe:
             exec:
               command:
