@@ -17,7 +17,7 @@ kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.11.0/deploy/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
-kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/latest/download/cert-manager.yaml
+kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.19.4/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/nasio-nfs.yaml
