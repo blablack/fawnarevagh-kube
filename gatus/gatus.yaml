@@ -379,6 +379,7 @@ apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
   name: gatus-cors
+  namespace: default
 spec:
   headers:
     accessControlAllowOriginList: ["*"]  
