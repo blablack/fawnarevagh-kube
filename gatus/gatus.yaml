@@ -356,7 +356,6 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     external-dns.alpha.kubernetes.io/hostname: gatus.nowhere
-    traefik.ingress.kubernetes.io/router.middlewares: gatus-cors@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:
@@ -374,14 +373,3 @@ spec:
                 name: gatus
                 port:
                   number: 80
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: gatus-cors
-  namespace: default
-spec:
-  headers:
-    accessControlAllowOriginList: ["*"]
-    browserXssFilter: false  
-    contentTypeNosniff: false
