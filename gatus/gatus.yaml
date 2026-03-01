@@ -382,5 +382,6 @@ metadata:
   namespace: default
 spec:
   headers:
-    accessControlAllowOriginList: ["*"]  
-    accessControlAllowMethods: ["GET"]
+    accessControlAllowOriginList: ["*"]
+    browserXssFilter: false  
+    contentTypeNosniff: false
