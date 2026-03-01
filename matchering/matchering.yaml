@@ -22,7 +22,7 @@ spec:
             claimName: nasio-nfs-pvc
       terminationGracePeriodSeconds: 30
       containers:
-        - image: sergree/matchering:latest
+        - image: sergree/matchering-web
           imagePullPolicy: Always
           name: matchering
           volumeMounts:
@@ -30,7 +30,7 @@ spec:
               subPath: "Kubernetes/Matchering"
               name: nasio-nfs-pvc
           ports:
-            - containerPort: 3000
+            - containerPort: 8360
               name: matchering-web
               protocol: TCP
           env:
@@ -43,7 +43,7 @@ spec:
           startupProbe:
             httpGet:
               path: /
-              port: 3000
+              port: 8360
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
@@ -51,7 +51,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /
-              port: 3000
+              port: 8360
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
@@ -59,7 +59,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /
-              port: 3000
+              port: 8360
             initialDelaySeconds: 30
             periodSeconds: 30
             timeoutSeconds: 10
@@ -82,7 +82,7 @@ spec:
     app: matchering
   ports:
     - port: 80
-      targetPort: 3000
+      targetPort: 8360
       protocol: TCP
   type: ClusterIP
 ---
