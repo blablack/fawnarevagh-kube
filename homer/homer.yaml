@@ -172,7 +172,7 @@ data:
         icon: "fas fa-cube"
         items:
           - name: "Authentik"
-            url: "https://authentik.nowhere:9000/"
+            url: "https://authentik.nowhere/"
             target: "_blank"
             logo: "assets/apps/authentik.webp"
             subtitle: "Identity Provider"
