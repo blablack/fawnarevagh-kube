@@ -82,7 +82,15 @@ data:
           - type: ntfy
       - name: Jenkins
         group: service
-        url: "http://192.168.2.213/login"
+        url: "http://jenkins.default.svc.cluster.local/login"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Matchering
+        group: service
+        url: "http://matchering.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
