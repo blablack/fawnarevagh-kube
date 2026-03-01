@@ -5,6 +5,7 @@ metadata:
   namespace: default
 data:
   config.yaml: |
+    metrics: true
     alerting:
       ntfy:
         topic: "uptime"
