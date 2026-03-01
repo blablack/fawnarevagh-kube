@@ -237,7 +237,7 @@ data:
             logo: "assets/apps/dsm.png"
             subtitle: "Our NAS"
           - name: "LongHorn"
-            url: "http://192.168.2.214/"
+            url: "https://longhorn.nowhere/"
             target: "_blank"
             logo: "assets/apps/longhorn.png"
             subtitle: "Kubernetes Storage"
