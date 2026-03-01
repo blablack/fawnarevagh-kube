@@ -4,7 +4,7 @@ metadata:
   name: home-assistant
   namespace: default
 spec:
-  replicas: 0
+  replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
