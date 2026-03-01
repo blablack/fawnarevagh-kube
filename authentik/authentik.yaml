@@ -252,12 +252,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authentik
+  name: authentik-old
   namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.221
-    external-dns.alpha.kubernetes.io/hostname: authentik.nowhere
 spec:
   externalTrafficPolicy: Local
   selector:
@@ -268,3 +267,59 @@ spec:
       port: 9000
       targetPort: 9000
   type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: authentik
+  namespace: default
+spec:
+  selector:
+    app: authentik
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: authentik-tls
+  namespace: default
+spec:
+  secretName: authentik-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - authentik.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: authentik
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: authentik.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - authentik.nowhere
+      secretName: authentik-tls
+  rules:
+    - host: authentik.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: authentik
+                port:
+                  number: 9000

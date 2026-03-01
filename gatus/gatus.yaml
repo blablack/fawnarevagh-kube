@@ -24,7 +24,7 @@ data:
           - type: ntfy
       - name: Authentik
         group: service
-        url: "http://192.168.2.221:9000/-/health/live/"
+        url: "http://authentik.default.svc.cluster.local:9000/-/health/live/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
