@@ -129,6 +129,15 @@ data:
             target: "_blank"
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
+      
+      - name: "Misc"
+        icon: "fas fa-cloud"
+        items:
+          - name: "Matchering"
+            url: "https://matchering.nowhere/"
+            target: "_blank"
+            logo: "assets/apps/matchering.png"
+            subtitle: "Masterging"
 
   infrastructure.yml: |
     # See https://fontawesome.com/v5/search for icons options
@@ -173,7 +182,7 @@ data:
             logo: "assets/apps/argocd.png"
             subtitle: "GitOps"
           - name: "Jenkins"
-            url: "http://192.168.2.213/"
+            url: "https://jenkins.nowhere"
             target: "_blank"
             logo: "assets/apps/jenkins.svg"
             subtitle: "HomeLab Pipelines"
