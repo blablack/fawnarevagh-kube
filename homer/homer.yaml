@@ -192,6 +192,7 @@ data:
         items:
           - name: "Gatus"
             url: "https://gatus.nowhere/"
+            type: "Gatus"
             target: "_blank"
             logo: "assets/apps/gatus.svg"
             subtitle: "Service Health Monitor"
