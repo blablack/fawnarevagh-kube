@@ -84,7 +84,7 @@ spec:
               name: jenkins-pvc
           env:
             - name: JENKINS_URL
-              value: "http://192.168.2.213/"
+              value: "https://jenkins.nowhere/"
           ports:
             - name: httpport
               containerPort: 8080
@@ -127,12 +127,7 @@ kind: Service
 metadata:
   name: jenkins
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.213
-    external-dns.alpha.kubernetes.io/hostname: jenkins.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: jenkins
   ports:
@@ -144,4 +139,45 @@ spec:
       protocol: TCP
       port: 50000
       targetPort: 50000
-  type: LoadBalancer
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: jenkins-tls
+  namespace: default
+spec:
+  secretName: jenkins-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - jenkins.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: jenkins
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: jenkins.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - jenkins.nowhere
+      secretName: jenkins-tls
+  rules:
+    - host: jenkins.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jenkins
+                port:
+                  number: 80
