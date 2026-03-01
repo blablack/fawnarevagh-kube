@@ -5,7 +5,6 @@ metadata:
   namespace: default
 data:
   config.yaml: |
-    metrics: true 
     alerting:
       ntfy:
         topic: "uptime"
@@ -357,7 +356,6 @@ metadata:
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     external-dns.alpha.kubernetes.io/hostname: gatus.nowhere
-    traefik.ingress.kubernetes.io/router.middlewares: homer-cors@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:
@@ -375,17 +373,3 @@ spec:
                 name: gatus
                 port:
                   number: 80
----
-apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: homer-cors  
-  namespace: default
-spec:
-  headers:
-    accessControlAllowMethods: ["GET", "OPTIONS"]
-    accessControlAllowOriginList:
-      - "https://homer.nowhere"
-    accessControlAllowHeaders: ["*"]
-    accessControlMaxAge: 100
-    addVaryHeader: true
