@@ -192,6 +192,7 @@ data:
         items:
           - name: "Gatus"
             url: "https://gatus.nowhere/"
+            endpoint: "https://gatus.nowhere/api/v1/endpoints/statuses"
             type: "Gatus"
             target: "_blank"
             logo: "assets/apps/gatus.svg"
