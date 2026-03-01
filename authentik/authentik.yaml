@@ -328,6 +328,16 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: Middleware
 metadata:
+  name: authentik-nostrip  
+  namespace: default
+spec:
+  stripPrefix:
+    prefixes:
+      - /
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
   name: authentik-headers
   namespace: default
 spec:
