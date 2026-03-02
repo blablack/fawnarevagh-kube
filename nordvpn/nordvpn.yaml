@@ -153,8 +153,8 @@ spec:
               name: qbittorrent-pvc
             - mountPath: "/config/qBittorrent/logs"
               name: qbittorrent-logs-dir
-            - mountPath: "/volume1/public/Torrent Downloads"
-              subPath: "Torrent Downloads"
+            - mountPath: "/volume1/public/Kubernetes/QBittorrent"
+              subPath: "Kubernetes/QBittorrent"
               name: nasio-nfs-pvc
           startupProbe:
             httpGet:
