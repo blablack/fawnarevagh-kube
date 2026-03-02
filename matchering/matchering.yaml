@@ -1,0 +1,129 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: matchering
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: matchering
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: matchering
+    spec:
+      volumes:
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      terminationGracePeriodSeconds: 30
+      containers:
+        - image: sergree/matchering-web
+          imagePullPolicy: Always
+          name: matchering
+          volumeMounts:
+            - mountPath: "/app/data"
+              subPath: "Kubernetes/Matchering"
+              name: nasio-nfs-pvc
+          ports:
+            - containerPort: 8360
+              name: matchering-web
+              protocol: TCP
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: "Europe/Dublin"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8360
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8360
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8360
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 2000m
+              memory: 2000Mi
+            requests:
+              cpu: 200m
+              memory: 500Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: matchering
+  namespace: default
+spec:
+  selector:
+    app: matchering
+  ports:
+    - port: 80
+      targetPort: 8360
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: matchering-tls
+  namespace: default
+spec:
+  secretName: matchering-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - matchering.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: matchering
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: matchering.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - matchering.nowhere
+      secretName: matchering-tls
+  rules:
+    - host: matchering.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: matchering
+                port:
+                  number: 80
+
