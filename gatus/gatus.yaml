@@ -24,7 +24,7 @@ data:
           - type: ntfy
       - name: Authentik
         group: service
-        url: "http://192.168.2.221:9000/-/health/live/"
+        url: "http://authentik.default.svc.cluster.local:9000/-/health/live/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -40,7 +40,7 @@ data:
           - type: ntfy
       - name: Grafana
         group: service
-        url: "http://192.168.2.222:3000/"
+        url: "http://grafana.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -82,7 +82,15 @@ data:
           - type: ntfy
       - name: Jenkins
         group: service
-        url: "http://192.168.2.213/login"
+        url: "http://jenkins.default.svc.cluster.local/login"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
+      - name: Matchering
+        group: service
+        url: "http://matchering.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -90,7 +98,7 @@ data:
           - type: ntfy
       - name: Mealie
         group: service
-        url: "http://mealie.default.svc.cluster.local:80"
+        url: "http://mealie.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -197,7 +205,7 @@ data:
           - type: ntfy
       - name: Radarr
         group: service
-        url: "http://radarr.default.svc.cluster.local:80"
+        url: "http://radarr.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -205,7 +213,7 @@ data:
           - type: ntfy
       - name: Sonarr
         group: service
-        url: "http://sonarr.default.svc.cluster.local:80"
+        url: "http://sonarr.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
