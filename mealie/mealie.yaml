@@ -93,6 +93,9 @@ spec:
             - mountPath: "/app/data"
               subPath: "mealie/data"
               name: mealie-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
           ports:
             - containerPort: 9000
               name: mealie-tcp
