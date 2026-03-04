@@ -20,6 +20,12 @@ spec:
         - name: mealie-pvc
           persistentVolumeClaim:
             claimName: mealie-pvc
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
       containers:
         - image: postgres:15
           imagePullPolicy: Always
@@ -120,6 +126,8 @@ spec:
               value: "authentik"
             - name: OIDC_CONFIGURATION_URL
               value: "https://authentik.nowhere/application/o/mealie/.well-known/openid-configuration"
+            - name: OIDC_TLS_CACERTFILE
+              value: /certs/ca.crt
             - name: OIDC_CLIENT_ID
               value: "Pi4EqaksAIldJt49JG5chHpT3KWvMJt3Vg62WoDl"
             - name: OIDC_CLIENT_SECRET
