@@ -16,7 +16,7 @@ data:
     endpoints:
       - name: ArgoCD
         group: service
-        url: "http://192.168.2.215/"
+        url: "http://argocd.argocd.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"

@@ -177,7 +177,7 @@ data:
             logo: "assets/apps/authentik.webp"
             subtitle: "Identity Provider"
           - name: "ArgoCD"
-            url: "http://192.168.2.215"
+            url: "https://argocd.nowhere"
             target: "_blank"
             logo: "assets/apps/argocd.png"
             subtitle: "GitOps"
