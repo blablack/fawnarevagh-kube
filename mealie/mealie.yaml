@@ -119,7 +119,7 @@ spec:
             - name: OIDC_PROVIDER_NAME
               value: "authentik"
             - name: OIDC_CONFIGURATION_URL
-              value: "http://authentik.default.svc.cluster.local:9000/application/o/mealie/.well-known/openid-configuration"
+              value: "https://authentik.nowhere/application/o/mealie/.well-known/openid-configuration"
             - name: OIDC_CLIENT_ID
               value: "Pi4EqaksAIldJt49JG5chHpT3KWvMJt3Vg62WoDl"
             - name: OIDC_CLIENT_SECRET
