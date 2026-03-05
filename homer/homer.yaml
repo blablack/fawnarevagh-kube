@@ -115,6 +115,11 @@ data:
             target: "_blank"
             logo: "assets/apps/cleanuparr.png"
             subtitle: "Cleaner"
+          - name: "Bazarr"
+            url: "https://bazarr.nowhere"
+            target: "_blank"
+            logo: "assets/apps/bazarr.png"
+            subtitle: "Subtitles"
 
       - name: "Home Automation"
         icon: "fas fa-home"
