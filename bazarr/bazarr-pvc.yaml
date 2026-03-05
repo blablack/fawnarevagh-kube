@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: bazarr-pvc
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: "Delete=false"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 200Mi
+  #volumeName: pvc-1dcb5586-c522-468a-bb3d-65dfb392aee8

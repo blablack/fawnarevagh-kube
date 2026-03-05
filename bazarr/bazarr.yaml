@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bazarr
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: bazarr
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: bazarr
+    spec:
+      volumes:
+        - name: bazarr-pvc
+          persistentVolumeClaim:
+            claimName: bazarr-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: linuxserver/bazarr:latest
+          imagePullPolicy: Always
+          name: bazarr
+          volumeMounts:
+            - mountPath: "/config"
+              name: bazarr-pvc
+            - mountPath: "/volume1/public"
+              name: nasio-nfs-pvc
+          env:
+            - name: PUID
+              value: "1026"
+            - name: PGID
+              value: "100"
+            - name: TZ
+              value: "EU/Dublin"
+          startupProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 120
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 6767
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 200m
+              memory: 250Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bazarr
+  namespace: default
+spec:
+  selector:
+    app: bazarr
+  ports:
+    - port: 80
+      targetPort: 6767
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bazarr-tls
+  namespace: default
+spec:
+  secretName: bazarr-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - bazarr.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: bazarr
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: bazarr.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - bazarr.nowhere
+      secretName: bazarr-tls
+  rules:
+    - host: bazarr.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: bazarr
+                port:
+                  number: 80
