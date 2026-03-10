@@ -142,7 +142,7 @@ data:
             url: "https://matchering.nowhere"
             target: "_blank"
             logo: "assets/apps/matchering.png"
-            subtitle: "Masterging"
+            subtitle: "Mastering"
 
   infrastructure.yml: |
     # See https://fontawesome.com/v5/search for icons options
@@ -192,7 +192,7 @@ data:
             logo: "assets/apps/jenkins.svg"
             subtitle: "HomeLab Pipelines"
 
-      - name: "Monitoring & Alerts"
+      - name: "Monitoring"
         icon: "fas fa-chart-line"
         items:
           - name: "Gatus"
@@ -207,11 +207,32 @@ data:
             logo: "assets/apps/grafana.svg"
             subtitle: "Metrics & Dashboards"
 
-          - name: "ntfy"
-            url: "https://ntfy.nowhere"
+      - name: "Alerts"
+        icon: "fas fa-bell"
+        items:
+          - name: "ntfy — Backup"
+            url: "https://ntfy.nowhere/backup"
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
-            subtitle: "Push Notifications"
+            subtitle: "Backup Notifications"
+
+          - name: "ntfy — Jenkins"
+            url: "https://ntfy.nowhere/jenkins"
+            target: "_blank"
+            logo: "assets/apps/ntfy.svg"
+            subtitle: "Pipeline Notifications"
+
+          - name: "ntfy — Nasio"
+            url: "https://ntfy.nowhere/nasio"
+            target: "_blank"
+            logo: "assets/apps/ntfy.svg"
+            subtitle: "NAS Notifications"
+
+          - name: "ntfy — Uptime"
+            url: "https://ntfy.nowhere/uptime"
+            target: "_blank"
+            logo: "assets/apps/ntfy.svg"
+            subtitle: "Service Uptime Alerts"
 
       - name: "Hardware"
         icon: "fas fa-server"
