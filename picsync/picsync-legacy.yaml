@@ -1,8 +1,7 @@
----
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: picsync-legacy
+  name: picsync-immich
   namespace: default
 spec:
   schedule: "0 0 15 * *"
@@ -15,17 +14,44 @@ spec:
       template:
         metadata:
           labels:
-            app: picsync-legacy
+            app: picsync-immich
         spec:
           volumes:
             - name: nasio-nfs-pvc
               persistentVolumeClaim:
                 claimName: nasio-nfs-pvc
           containers:
-            - image: nucio.nowhere:30038/picsync:latest
-              imagePullPolicy: Always
-              securityContext:
-                runAsUser: 0
+            - name: picsync
+              image: alpine:latest
+              command: ["/bin/sh", "-c"]
+              args:
+                - |
+                  apk add --no-cache rsync sshpass iputils openssh-client
+
+                  ntfy() {
+                    curl -sf -o /dev/null -d "$1" \
+                      -H "Title: $2" -H "Priority: ${3:-default}" -H "Tags: ${4:-}" \
+                      "http://${NTFY_URL}/backup" || true
+                  }
+
+                  : "${SSHPASS_PASSWORD:?SSHPASS_PASSWORD not set}"
+
+                  ntfy "PicSync (Legacy) started" "PicSync (Legacy) started" "default" "partying_face"
+
+                  until ping -c 1 igorito.nowhere > /dev/null 2>&1; do
+                    echo "Host down, retrying in 10 minutes..."
+                    sleep 600
+                  done
+
+                  if sshpass -p "$SSHPASS_PASSWORD" rsync \
+                      -e "ssh -o StrictHostKeyChecking=no" \
+                      -hazL --progress --delete -v \
+                      /source/ "blablack@igorito.nowhere:~/Pictures Backup/Our Pictures"; then
+                    ntfy "PicSync (Legacy) completed" "PicSync (Legacy) completed" "default" "partying_face"
+                  else
+                    ntfy "PicSync (Legacy) failed" "PicSync (Legacy) failed" "urgent" "rotating_light"
+                    exit 1
+                  fi
               env:
                 - name: SSHPASS_PASSWORD
                   valueFrom:
@@ -33,24 +59,10 @@ spec:
                       name: picsync-sshpassword
                       key: password
                 - name: NTFY_URL
-                  value: "192.168.2.220"
-              command: ["python3"]
-              args:
-                [
-                  "picsync.py",
-                  "-H",
-                  "igorito.nowhere",
-                  "-u",
-                  "blablack",
-                  "-s",
-                  "/source/",
-                  "-t",
-                  "~/Pictures Backup/Our Pictures",
-                ]
-              name: picsync
+                  value: "ntfy.default.svc.cluster.local"
               volumeMounts:
                 - mountPath: "/source"
-                  subPath: "Our Pictures"
+                  subPath: "Kubernetes/Our Pictures - Immich/library"
                   name: nasio-nfs-pvc
               resources:
                 limits:
