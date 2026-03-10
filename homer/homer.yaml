@@ -208,7 +208,7 @@ data:
             subtitle: "Metrics & Dashboards"
 
           - name: "ntfy"
-            url: "http://192.168.2.220"
+            url: "http://ntfy.default.svc.cluster.local"
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
             subtitle: "Push Notifications"

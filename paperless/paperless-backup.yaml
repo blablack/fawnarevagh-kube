@@ -40,10 +40,10 @@ spec:
                     /usr/src/paperless/media/documents/ \
                     /backup/; then
                     echo "Backup completed successfully at $(date)"
-                    curl -H "Tags: tada" -H "Priority: low" -d "Paperless backup completed successfully" http://192.168.2.220/backup
+                    curl -H "Tags: tada" -H "Priority: low" -d "Paperless backup completed successfully" http://ntfy.default.svc.cluster.local/backup
                   else
                     echo "Backup failed at $(date)"
-                    curl -H "Tags: warning" -H "Priority: high" -d "Paperless backup FAILED" http://192.168.2.220/backup
+                    curl -H "Tags: warning" -H "Priority: high" -d "Paperless backup FAILED" http://ntfy.default.svc.cluster.local/backup
                     exit 1
                   fi
               volumeMounts:
