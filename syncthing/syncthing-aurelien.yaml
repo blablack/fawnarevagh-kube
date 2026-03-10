@@ -68,9 +68,6 @@ spec:
             - containerPort: 22000
               name: syncthing-tcp
               protocol: TCP
-            - containerPort: 22000
-              name: syncthing-udp
-              protocol: UDP
           resources:
             limits:
               cpu: 200m
@@ -82,14 +79,48 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: syncthing-aurelien
+  name: syncthing-aurelien-sync-tcp
   namespace: default
   annotations:
     metallb.io/address-pool: default
     metallb.io/loadBalancerIPs: 192.168.2.211
-    external-dns.alpha.kubernetes.io/hostname: syncthing-aurelien.nowhere
+    metallb.io/allow-shared-ip: syncthing-aurelien-sync
 spec:
   externalTrafficPolicy: Local
+  selector:
+    app: syncthing-aurelien
+  ports:
+    - port: 22000
+      targetPort: 22000
+      name: syncthing-tcp
+      protocol: TCP
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-aurelien-sync-udp
+  namespace: default
+  annotations:
+    metallb.io/address-pool: default
+    metallb.io/loadBalancerIPs: 192.168.2.211
+    metallb.io/allow-shared-ip: syncthing-aurelien-sync
+spec:
+  selector:
+    app: syncthing-aurelien
+  ports:
+    - port: 22000
+      targetPort: 22000
+      name: syncthing-udp
+      protocol: UDP
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-aurelien
+  namespace: default
+spec:
   selector:
     app: syncthing-aurelien
   ports:
@@ -97,12 +128,45 @@ spec:
       targetPort: 8384
       name: web-ui
       protocol: TCP
-    - port: 22000
-      targetPort: 22000
-      name: syncthing-tcp
-      protocol: TCP
-    - port: 22000
-      targetPort: 22000
-      name: syncthing-udp
-      protocol: UDP
-  type: LoadBalancer
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: syncthing-aurelien-tls
+  namespace: default
+spec:
+  secretName: syncthing-aurelien-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - syncthing-aurelien.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: syncthing-aurelien
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: syncthing-aurelien.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - syncthing-aurelien.nowhere
+      secretName: syncthing-aurelien-tls
+  rules:
+    - host: syncthing-aurelien.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: syncthing-aurelien
+                port:
+                  number: 8384
