@@ -62,7 +62,7 @@ spec:
                   value: "ntfy.default.svc.cluster.local"
               volumeMounts:
                 - mountPath: "/source"
-                  subPath: "Kubernetes/Our Pictures - Immich/library"
+                  subPath: "Our Pictures"
                   name: nasio-nfs-pvc
               resources:
                 limits:
