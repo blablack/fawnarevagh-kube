@@ -8,7 +8,7 @@ data:
     alerting:
       ntfy:
         topic: "uptime"
-        url: "http://192.168.2.220"
+        url: "http://ntfy.default.svc.cluster.local"
         priority: 4
         default-alert:
           failure-threshold: 3
@@ -130,7 +130,7 @@ data:
           - type: ntfy
       - name: ntfy
         group: service
-        url: "http://192.168.2.220/"
+        url: "http://ntfy.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"

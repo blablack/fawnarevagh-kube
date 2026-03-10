@@ -6,7 +6,7 @@ metadata:
 data:
   server.yml: |
     # Template: https://github.com/binwiederhier/ntfy/blob/main/server/server.yml
-    base-url: http://192.168.2.220
+    base-url: http://ntfy.default.svc.cluster.local
     listen: ":80"
 ---
 apiVersion: apps/v1
@@ -74,15 +74,52 @@ kind: Service
 metadata:
   name: ntfy
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.220
-    external-dns.alpha.kubernetes.io/hostname: ntfy.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: ntfy
   ports:
     - port: 80
       targetPort: 80
-  type: LoadBalancer
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ntfy-tls
+  namespace: default
+spec:
+  secretName: ntfy-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - ntfy.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ntfy
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: ntfy.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - ntfy.nowhere
+      secretName: ntfy-tls
+  rules:
+    - host: ntfy.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: ntfy
+                port:
+                  number: 80
