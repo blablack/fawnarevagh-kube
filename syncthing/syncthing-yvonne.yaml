@@ -115,6 +115,21 @@ spec:
       protocol: UDP
   type: LoadBalancer
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: syncthing-yvonne
+  namespace: default
+spec:
+  selector:
+    app: syncthing-yvonne
+  ports:
+    - port: 8384
+      targetPort: 8384
+      name: web-ui
+      protocol: TCP
+  type: ClusterIP
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
