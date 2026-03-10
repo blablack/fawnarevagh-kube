@@ -40,7 +40,7 @@ data:
           - type: ntfy
       - name: Cleanuparr
         group: service
-        url: "http://192.168.2.206/"
+        url: "http://cleanuparr.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -229,7 +229,7 @@ data:
           - type: ntfy
       - name: SyncthingAurelien
         group: service
-        url: "http://192.168.2.211:8384/"
+        url: "http://syncthing-aurelien.default.svc.cluster.local:8384/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -237,7 +237,7 @@ data:
           - type: ntfy
       - name: SyncthingYvonne
         group: service
-        url: "http://192.168.2.212:8384/"
+        url: "http://syncthing-yvonne.default.svc.cluster.local:8384/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
