@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: picsync-immich
+  name: picsync-legacy
   namespace: default
 spec:
   schedule: "0 0 15 * *"
@@ -14,14 +14,14 @@ spec:
       template:
         metadata:
           labels:
-            app: picsync-immich
+            app: picsync-legacy
         spec:
           volumes:
             - name: nasio-nfs-pvc
               persistentVolumeClaim:
                 claimName: nasio-nfs-pvc
           containers:
-            - name: picsync
+            - name: picsync-immich
               image: alpine:latest
               command: ["/bin/sh", "-c"]
               args:
