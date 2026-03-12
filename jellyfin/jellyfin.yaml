@@ -57,7 +57,7 @@ spec:
             - name: TZ
               value: "Europe/Dublin"
             - name: JELLYFIN_PublishedServerUrl
-              value: "http://192.168.2.225:8096"
+              value: "http://jellyfin.nowhere:8096"
           startupProbe:
             httpGet:
               path: /health
