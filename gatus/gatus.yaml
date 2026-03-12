@@ -82,7 +82,7 @@ data:
           - type: ntfy
       - name: Jellyfin
         group: service
-        url: "http://192.168.2.225:8096/"
+        url: "http://jellyfin.default.svc.cluster.local:8096"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
