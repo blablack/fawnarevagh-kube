@@ -40,6 +40,11 @@
         src: all/99-mysysctl.conf
         dest: /etc/sysctl.d/
 
+    - name: Copy inotify.conf
+      ansible.builtin.copy:
+        src: all/99-inotify.conf
+        dest: /etc/sysctl.d/
+
     - name: Copy limits configuration
       ansible.builtin.copy:
         src: all/10-limits.conf
