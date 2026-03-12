@@ -106,6 +106,7 @@ metadata:
     metallb.io/loadBalancerIPs: 192.168.2.211
     metallb.io/allow-shared-ip: syncthing-aurelien-sync
 spec:
+  externalTrafficPolicy: Local
   selector:
     app: syncthing-aurelien
   ports:
