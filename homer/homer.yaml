@@ -82,7 +82,7 @@ data:
         icon: "fas fa-photo-video"
         items:
           - name: "Jellyfin"
-            url: "http://jellyfin.nowhere"
+            url: "http://jellyfin.nowhere:8096"
             target: "_blank"
             logo: "assets/apps/jellyfin.png"
             subtitle: "Media Player"
