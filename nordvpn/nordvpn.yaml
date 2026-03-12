@@ -212,40 +212,114 @@ spec:
     app: nordvpn
   type: ClusterIP
 ---
+# Prowlarr
 apiVersion: v1
 kind: Service
 metadata:
   name: prowlarr
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.207
-    external-dns.alpha.kubernetes.io/hostname: prowlarr.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: nordvpn
   ports:
-    - port: 80
+    - port: 9696
       targetPort: 9696
       name: prowlarr-web
-  type: LoadBalancer
+  type: ClusterIP
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: prowlarr-tls
+  namespace: default
+spec:
+  secretName: prowlarr-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - prowlarr.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: prowlarr
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: prowlarr.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - prowlarr.nowhere
+      secretName: prowlarr-tls
+  rules:
+    - host: prowlarr.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: prowlarr
+                port:
+                  number: 9696
+---
+# qBittorrent
 apiVersion: v1
 kind: Service
 metadata:
   name: qbittorrent
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.209
-    external-dns.alpha.kubernetes.io/hostname: qbittorrent.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: nordvpn
   ports:
     - port: 8112
       targetPort: 8112
       name: qbittorrent-web
-  type: LoadBalancer
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: qbittorrent-tls
+  namespace: default
+spec:
+  secretName: qbittorrent-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - qbittorrent.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: qbittorrent
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: qbittorrent.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - qbittorrent.nowhere
+      secretName: qbittorrent-tls
+  rules:
+    - host: qbittorrent.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 8112

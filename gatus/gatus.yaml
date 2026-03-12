@@ -189,7 +189,7 @@ data:
           - type: ntfy
       - name: Prowlarr
         group: service
-        url: "http://192.168.2.207/"
+        url: "http://prowlarr.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -197,7 +197,7 @@ data:
           - type: ntfy
       - name: qBittorrent
         group: service
-        url: "http://192.168.2.209:8112/"
+        url: "http://qbittorrent.default.svc.cluster.local:8112"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
