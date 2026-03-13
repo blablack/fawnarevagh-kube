@@ -189,7 +189,7 @@ data:
           - type: ntfy
       - name: Prowlarr
         group: service
-        url: "http://prowlarr.default.svc.cluster.local"
+        url: "http://prowlarr.default.svc.cluster.local:9696"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
