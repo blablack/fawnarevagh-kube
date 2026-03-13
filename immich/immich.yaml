@@ -217,16 +217,35 @@ spec:
       protocol: TCP
   type: ClusterIP
 ---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: immich-tls
+  namespace: default
+spec:
+  secretName: immich-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - immich.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: immich
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: web
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
     external-dns.alpha.kubernetes.io/hostname: immich.nowhere
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts:
+        - immich.nowhere
+      secretName: immich-tls
   rules:
     - host: immich.nowhere
       http:
