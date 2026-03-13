@@ -64,7 +64,7 @@ data:
           - type: ntfy
       - name: Homer
         group: service
-        url: "https://homer.nowhere/"
+        url: "http://homer.default.svc.cluster.local"
         interval: 5m
         client:
           insecure: true
@@ -74,7 +74,7 @@ data:
           - type: ntfy
       - name: Immich
         group: service
-        url: "http://192.168.2.210/"
+        url: "http://immich.default.svc.cluster.local:3001"
         interval: 5m
         conditions:
           - "[STATUS] == 200"

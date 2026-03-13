@@ -61,7 +61,7 @@ data:
             subtitle: "Cooking"
 
           - name: "Immich"
-            url: "http://192.168.2.210"
+            url: "http://immich.nowhere"
             target: "_blank"
             logo: "assets/apps/immich.png"
             subtitle: "Photos and Videos"
