@@ -122,7 +122,7 @@ data:
           - type: ntfy
       - name: Node-RED
         group: service
-        url: "http://192.168.2.205"
+        url: "http://node-red.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"

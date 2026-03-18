@@ -63,15 +63,52 @@ kind: Service
 metadata:
   name: node-red
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.205
-    external-dns.alpha.kubernetes.io/hostname: node-red.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: node-red
   ports:
     - port: 80
       targetPort: 1880
-  type: LoadBalancer
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: node-red-tls
+  namespace: default
+spec:
+  secretName: node-red-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - node-red.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: node-red
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: node-red.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - node-red.nowhere
+      secretName: node-red-tls
+  rules:
+    - host: node-red.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: node-red
+                port:
+                  number: 80
