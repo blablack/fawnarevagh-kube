@@ -130,7 +130,7 @@ data:
             logo: "assets/apps/ha.png"
             subtitle: "Home Automation"
           - name: "Node-Red"
-            url: "http://192.168.2.205"
+            url: "https://node-red.nowhere"
             target: "_blank"
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
