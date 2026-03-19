@@ -126,7 +126,7 @@ spec:
                   key: oidc_secret
                   name: warracker
             - name: OIDC_ISSUER_URL
-              value: "https://authentik.nowhere/application/o/warracker/"
+              value: "http://192.168.2.221:9000/application/o/warracker/"
             - name: OIDC_SCOPE
               value: "openid email profile"
           ports:
