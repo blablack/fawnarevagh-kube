@@ -23,7 +23,7 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
-      terminationGracePeriodSeconds: 60 
+      terminationGracePeriodSeconds: 60
       containers:
         - image: postgres:15-alpine
           imagePullPolicy: Always
@@ -76,7 +76,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 5
           lifecycle:
-            preStop:  
+            preStop:
               exec:
                 command:
                   - /bin/sh
@@ -107,9 +107,9 @@ spec:
             - name: MAX_UPLOAD_MB
               value: "32"
             - name: FRONTEND_URL
-              value: "http://192.168.2.218"
+              value: "httsp://warracker.nowhere"
             - name: APP_BASE_URL
-              value: "http://192.168.2.218"
+              value: "https://warracker.nowhere"
             - name: WARRACKER_MEMORY_MODE
               value: "optimized"
             - name: PYTHONUNBUFFERED
@@ -126,7 +126,7 @@ spec:
                   key: oidc_secret
                   name: warracker
             - name: OIDC_ISSUER_URL
-              value: "http://192.168.2.221:9000/application/o/warracker/"
+              value: "https://authentik.nowhere/application/o/warracker/"
             - name: OIDC_SCOPE
               value: "openid email profile"
           ports:
@@ -173,17 +173,52 @@ kind: Service
 metadata:
   name: warracker
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.218
-    external-dns.alpha.kubernetes.io/hostname: warracker.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: warracker
   ports:
-    - name: http-80
-      protocol: TCP
-      port: 80
+    - port: 80
       targetPort: 80
-  type: LoadBalancer
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: warracker-tls
+  namespace: default
+spec:
+  secretName: warracker-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - warracker.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: warracker
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: warracker.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - warracker.nowhere
+      secretName: warracker-tls
+  rules:
+    - host: warracker.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: warracker
+                port:
+                  number: 80

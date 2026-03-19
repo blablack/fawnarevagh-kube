@@ -32,7 +32,7 @@ spec:
           persistentVolumeClaim:
             claimName: paperless-pvc
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
-      terminationGracePeriodSeconds: 60 
+      terminationGracePeriodSeconds: 60
       containers:
         - image: docker.io/library/postgres:16
           imagePullPolicy: Always
@@ -87,7 +87,7 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 3
           lifecycle:
-            preStop:  
+            preStop:
               exec:
                 command:
                   - /bin/sh
@@ -169,7 +169,7 @@ spec:
             - name: USERMAP_GID
               value: "1000"
             - name: PAPERLESS_URL
-              value: http://192.168.2.216
+              value: https://paperless.nowhere
             - name: PAPERLESS_PORT
               value: "8000"
             - name: PAPERLESS_ADMIN_USER
@@ -201,16 +201,52 @@ kind: Service
 metadata:
   name: paperless
   namespace: default
-  annotations:
-    metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.216
-    external-dns.alpha.kubernetes.io/hostname: paperless.nowhere
 spec:
-  externalTrafficPolicy: Local
   selector:
     app: paperless
   ports:
     - port: 80
       targetPort: 8000
       protocol: TCP
-  type: LoadBalancer
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: paperless-tls
+  namespace: default
+spec:
+  secretName: paperless-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - paperless.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: paperless
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: paperless.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - paperless.nowhere
+      secretName: paperless-tls
+  rules:
+    - host: paperless.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: paperless
+                port:
+                  number: 80

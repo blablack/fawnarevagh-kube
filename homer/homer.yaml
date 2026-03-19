@@ -67,13 +67,13 @@ data:
             subtitle: "Photos and Videos"
 
           - name: "Paperless"
-            url: "http://192.168.2.216"
+            url: "https://paperless.nowhere"
             target: "_blank"
             logo: "assets/apps/paperless.jpg"
             subtitle: "Documents"
 
           - name: "Warracker"
-            url: "http://192.168.2.218"
+            url: "https://warracker.nowhere"
             target: "_blank"
             logo: "assets/apps/warracker.png"
             subtitle: "Warranties"
