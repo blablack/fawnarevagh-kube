@@ -162,7 +162,7 @@ data:
           - type: ntfy
       - name: Paperless
         group: service
-        url: "http://192.168.2.216/"
+        url: "http://paperless.default.svc.cluster.local:8000"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
@@ -253,7 +253,7 @@ data:
           - type: ntfy
       - name: Warracker
         group: service
-        url: "http://192.168.2.218/"
+        url: "http://warracker.default.svc.cluster.local"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
