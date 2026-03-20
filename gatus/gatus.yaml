@@ -162,7 +162,7 @@ data:
           - type: ntfy
       - name: Paperless
         group: service
-        url: "http://paperless.default.svc.cluster.local:8000"
+        url: "http://paperless.default.svc.cluster.local/accounts/login"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
