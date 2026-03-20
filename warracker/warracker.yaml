@@ -107,9 +107,9 @@ spec:
             - name: MAX_UPLOAD_MB
               value: "32"
             - name: FRONTEND_URL
-              value: "https://warracker.nowhere"
+              value: "http://warracker.nowhere"
             - name: APP_BASE_URL
-              value: "https://warracker.nowhere"
+              value: "http://warracker.nowhere"
             - name: WARRACKER_MEMORY_MODE
               value: "optimized"
             - name: PYTHONUNBUFFERED
@@ -184,35 +184,16 @@ spec:
       protocol: TCP
   type: ClusterIP
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: warracker-tls
-  namespace: default
-spec:
-  secretName: warracker-tls
-  issuerRef:
-    name: blinky-ca-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - warracker.nowhere
-  privateKey:
-    rotationPolicy: Always
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: warracker
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web
     external-dns.alpha.kubernetes.io/hostname: warracker.nowhere
 spec:
   ingressClassName: traefik
-  tls:
-    - hosts:
-        - warracker.nowhere
-      secretName: warracker-tls
   rules:
     - host: warracker.nowhere
       http:

@@ -73,7 +73,7 @@ data:
             subtitle: "Documents"
 
           - name: "Warracker"
-            url: "https://warracker.nowhere"
+            url: "http://warracker.nowhere"
             target: "_blank"
             logo: "assets/apps/warracker.png"
             subtitle: "Warranties"
