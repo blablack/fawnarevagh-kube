@@ -23,6 +23,12 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
       terminationGracePeriodSeconds: 60
       containers:
         - image: postgres:15-alpine
@@ -131,6 +137,10 @@ spec:
               value: "https"
             - name: OIDC_SCOPE
               value: "openid email profile"
+            - name: REQUESTS_CA_BUNDLE
+              value: /certs/ca.crt
+            - name: SSL_CERT_FILE
+              value: /certs/ca.crt
           ports:
             - containerPort: 80
               name: http
@@ -162,6 +172,9 @@ spec:
             - mountPath: "/data/uploads"
               subPath: "Kubernetes/Warracker"
               name: nasio-nfs-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
           resources:
             limits:
               cpu: 100m
