@@ -120,6 +120,8 @@ spec:
               value: "3001"
             - name: IMMICH_MACHINE_LEARNING_URL
               value: "http://localhost:3003"
+            - name: NODE_EXTRA_CA_CERTS 
+              value: /certs/ca.crt
           ports:
             - containerPort: 3001
               name: http

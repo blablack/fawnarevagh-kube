@@ -23,6 +23,13 @@ ansible-playbook --limit lumio.nowhere -i hosts --ask-become-pass -u MYUSER --as
 
 ## Deployments
 
+### Cert
+```bash
+kubectl get secret blinky-root-ca-secret -n cert-manager -o json \
+  | jq '.metadata.namespace = "immich" | del(.metadata.resourceVersion,.metadata.uid,.metadata.creationTimestamp)' \
+  | kubectl apply -f -
+```
+
 ### Secrets
 
 ```bash
