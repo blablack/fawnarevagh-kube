@@ -146,6 +146,8 @@ spec:
               value: "Blinky Admins"
             - name: OIDC_REMEMBER_ME
               value: "true"
+            - name: NODE_EXTRA_CA_CERTS 
+              value: /certs/ca.crt
           startupProbe:
             httpGet:
               path: /
