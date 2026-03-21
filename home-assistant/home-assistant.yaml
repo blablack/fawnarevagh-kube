@@ -74,35 +74,19 @@ spec:
       protocol: TCP
   type: ClusterIP
 ---
-apiVersion: cert-manager.io/v1
-kind: Certificate
-metadata:
-  name: home-assistant-tls
-  namespace: default
-spec:
-  secretName: home-assistant-tls
-  issuerRef:
-    name: blinky-ca-issuer
-    kind: ClusterIssuer
-  dnsNames:
-    - ha.nowhere
-  privateKey:
-    rotationPolicy: Always
----
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: home-assistant
   namespace: default
   annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.entrypoints: web
     external-dns.alpha.kubernetes.io/hostname: ha.nowhere
 spec:
   ingressClassName: traefik
   tls:
     - hosts:
         - ha.nowhere
-      secretName: home-assistant-tls
   rules:
     - host: ha.nowhere
       http:
