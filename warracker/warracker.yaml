@@ -133,8 +133,6 @@ spec:
                   name: warracker
             - name: OIDC_ISSUER_URL
               value: "https://authentik.nowhere/application/o/warracker/"
-            - name: PREFERRED_URL_SCHEME
-              value: "https"
             - name: OIDC_SCOPE
               value: "openid email profile"
             - name: REQUESTS_CA_BUNDLE
