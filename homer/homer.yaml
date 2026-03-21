@@ -125,7 +125,7 @@ data:
         icon: "fas fa-home"
         items:
           - name: "Home Assistant"
-            url: "http://192.168.2.224"
+            url: "https://ha.nowhere"
             target: "_blank"
             logo: "assets/apps/ha.png"
             subtitle: "Home Automation"
