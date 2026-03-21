@@ -197,6 +197,10 @@ spec:
                 secretKeyRef:
                   key: authentik
                   name: paperless-password
+            - name: REQUESTS_CA_BUNDLE
+              value: /certs/ca.crt
+            - name: SSL_CERT_FILE
+              value: /certs/ca.crt
           resources:
             limits:
               cpu: 1000m
