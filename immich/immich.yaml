@@ -26,6 +26,12 @@ spec:
         - configMap:
             name: immich-postgres
           name: immich-postgres-vol
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
       containers:
         - image: ghcr.io/immich-app/postgres:16-vectorchord0.5.3-pgvector0.8.1
           imagePullPolicy: Always
@@ -148,6 +154,9 @@ spec:
             - mountPath: "/usr/src/app/upload"
               subPath: "Kubernetes/Our Pictures - Immich"
               name: nasio-nfs-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
           resources:
             limits:
               cpu: 1500m
