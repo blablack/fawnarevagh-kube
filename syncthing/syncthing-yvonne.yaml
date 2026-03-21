@@ -83,7 +83,7 @@ metadata:
   namespace: default
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.212
+    metallb.io/loadBalancerIPs: 192.168.2.223
     metallb.io/allow-shared-ip: syncthing-yvonne-sync
 spec:
   externalTrafficPolicy: Local
@@ -103,7 +103,7 @@ metadata:
   namespace: default
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.212
+    metallb.io/loadBalancerIPs: 192.168.2.223
     metallb.io/allow-shared-ip: syncthing-yvonne-sync
 spec:
   externalTrafficPolicy: Local

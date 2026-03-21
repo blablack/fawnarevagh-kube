@@ -83,7 +83,7 @@ metadata:
   namespace: default
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.211
+    metallb.io/loadBalancerIPs: 192.168.2.222
     metallb.io/allow-shared-ip: syncthing-aurelien-sync
 spec:
   externalTrafficPolicy: Local
@@ -103,7 +103,7 @@ metadata:
   namespace: default
   annotations:
     metallb.io/address-pool: default
-    metallb.io/loadBalancerIPs: 192.168.2.211
+    metallb.io/loadBalancerIPs: 192.168.2.222
     metallb.io/allow-shared-ip: syncthing-aurelien-sync
 spec:
   externalTrafficPolicy: Local
