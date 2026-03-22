@@ -83,6 +83,10 @@ spec:
               value: "dns-forward-max=300"
             - name: FTLCONF_RATE_LIMIT
               value: "10000/60"  
+            - name: FTLCONF_dns_listeningMode
+              value: "single"
+            - name: INTERFACE
+              value: "eno1"
           startupProbe:
             httpGet:
               path: /admin/login
