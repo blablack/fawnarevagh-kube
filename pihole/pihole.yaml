@@ -80,13 +80,11 @@ spec:
             - name: FTLCONF_dns_reply_host_force4
               value: 'true'
             - name: FTLCONF_misc_dnsmasq_lines
-              value: "dns-forward-max=300"
+              value: "dns-forward-max=300;bind-interfaces;listen-address=192.168.2.2"
             - name: FTLCONF_RATE_LIMIT
               value: "10000/60"  
             - name: FTLCONF_dns_listeningMode
-              value: "single"
-            - name: INTERFACE
-              value: "eno1"
+              value: "BIND"
           startupProbe:
             httpGet:
               path: /admin/login
