@@ -51,22 +51,6 @@ spec:
                 - "SYS_NICE"
                 - "CHOWN"
                 - "SYS_TIME"
-          ports:
-            - containerPort: 80
-              name: pihole-http
-              protocol: TCP
-            - containerPort: 53
-              name: dns
-              protocol: TCP
-            - containerPort: 53
-              name: dns-udp
-              protocol: UDP
-            - containerPort: 443
-              name: pihole-ssl
-              protocol: TCP
-            - containerPort: 67
-              name: client-udp
-              protocol: UDP
           env:
             - name: TZ
               value: "Europe/Dublin"
