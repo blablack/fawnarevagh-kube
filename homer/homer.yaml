@@ -5,9 +5,6 @@ metadata:
   namespace: default
 data:
   config.yml: |
-    # See https://fontawesome.com/v5/search for icons options
-    # Customer Services: https://github.com/bastienwirtz/homer/blob/main/docs/customservices.md
-
     title: "Solas na Gealaí"
     subtitle: "HomeLab"
     logo: "assets/icons/moon-logo.png"
@@ -15,7 +12,6 @@ data:
     header: true
     footer: false
 
-    # Optional theme customization
     theme: default
     colors:
       light:
@@ -46,6 +42,9 @@ data:
         link-hover: "#ffdd57"
 
     links:
+      - name: "Media"
+        icon: "fas fa-photo-video"
+        url: "#media"
       - name: "Infrastructure"
         icon: "fas fa-server"
         url: "#infrastructure"
@@ -59,27 +58,52 @@ data:
             target: "_blank"
             logo: "assets/apps/mealie.svg"
             subtitle: "Cooking"
-
           - name: "Immich"
             url: "https://immich.nowhere"
             target: "_blank"
             logo: "assets/apps/immich.png"
             subtitle: "Photos and Videos"
-
           - name: "Paperless"
             url: "https://paperless.nowhere"
             target: "_blank"
             logo: "assets/apps/paperless.jpg"
             subtitle: "Documents"
-
           - name: "Warracker"
             url: "http://warracker.nowhere"
             target: "_blank"
             logo: "assets/apps/warracker.png"
             subtitle: "Warranties"
 
+      - name: "Home Automation"
+        icon: "fas fa-home"
+        items:
+          - name: "Home Assistant"
+            url: "http://ha.nowhere"
+            target: "_blank"
+            logo: "assets/apps/ha.png"
+            subtitle: "Home Automation"
+          - name: "Node-Red"
+            url: "https://node-red.nowhere"
+            target: "_blank"
+            logo: "assets/apps/node-red.svg"
+            subtitle: "Automation Flow"
+
+  media.yml: |
+    subtitle: "Media"
+
+    message: ~
+
+    links:
+      - name: "Home"
+        icon: "fas fa-home"
+        url: "#"
+      - name: "Infrastructure"
+        icon: "fas fa-server"
+        url: "#infrastructure"
+
+    services:
       - name: "Media"
-        icon: "fas fa-photo-video"
+        icon: "fas fa-play-circle"
         items:
           - name: "Jellyfin"
             url: "http://jellyfin.nowhere:8096"
@@ -97,7 +121,7 @@ data:
             logo: "assets/apps/radarr.png"
             subtitle: "Movies"
 
-      - name: "arr Backends"
+      - name: "Downloads"
         icon: "fas fa-download"
         items:
           - name: "QBittorrent"
@@ -121,22 +145,8 @@ data:
             logo: "assets/apps/bazarr.png"
             subtitle: "Subtitles"
 
-      - name: "Home Automation"
-        icon: "fas fa-home"
-        items:
-          - name: "Home Assistant"
-            url: "http://ha.nowhere"
-            target: "_blank"
-            logo: "assets/apps/ha.png"
-            subtitle: "Home Automation"
-          - name: "Node-Red"
-            url: "https://node-red.nowhere"
-            target: "_blank"
-            logo: "assets/apps/node-red.svg"
-            subtitle: "Automation Flow"
-      
-      - name: "Misc"
-        icon: "fas fa-cloud"
+      - name: "Audio"
+        icon: "fas fa-music"
         items:
           - name: "Matchering"
             url: "https://matchering.nowhere"
@@ -145,9 +155,6 @@ data:
             subtitle: "Mastering"
 
   infrastructure.yml: |
-    # See https://fontawesome.com/v5/search for icons options
-    # Customer Services: https://github.com/bastienwirtz/homer/blob/main/docs/customservices.md
-
     subtitle: "Infrastructure"
 
     message: ~
@@ -156,23 +163,14 @@ data:
       - name: "Home"
         icon: "fas fa-home"
         url: "#"
+      - name: "Media"
+        icon: "fas fa-photo-video"
+        url: "#media"
+      - name: "Network & Storage"
+        icon: "fas fa-server"
+        url: "#network"
 
     services:
-      - name: "Network Services"
-        icon: "fas fa-network-wired"
-        items:
-          - name: "Pi-hole"
-            url: "http://192.168.2.2/admin"
-            target: "_blank"
-            logo: "assets/apps/pi-hole.svg"
-            subtitle: "DNS Server"
-                    
-          - name: "CA Certificate"
-            url: "http://ca.nowhere"
-            target: "_blank"
-            logo: "assets/apps/ca-certificate.png"
-            subtitle: "Blinky CA Certficate"
-
       - name: "DevOps"
         icon: "fas fa-cube"
         items:
@@ -200,7 +198,6 @@ data:
             target: "_blank"
             logo: "assets/apps/gatus.svg"
             subtitle: "Service Health Monitor"
-
           - name: "Grafana"
             url: "https://grafana.nowhere"
             target: "_blank"
@@ -215,24 +212,52 @@ data:
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
             subtitle: "Backup Notifications"
-
           - name: "ntfy — Jenkins"
             url: "https://ntfy.nowhere/jenkins"
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
             subtitle: "Pipeline Notifications"
-
           - name: "ntfy — Nasio"
             url: "https://ntfy.nowhere/nasio"
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
             subtitle: "NAS Notifications"
-
           - name: "ntfy — Uptime"
             url: "https://ntfy.nowhere/uptime"
             target: "_blank"
             logo: "assets/apps/ntfy.svg"
             subtitle: "Service Uptime Alerts"
+
+  network.yml: |
+    subtitle: "Network & Storage"
+
+    message: ~
+
+    links:
+      - name: "Home"
+        icon: "fas fa-home"
+        url: "#"
+      - name: "Media"
+        icon: "fas fa-photo-video"
+        url: "#media"
+      - name: "Infrastructure"
+        icon: "fas fa-cube"
+        url: "#infrastructure"
+
+    services:
+      - name: "Network Services"
+        icon: "fas fa-network-wired"
+        items:
+          - name: "Pi-hole"
+            url: "http://192.168.2.2/admin"
+            target: "_blank"
+            logo: "assets/apps/pi-hole.svg"
+            subtitle: "DNS Server"
+          - name: "CA Certificate"
+            url: "http://ca.nowhere"
+            target: "_blank"
+            logo: "assets/apps/ca-certificate.png"
+            subtitle: "Blinky CA Certificate"
 
       - name: "Hardware"
         icon: "fas fa-server"
@@ -254,7 +279,7 @@ data:
             subtitle: "Garage Access Point"
 
       - name: "Storage"
-        icon: "fas fa-file"
+        icon: "fas fa-hdd"
         items:
           - name: "Nasio"
             url: "http://192.168.2.4:5000"
@@ -295,6 +320,7 @@ data:
             target: "_blank"
             logo: "assets/apps/tailscale.png"
             subtitle: "VPN"
+
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -325,6 +351,12 @@ spec:
             - name: confmap-vol
               subPath: "config.yml"
               mountPath: "/www/assets/config.yml"
+            - name: confmap-vol
+              subPath: "media.yml"
+              mountPath: "/www/assets/media.yml"
+            - name: confmap-vol
+              subPath: "network.yml"
+              mountPath: "/www/assets/network.yml"
             - name: confmap-vol
               subPath: "infrastructure.yml"
               mountPath: "/www/assets/infrastructure.yml"
