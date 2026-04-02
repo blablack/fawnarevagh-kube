@@ -48,6 +48,10 @@ data:
       - name: "Infrastructure"
         icon: "fas fa-server"
         url: "#infrastructure"
+      - name: "Network & Storage"
+        icon: "fas fa-server"
+        url: "#network"
+
 
     services:
       - name: "Personal Apps"
@@ -88,6 +92,25 @@ data:
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
 
+      - name: "Media"
+        icon: "fas fa-play-circle"
+        items:
+          - name: "Jellyfin"
+            url: "http://jellyfin.nowhere:8096"
+            target: "_blank"
+            logo: "assets/apps/jellyfin.png"
+            subtitle: "Media Player"
+          - name: "Sonarr"
+            url: "https://sonarr.nowhere"
+            target: "_blank"
+            logo: "assets/apps/sonarr.svg"
+            subtitle: "TV Shows"
+          - name: "Radarr"
+            url: "https://radarr.nowhere"
+            target: "_blank"
+            logo: "assets/apps/radarr.png"
+            subtitle: "Movies"
+
   media.yml: |
     subtitle: "Media"
 
@@ -100,6 +123,9 @@ data:
       - name: "Infrastructure"
         icon: "fas fa-server"
         url: "#infrastructure"
+      - name: "Network & Storage"
+        icon: "fas fa-server"
+        url: "#network"
 
     services:
       - name: "Media"
