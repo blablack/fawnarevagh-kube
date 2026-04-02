@@ -34,9 +34,9 @@ spec:
             - name: TS_ROUTES
               value: "10.42.0.0/16,10.43.0.0/16,192.168.2.0/24"
             - name: TS_KUBE_SECRET
-              value: "tailscale-state"  
+              value: "tailscale-state"
             - name: TS_EXTRA_ARGS
-              value: "--advertise-exit-node --accept-dns --advertise-connector"
+              value: "--advertise-exit-node --accept-dns --advertise-connector --advertise-tags=tag:k8s"
             - name: POD_NAME
               valueFrom:
                 fieldRef:
@@ -131,9 +131,9 @@ metadata:
   namespace: default
 spec:
   selector:
-    app: tailscale  
+    app: tailscale
   ports:
-  - name: health
-    port: 9002
-    targetPort: 9002
+    - name: health
+      port: 9002
+      targetPort: 9002
   type: ClusterIP
