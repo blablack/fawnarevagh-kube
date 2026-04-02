@@ -31,6 +31,12 @@ spec:
         - name: paperless-pvc
           persistentVolumeClaim:
             claimName: paperless-pvc
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       terminationGracePeriodSeconds: 60
       containers:
@@ -131,6 +137,9 @@ spec:
             - mountPath: /usr/src/paperless/consume
               subPath: "paperless/consume"
               name: paperless-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
           ports:
             - containerPort: 8000
               name: paperless-tcp
@@ -188,6 +197,10 @@ spec:
                 secretKeyRef:
                   key: authentik
                   name: paperless-password
+            - name: REQUESTS_CA_BUNDLE
+              value: /certs/ca.crt
+            - name: SSL_CERT_FILE
+              value: /certs/ca.crt
           resources:
             limits:
               cpu: 1000m
