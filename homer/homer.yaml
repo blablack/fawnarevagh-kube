@@ -290,6 +290,11 @@ data:
             target: "_blank"
             logo: "assets/apps/scaleway.png"
             subtitle: "Cloud Backup"
+          - name: "Tailscale"
+            url: "https://login.tailscale.com/admin/machines"
+            target: "_blank"
+            logo: "assets/apps/tailscale.png"
+            subtitle: "VPN"
 ---
 apiVersion: apps/v1
 kind: Deployment
