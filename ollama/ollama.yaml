@@ -59,7 +59,7 @@ spec:
               gpu.intel.com/i915: "1"
             limits:
               cpu: 6000m
-              memory: 8Gi
+              memory: 16Gi
               gpu.intel.com/i915: "1"
           startupProbe:
             httpGet:
