@@ -91,6 +91,11 @@ data:
             target: "_blank"
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
+          - name: "Ollama"
+            url: "https://ai.nowhere"
+            target: "_blank"
+            logo: "assets/apps/open-webui.webp"
+            subtitle: "LLMs"
 
       - name: "Media"
         icon: "fas fa-play-circle"
