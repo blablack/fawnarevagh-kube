@@ -206,6 +206,8 @@ spec:
               value: "false"
             - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
               value: "true"
+            - name: DEFAULT_USER_ROLE
+              value: "admin"
             - name: SSL_CERT_FILE       
               value: /certs/ca.crt
             - name: REQUESTS_CA_BUNDLE  
