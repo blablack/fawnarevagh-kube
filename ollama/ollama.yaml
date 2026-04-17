@@ -194,9 +194,12 @@ spec:
               value: https://ai.nowhere/oauth/oidc/callback
             - name: WEBUI_URL
               value: https://ai.nowhere
-            - name: ENABLE_OAUTH_SIGNUP=true
-            - name: ENABLE_LOGIN_FORM=false
-            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
+            - name: ENABLE_OAUTH_SIGNUP
+              value: true
+            - name: ENABLE_LOGIN_FORM
+              value: false
+            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
+              value: true
           volumeMounts:
             - mountPath: /app/backend/data
               name: open-webui-pvc
