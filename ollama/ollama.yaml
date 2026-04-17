@@ -179,6 +179,24 @@ spec:
               value: "http://ollama.default.svc.cluster.local"
             - name: TZ
               value: "Europe/Dublin"
+            - name: OAUTH_CLIENT_ID
+              value: 9fcAOmFklCC2I9040fnSlBnhup4Z1UfCPOjydqkm
+            - name: OAUTH_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: open-webui
+                  key: authentik
+            - name: OAUTH_PROVIDER_NAME
+              value: authentik
+            - name: OPENID_PROVIDER_URL
+              value: https://authentik.nowhere/application/o/open-web-ui/.well-known/openid-configuration
+            - name: OPENID_REDIRECT_URI
+              value: https://ai.nowhere/oauth/oidc/callback
+            - name: WEBUI_URL
+              value: https://ai.nowhere
+            - name: ENABLE_OAUTH_SIGNUP=true
+            - name: ENABLE_LOGIN_FORM=false
+            - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL=true
           volumeMounts:
             - mountPath: /app/backend/data
               name: open-webui-pvc
