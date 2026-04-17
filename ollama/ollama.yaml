@@ -180,7 +180,7 @@ spec:
             - name: TZ
               value: "Europe/Dublin"
             - name: OAUTH_CLIENT_ID
-              value: 9fcAOmFklCC2I9040fnSlBnhup4Z1UfCPOjydqkm
+              value: "9fcAOmFklCC2I9040fnSlBnhup4Z1UfCPOjydqkm"
             - name: OAUTH_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
