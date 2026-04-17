@@ -195,11 +195,11 @@ spec:
             - name: WEBUI_URL
               value: https://ai.nowhere
             - name: ENABLE_OAUTH_SIGNUP
-              value: true
+              value: "true
             - name: ENABLE_LOGIN_FORM
-              value: false
+              value: "false"
             - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
-              value: true
+              value: "true"
           volumeMounts:
             - mountPath: /app/backend/data
               name: open-webui-pvc
