@@ -166,6 +166,12 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
       containers:
         - name: open-webui
           image: ghcr.io/open-webui/open-webui:main
@@ -200,12 +206,19 @@ spec:
               value: "false"
             - name: OAUTH_MERGE_ACCOUNTS_BY_EMAIL
               value: "true"
+            - name: SSL_CERT_FILE       
+              value: /certs/ca.crt
+            - name: REQUESTS_CA_BUNDLE  
+              value: /certs/ca.crt
           volumeMounts:
             - mountPath: /app/backend/data
               name: open-webui-pvc
             - mountPath: /app/backend/data/cache
               subPath: "Kubernetes/Ollama/open-webui"
               name: nasio-nfs-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
           resources:
             requests:
               cpu: 100m
