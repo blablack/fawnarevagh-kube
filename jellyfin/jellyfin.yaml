@@ -23,6 +23,8 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: jellyfin-cache
+          emptyDir: {}
         - name: dshm
           emptyDir:
             medium: Memory
@@ -41,8 +43,7 @@ spec:
               subPath: "config"
               name: jellyfin-pvc
             - mountPath: "/cache"
-              subPath: "cache"
-              name: jellyfin-pvc
+              name: jellyfin-cache
             - mountPath: "/media"
               name: nasio-nfs-pvc
             - mountPath: /dev/shm
