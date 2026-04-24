@@ -4,7 +4,7 @@ metadata:
   name: my-longhorn
 provisioner: driver.longhorn.io
 parameters:
-  dataLocality: disabled
+  dataLocality: best-effort
   fromBackup: ""
   fsType: ext4
   numberOfReplicas: "2"

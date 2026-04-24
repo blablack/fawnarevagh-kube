@@ -13,8 +13,8 @@ spec:
   mountOptions:
     - hard
     - nfsvers=3
-    - rsize=32768
-    - wsize=32768
+    - rsize=131072
+    - wsize=131072
     - noatime
     - nodiratime
     - async
