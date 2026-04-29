@@ -54,19 +54,7 @@ spec:
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 3
-          livenessProbe:
-            exec:
-              command:
-                - pg_isready
-                - -U
-                - mealie
-                - -d
-                - mealie
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
+            failureThreshold: 30
           readinessProbe:
             exec:
               command:
