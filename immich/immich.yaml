@@ -16,6 +16,7 @@ spec:
       labels:
         app: immich
     spec:
+      terminationGracePeriodSeconds: 60
       volumes:
         - name: immich-pvc
           persistentVolumeClaim:

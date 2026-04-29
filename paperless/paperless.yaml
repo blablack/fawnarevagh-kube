@@ -90,7 +90,7 @@ spec:
                     su - postgres -c "pg_ctl stop -D /var/lib/postgresql/data/pgdata -m fast -t 30"
           resources:
             limits:
-              cpu: 100m
+              cpu: 500m
               memory: 512Mi
             requests:
               cpu: 10m

@@ -50,6 +50,20 @@ spec:
             capabilities:
               add:
                 - NET_ADMIN
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9002
+            initialDelaySeconds: 15
+            periodSeconds: 30
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 9002
+            initialDelaySeconds: 15
+            periodSeconds: 10
+            failureThreshold: 3
           resources:
             limits:
               cpu: 500m

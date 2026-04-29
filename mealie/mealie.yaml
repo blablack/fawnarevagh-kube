@@ -16,6 +16,7 @@ spec:
       labels:
         app: mealie
     spec:
+      terminationGracePeriodSeconds: 60
       volumes:
         - name: mealie-pvc
           persistentVolumeClaim:

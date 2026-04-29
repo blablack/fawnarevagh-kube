@@ -28,6 +28,7 @@ spec:
       labels:
         app: authentik
     spec:
+      terminationGracePeriodSeconds: 60
       volumes:
         - name: authentik-pvc
           persistentVolumeClaim:
@@ -68,17 +69,7 @@ spec:
             initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 5
-          livenessProbe:
-            exec:
-              command:
-                - sh
-                - -c
-                - pg_isready -d $POSTGRES_DB -U $POSTGRES_USER
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 5
-            failureThreshold: 5
+            failureThreshold: 30
           readinessProbe:
             exec:
               command:

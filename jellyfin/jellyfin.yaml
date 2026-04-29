@@ -79,6 +79,8 @@ spec:
               port: 8096
             initialDelaySeconds: 30
             timeoutSeconds: 10
+            periodSeconds: 30
+            failureThreshold: 5
           ports:
             - containerPort: 8096
               name: http
