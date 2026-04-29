@@ -134,7 +134,7 @@ spec:
               memory: 512Mi
             requests:
               cpu: 10m
-              memory: 512Mi
+              memory: 32Mi
           securityContext: {}
       securityContext:
         runAsNonRoot: true

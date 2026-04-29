@@ -120,7 +120,7 @@ spec:
               memory: 2500Mi
             requests:
               cpu: 500m
-              memory: 50Mi
+              memory: 512Mi
 ---
 apiVersion: v1
 kind: Service
