@@ -57,14 +57,23 @@ data:
 
 
     services:
-      - name: "Personal Apps"
-        icon: "fas fa-cloud"
+      - name: "Productivity"
+        icon: "fas fa-tasks"
         items:
           - name: "Mealie"
             url: "https://mealie.nowhere"
             target: "_blank"
             logo: "assets/apps/mealie.svg"
             subtitle: "Cooking"
+          - name: "Vikunja"
+            url: "https://vikunja.nowhere"
+            target: "_blank"
+            logo: "assets/apps/vikunja.svg"
+            subtitle: "Projects"
+
+      - name: "Archive"
+        icon: "fas fa-archive"
+        items:
           - name: "Immich"
             url: "https://immich.nowhere"
             target: "_blank"
@@ -94,25 +103,6 @@ data:
             target: "_blank"
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
-
-      - name: "Media"
-        icon: "fas fa-play-circle"
-        items:
-          - name: "Jellyfin"
-            url: "http://jellyfin.nowhere:8096"
-            target: "_blank"
-            logo: "assets/apps/jellyfin.png"
-            subtitle: "Media Player"
-          - name: "Sonarr"
-            url: "https://sonarr.nowhere"
-            target: "_blank"
-            logo: "assets/apps/sonarr.svg"
-            subtitle: "TV Shows"
-          - name: "Radarr"
-            url: "https://radarr.nowhere"
-            target: "_blank"
-            logo: "assets/apps/radarr.png"
-            subtitle: "Movies"
 
   media.yml: |
     subtitle: "Media"
