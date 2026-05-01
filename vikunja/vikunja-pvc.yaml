@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: vikunja-pvc
+  namespace: default
+  annotations:
+    argocd.argoproj.io/sync-options: "Delete=false"
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: my-longhorn
+  resources:
+    requests:
+      storage: 100Mi
+  volumeName: pvc-8bb8488f-bcf9-4a91-83ee-e4bd90ac4075

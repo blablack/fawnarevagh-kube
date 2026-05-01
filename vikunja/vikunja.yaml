@@ -1,0 +1,239 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vikunja
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: vikunja
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: vikunja
+    spec:
+      terminationGracePeriodSeconds: 60
+      volumes:
+        - name: vikunja-pvc
+          persistentVolumeClaim:
+            claimName: vikunja-pvc
+        - name: blinky-ca
+          secret:
+            secretName: blinky-root-ca-secret
+            items:
+              - key: ca.crt
+                path: ca.crt
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command: ["sh", "-c", "chown -R 1000:1000 /app/vikunja/files"]
+          volumeMounts:
+            - mountPath: "/app/vikunja/files"
+              subPath: "vikunja/files"
+              name: vikunja-pvc
+          securityContext:
+            runAsUser: 0
+      containers:
+        - image: postgres:15
+          imagePullPolicy: Always
+          name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: "vikunja"
+            - name: POSTGRES_PASSWORD
+              value: "vikunja"
+            - name: POSTGRES_DB
+              value: "vikunja"
+            - name: PGUSER
+              value: "vikunja"
+          volumeMounts:
+            - mountPath: "/var/lib/postgresql/data"
+              subPath: "postgresql_15"
+              name: vikunja-pvc
+          startupProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - vikunja
+                - -d
+                - vikunja
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - vikunja
+                - -d
+                - vikunja
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 200m
+              memory: 300Mi
+            requests:
+              cpu: 50m
+              memory: 100Mi
+
+        - image: vikunja/vikunja:latest
+          imagePullPolicy: Always
+          name: vikunja
+          volumeMounts:
+            - mountPath: "/app/vikunja/files"
+              subPath: "vikunja/files"
+              name: vikunja-pvc
+            - mountPath: /certs
+              name: blinky-ca
+              readOnly: true
+          ports:
+            - containerPort: 3456
+              name: vikunja-tcp
+              protocol: TCP
+          env:
+            - name: VIKUNJA_SERVICE_PUBLICURL
+              value: "https://vikunja.nowhere"
+            - name: VIKUNJA_SERVICE_TIMEZONE
+              value: "Europe/Dublin"
+
+            # Database
+            - name: VIKUNJA_DATABASE_TYPE
+              value: "postgres"
+            - name: VIKUNJA_DATABASE_HOST
+              value: "localhost"
+            - name: VIKUNJA_DATABASE_PORT
+              value: "5432"
+            - name: VIKUNJA_DATABASE_DATABASE
+              value: "vikunja"
+            - name: VIKUNJA_DATABASE_USER
+              value: "vikunja"
+            - name: VIKUNJA_DATABASE_PASSWORD
+              value: "vikunja"
+
+            - name: VIKUNJA_SERVICE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  key: service_secret
+                  name: vikunja
+
+            # Disable registration (use OIDC only)
+            - name: VIKUNJA_SERVICE_ENABLEREGISTRATION
+              value: "false"
+
+            # OIDC via authentik
+            - name: VIKUNJA_AUTH_OPENID_ENABLED
+              value: "true"
+            - name: VIKUNJA_AUTH_OPENID_REDIRECTURL
+              value: "https://vikunja.nowhere/auth/openid/authentik"
+            - name: VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_NAME
+              value: "authentik"
+            - name: VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_AUTHURL
+              value: "https://authentik.nowhere/application/o/vikunja/"
+            - name: VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTID
+              value: "Oxd72tZRS8TmiDc3yGsD7U3RKAnxLaNFyMPZFPCN"
+            - name: VIKUNJA_AUTH_OPENID_PROVIDERS_AUTHENTIK_CLIENTSECRET
+              valueFrom:
+                secretKeyRef:
+                  key: oidc_secret
+                  name: vikunja
+
+            # Trust your internal CA for OIDC TLS
+            - name: SSL_CERT_FILE
+              value: /certs/ca.crt
+
+          startupProbe:
+            httpGet:
+              path: /api/v1/info
+              port: 3456
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: 3456
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /api/v1/info
+              port: 3456
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: vikunja
+  namespace: default
+spec:
+  selector:
+    app: vikunja
+  ports:
+    - port: 80
+      targetPort: 3456
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vikunja-tls
+  namespace: default
+spec:
+  secretName: vikunja-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - vikunja.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vikunja
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.alpha.kubernetes.io/hostname: vikunja.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - vikunja.nowhere
+      secretName: vikunja-tls
+  rules:
+    - host: vikunja.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: vikunja
+                port:
+                  number: 80
