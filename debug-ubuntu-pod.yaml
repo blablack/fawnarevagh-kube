@@ -18,3 +18,10 @@ spec:
           image: ubuntu:questing
           imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
+          resources:
+            limits:
+              cpu: 100m
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              memory: 64Mi

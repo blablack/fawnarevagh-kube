@@ -46,6 +46,13 @@ spec:
                     curl -H "Tags: warning" -H "Priority: high" -d "Paperless backup FAILED" http://ntfy.default.svc.cluster.local/backup
                     exit 1
                   fi
+              resources:
+                limits:
+                  cpu: 100m
+                  memory: 256Mi
+                requests:
+                  cpu: 50m
+                  memory: 64Mi
               volumeMounts:
                 - mountPath: /usr/src/paperless/media
                   subPath: "paperless/media"
