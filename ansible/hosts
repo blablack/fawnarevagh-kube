@@ -4,9 +4,6 @@ nucio ansible_host=192.168.2.2
 [quario]
 quario ansible_host=192.168.2.3
 
-[lumio]
-lumio ansible_host=192.168.2.5
-
 [all:vars]
 ansible_connection=ssh
 ansible_ssh_common_args='-o StrictHostKeyChecking=no'

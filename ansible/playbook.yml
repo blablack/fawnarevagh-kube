@@ -1,5 +1,5 @@
 - name: Setup network
-  hosts: nucio,quario,lumio
+  hosts: nucio,quario
   become: true
 
   tasks:
@@ -116,13 +116,9 @@
       lineinfile:
         dest: /etc/hosts
         line: 192.168.2.3 quario.nowhere
-    - name: Add Lumio host to hosts
-      lineinfile:
-        dest: /etc/hosts
-        line: 192.168.2.5 lumio.nowhere
 
 - name: Setup DNS switcher service
-  hosts: nucio,quario,lumio
+  hosts: nucio,quario
   become: true
   tasks:
     - name: Copy DNS switcher script from repo
@@ -227,38 +223,6 @@
     - name: Install package
       ansible.builtin.apt:
         name: nfs-common
-
-- name: Install nfs-kernel-server
-  hosts: lumio
-  become: true
-
-  tasks:
-    - name: Install package
-      ansible.builtin.apt:
-        name: nfs-kernel-server
-
-- name: Setup NFS storage on Lumio
-  hosts: lumio
-  become: true
-
-  tasks:
-    - name: Create NFS storage directory
-      ansible.builtin.file:
-        path: /srv/nfs/k8s-storage
-        state: directory
-        owner: nobody
-        group: nogroup
-        mode: "0777"
-
-    - name: Configure NFS export
-      ansible.builtin.lineinfile:
-        path: /etc/exports
-        line: "/srv/nfs/k8s-storage  192.168.2.0/24(rw,sync,no_subtree_check)"
-        state: present
-
-    - name: Export NFS shares
-      ansible.builtin.shell:
-        cmd: exportfs -a
 
 - name: Install open-iscsi
   hosts: quario,nucio
