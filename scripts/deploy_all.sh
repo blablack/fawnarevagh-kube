@@ -3,20 +3,28 @@
 ###########################################################################
 ## DEPLOYMENTS WITH LOCKED VERSIONS
 ## - authentik
+##   https://github.com/goauthentik/authentik
+##
 ## - external-dns
+##   https://github.com/kubernetes-sigs/external-dns
+##
 ## - intel-gpu-plugin
+##   https://github.com/intel/intel-device-plugins-for-kubernetes/releases/
 ###########################################################################
 
 set -e
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
+# https://github.com/metallb/metallb
 kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.3/config/manifests/metallb-native.yaml
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
+# https://github.com/metallb/metallb
 kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.11.1/deploy/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
+# https://github.com/cert-manager/cert-manager
 kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.2/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 
