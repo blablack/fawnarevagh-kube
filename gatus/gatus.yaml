@@ -152,14 +152,6 @@ data:
           - "[CONNECTED] == true"
         alerts:
           - type: ntfy
-      - name: Garragio
-        group: hardware
-        url: "icmp://192.168.2.7"
-        interval: 5m
-        conditions:
-          - "[CONNECTED] == true"
-        alerts:
-          - type: ntfy
       - name: Paperless
         group: service
         url: "http://paperless.default.svc.cluster.local/accounts/login"
