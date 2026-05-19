@@ -5,7 +5,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends curl && \
+    apt-get install -y --no-install-recommends ca-certificates curl && \
     DEB=$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn_[^" >]*_amd64.deb' | sort -V | tail -n1) && \
     curl -L "https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/${DEB}" --output /tmp/nordrepo.deb && \
     apt-get install -y --no-install-recommends /tmp/nordrepo.deb && \
