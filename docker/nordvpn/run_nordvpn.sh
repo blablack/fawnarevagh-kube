@@ -69,25 +69,25 @@ setup_nordvpn() {
         nordvpn set dns ${DNS//[;,]/ }
     fi
     
-    # Whitelist Docker network
+    # Allowlist Docker network
     if [[ -n ${DOCKER_NET} ]]; then
-        log "Whitelisting Docker network: ${DOCKER_NET}"
-        nordvpn whitelist add subnet "${DOCKER_NET}"
+        log "Allowlisting Docker network: ${DOCKER_NET}"
+        nordvpn allowlist add subnet "${DOCKER_NET}"
     fi
-    
-    # Whitelist additional networks
+
+    # Allowlist additional networks
     if [[ -n ${NETWORK:-} ]]; then
-        log "Whitelisting additional networks: ${NETWORK}"
+        log "Allowlisting additional networks: ${NETWORK}"
         for net in ${NETWORK//[;,]/ }; do
-            nordvpn whitelist add subnet "${net}"
+            nordvpn allowlist add subnet "${net}"
         done
     fi
-    
-    # Whitelist ports
+
+    # Allowlist ports
     if [[ -n ${PORTS:-} ]]; then
-        log "Whitelisting ports: ${PORTS}"
+        log "Allowlisting ports: ${PORTS}"
         for port in ${PORTS//[;,]/ }; do
-            nordvpn whitelist add port "${port}"
+            nordvpn allowlist add port "${port}"
         done
     fi
     
