@@ -15,13 +15,13 @@ spec:
     spec:
       containers:
         - name: ubuntu
-          image: ubuntu:questing
+          image: ubuntu:26.04
           imagePullPolicy: Always
           command: ["/bin/sleep", "3650d"]
           resources:
             limits:
-              cpu: 100m
-              memory: 128Mi
+              cpu: 1000m
+              memory: 2Gi
             requests:
               cpu: 10m
               memory: 64Mi
