@@ -5,22 +5,15 @@ ARG DEBIAN_FRONTEND=noninteractive
 SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update -y && \
-    apt-get install -y curl 
-
-#RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/nordvpn_3.20.2_amd64.deb --output /tmp/nordrepo.deb 
-RUN curl -L https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn_[^" >]*_amd64.deb' | sort -V | tail -n1) --output /tmp/nordrepo.deb 
-RUN apt-get install -y /tmp/nordrepo.deb && \
+    apt-get install -y --no-install-recommends curl && \
+    DEB=$(curl -s https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/ | grep -o 'nordvpn_[^" >]*_amd64.deb' | sort -V | tail -n1) && \
+    curl -L "https://repo.nordvpn.com/deb/nordvpn/debian/pool/main/n/nordvpn/${DEB}" --output /tmp/nordrepo.deb && \
+    apt-get install -y --no-install-recommends /tmp/nordrepo.deb && \
+    apt-get remove --purge -y curl && \
+    apt-get autoremove --purge -y && \
     rm -rf /tmp/* /var/cache/apt/archives/* /var/tmp/* /var/lib/apt/lists/*
 
-WORKDIR /
+COPY run_nordvpn.sh wait_for_nordvpn.sh check_nordvpn_connection.sh /
+RUN chmod +x /run_nordvpn.sh /wait_for_nordvpn.sh /check_nordvpn_connection.sh
 
-COPY run_nordvpn.sh / 
-RUN chmod +x run_nordvpn.sh
-
-COPY wait_for_nordvpn.sh / 
-RUN chmod +x wait_for_nordvpn.sh
-
-COPY check_nordvpn_connection.sh / 
-RUN chmod +x check_nordvpn_connection.sh
-
-CMD /run_nordvpn.sh
+CMD ["/run_nordvpn.sh"]
