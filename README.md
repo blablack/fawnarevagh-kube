@@ -6,6 +6,23 @@ The Kubernetes (k3s) cluster creation and deployments for my home cloud at Fawna
 
 Nodes are running Ubuntu Server.
 
+## Prerequisites (first-time node setup)
+
+Before running Ansible, each node needs your SSH key and passwordless sudo.
+
+```bash
+ssh-keygen -t ed25519 -C "blablack-ssh-key"
+
+ssh-copy-id -i ~/.ssh/id_ed25519.pub blablack@192.168.2.2
+ssh-copy-id -i ~/.ssh/id_ed25519.pub blablack@192.168.2.3
+```
+
+Then on each node, add passwordless sudo (`sudo visudo`):
+
+```
+blablack ALL=(ALL) NOPASSWD:ALL
+```
+
 ## Ansible
 
 Ansible is used to setup the two nodes:

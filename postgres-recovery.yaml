@@ -1,3 +1,12 @@
+# Use this pod to recover a corrupted Postgres database (e.g. after unclean shutdown).
+#
+# Steps:
+#   kubectl apply -f ./postgres-recovery.yaml
+#   kubectl exec -it postgres-recovery -- bash
+#   su - postgres
+#   pg_resetwal -f /var/lib/postgresql/data/postgresql/
+#
+# When done: kubectl delete -f ./postgres-recovery.yaml
 apiVersion: v1
 kind: Pod
 metadata:
