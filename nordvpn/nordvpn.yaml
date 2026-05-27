@@ -33,6 +33,13 @@ spec:
         - name: qbittorrent-logs-dir
           emptyDir:
             medium: Memory
+      initContainers:
+        - name: clear-qb-lockfile
+          image: busybox:1.36
+          command: ["sh", "-c", "rm -f /config/qBittorrent/lockfile /config/qBittorrent/ipc-socket"]
+          volumeMounts:
+            - name: qbittorrent-pvc
+              mountPath: /config
       containers:
         - image: nucio.nowhere:30038/nordvpn:latest
           imagePullPolicy: Always
