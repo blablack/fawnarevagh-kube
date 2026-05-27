@@ -156,30 +156,7 @@ spec:
             - mountPath: "/volume1/public/Kubernetes/QBittorrent"
               subPath: "Kubernetes/QBittorrent"
               name: nasio-nfs-pvc
-          startupProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            timeoutSeconds: 30
-            failureThreshold: 5
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 120
-            periodSeconds: 120
-            timeoutSeconds: 30
-            failureThreshold: 5
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 30
-            periodSeconds: 120
-            timeoutSeconds: 30
-            failureThreshold: 5
+          
           env:
             - name: PUID
               value: "1026"
