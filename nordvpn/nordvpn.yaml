@@ -138,7 +138,7 @@ spec:
             requests:
               cpu: 50m
               memory: 50Mi
-        - image: linuxserver/qbittorrent:5.2.1-libtorrentv1
+        - image: linuxserver/qbittorrent:latest
           imagePullPolicy: Always
           name: qbittorrent
           ports:
@@ -156,30 +156,6 @@ spec:
             - mountPath: "/volume1/public/Kubernetes/QBittorrent"
               subPath: "Kubernetes/QBittorrent"
               name: nasio-nfs-pvc
-          startupProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            timeoutSeconds: 5
-            failureThreshold: 5
-          readinessProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 120
-            periodSeconds: 30
-            timeoutSeconds: 5
-            failureThreshold: 5
-          livenessProbe:
-            httpGet:
-              path: /
-              port: 8112
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 5
           env:
             - name: PUID
               value: "1026"
