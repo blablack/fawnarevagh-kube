@@ -143,6 +143,11 @@ data:
             target: "_blank"
             logo: "assets/apps/radarr.png"
             subtitle: "Movies"
+          - name: "Tdarr"
+            url: "https://tdarr.nowhere"
+            target: "_blank"
+            logo: "assets/apps/tdarr.png"
+            subtitle: "Transcoding"
 
       - name: "Downloads"
         icon: "fas fa-download"

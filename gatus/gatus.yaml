@@ -219,6 +219,14 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
+      - name: Tdarr
+        group: service
+        url: "http://tdarr.default.svc.cluster.local"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: SyncthingAurelien
         group: service
         url: "http://syncthing-aurelien.default.svc.cluster.local:8384/"
