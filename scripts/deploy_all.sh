@@ -17,11 +17,11 @@ set -e
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 # https://github.com/metallb/metallb
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.15.3/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.16.0/config/manifests/metallb-native.yaml
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
-# https://github.com/metallb/metallb
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.11.1/deploy/longhorn.yaml
+# https://github.com/longhorn/longhorn
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.11.2/deploy/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
 # https://github.com/cert-manager/cert-manager
