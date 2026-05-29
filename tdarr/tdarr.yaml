@@ -34,7 +34,7 @@ spec:
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
       containers:
-        - image: haveagitgat/tdarr:latest
+        - image: nucio.nowhere:30038/tdarr:latest
           imagePullPolicy: Always
           name: tdarr
           volumeMounts:
@@ -46,9 +46,6 @@ spec:
               name: tdarr-pvc
             - mountPath: "/app/logs"
               subPath: "logs"
-              name: tdarr-pvc
-            - mountPath: "/dovi-tools"
-              subPath: "dovi-tools"
               name: tdarr-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
@@ -73,8 +70,6 @@ spec:
               value: "MainNode"
             - name: ffmpegVersion
               value: "6"
-            - name: PATH
-              value: "/dovi-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           startupProbe:
             httpGet:
               path: /
@@ -145,7 +140,7 @@ spec:
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
       containers:
-        - image: haveagitgat/tdarr_node:latest
+        - image: nucio.nowhere:30038/tdarr_node:latest
           imagePullPolicy: Always
           name: tdarr-node
           volumeMounts:
@@ -154,9 +149,6 @@ spec:
               name: tdarr-node-pvc
             - mountPath: "/app/logs"
               subPath: "logs"
-              name: tdarr-node-pvc
-            - mountPath: "/dovi-tools"
-              subPath: "dovi-tools"
               name: tdarr-node-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
@@ -177,8 +169,6 @@ spec:
               value: "SecondNode"
             - name: ffmpegVersion
               value: "6"
-            - name: PATH
-              value: "/dovi-tools:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
           resources:
             limits:
               cpu: 2000m
