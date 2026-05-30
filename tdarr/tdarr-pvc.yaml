@@ -10,6 +10,7 @@ spec:
   resources:
     requests:
       storage: 100Mi
+  volumeName: pvc-74f8c4f1-3656-4241-8e58-a74cfee8e56a
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -23,3 +24,4 @@ spec:
   resources:
     requests:
       storage: 100Mi
+  volumeName: pvc-879aed9c-70f4-4315-bfdf-9c97f63cb2b9
