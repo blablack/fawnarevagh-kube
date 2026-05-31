@@ -45,6 +45,7 @@ spec:
             - sh
             - -c
             - |
+              rm -rf /app/server/Tdarr/Plugins/FlowPlugins/LocalFlowPlugins
               mkdir -p /app/server/Tdarr/Plugins/FlowPlugins/LocalFlowPlugins
               cp -r /tdarr-plugins/. /app/server/Tdarr/Plugins/FlowPlugins/LocalFlowPlugins/
           volumeMounts:
