@@ -112,12 +112,12 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     throw new Error('ffmpeg demux of P5 source failed');
                 }
 
-                // Step 2: Convert P5 HEVC → P8.1 HEVC (dovi_tool 2.x convert operates on HEVC streams)
+                // Step 2: Convert P5 HEVC → P8.1 HEVC (-m 3 is a global flag meaning "mode 3: P5→P8.1")
                 cli = new cliUtils_1.CLI({
                     cli: '/usr/local/bin/dovi_tool',
                     spawnArgs: [
+                        '-m', '3',
                         'convert',
-                        '-p', '8.1',
                         '-i', p5HevcPath,
                         '-o', p5AsP8HevcPath,
                     ],
@@ -160,13 +160,13 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }
 
                 // Step 4: Demux re-encoded P8 MKV → raw HEVC Annex B
+                // MKV already stores HEVC in Annex B, no bitstream filter needed
                 cli = new cliUtils_1.CLI({
                     cli: 'ffmpeg',
                     spawnArgs: [
                         '-hide_banner', '-y',
                         '-i', args.inputFileObj.file,
                         '-c:v', 'copy',
-                        '-bsf:v', 'hevc_mp4toannexb',
                         '-an',
                         '-f', 'hevc',
                         p8HevcPath,
