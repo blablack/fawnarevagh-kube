@@ -100,7 +100,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
 
                 pluginWorkDir = (0, fileUtils_1.getPluginWorkDir)(args);
                 baseName = (0, fileUtils_1.getFileName)(args.originalLibraryFile._id);
-                outputFilePath = pluginWorkDir + "/" + baseName + "_profile8.mkv";
+                outputFilePath = pluginWorkDir + "/" + baseName + "_profile8.hevc";
 
                 vf = "libplacebo=w=" + width + ":h=" + height
                     + ":format=p010:colorspace=bt2020nc:color_primaries=bt2020"
@@ -115,8 +115,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     + " -profile:v main10"
                     + " -preset " + preset
                     + " -global_quality " + crf
-                    + " -c:a copy"
-                    + " -max_muxing_queue_size 9999"
+                    + " -an"
                     + " \"" + outputFilePath + "\"";
 
                 args.jobLog("Running: " + shellCmd);
