@@ -676,6 +676,23 @@
       }
     },
     {
+      "name": "Convert OPUS Audio to AAC",
+      "sourceRepo": "Community",
+      "pluginName": "runClassicPlugin",
+      "version": "1.0.0",
+      "inputsDB": {
+        "pluginSourceId": "community:Tdarr_Plugin_a9hd_FFMPEG_Transcode_Specific_Audio_Stream_Codecs",
+        "inputCodecs": "opus",
+        "outputCodec": "eac3"
+      },
+      "fpEnabled": true,
+      "id": "audioOpusToAac",
+      "position": {
+        "x": 1200.5625120763584,
+        "y": -2060
+      }
+    },
+    {
       "name": "Begin Command",
       "sourceRepo": "Community",
       "pluginName": "ffmpegCommandStart",
@@ -1076,9 +1093,23 @@
     {
       "source": "pE6rU7gkW",
       "sourceHandle": "1",
-      "target": "mA4SWPwTE",
+      "target": "audioOpusToAac",
       "targetHandle": null,
       "id": "c3hu5s8G4"
+    },
+    {
+      "source": "audioOpusToAac",
+      "sourceHandle": "1",
+      "target": "mA4SWPwTE",
+      "targetHandle": null,
+      "id": "audioOpusToAacSuccess"
+    },
+    {
+      "source": "audioOpusToAac",
+      "sourceHandle": "2",
+      "target": "mA4SWPwTE",
+      "targetHandle": null,
+      "id": "audioOpusToAacNoChange"
     },
     {
       "source": "rtjmsjaZ2",
