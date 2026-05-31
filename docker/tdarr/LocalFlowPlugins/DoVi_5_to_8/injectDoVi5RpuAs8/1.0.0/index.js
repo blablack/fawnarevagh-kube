@@ -66,6 +66,7 @@ exports.details = details;
 var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function () {
     var lib, pluginWorkDir, baseName,
         p5HevcPath, p5AsP8HevcPath, rpuP8Path, p8RpuHevcPath, outputFilePath,
+        videoStream, frameRate,
         cli, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -186,15 +187,25 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
 
                 // Step 5: Remux P8.1 HEVC + audio from the original P5 source → final MKV
                 // Audio is taken from the original file since convertDoVi5to8 outputs video-only.
+                // Raw HEVC has no container timestamps. Use the setts BSF to synthesise them
+                // from the frame number: for fps=N/D, PTS=DTS=frame_n*D in timebase 1/N.
+                var videoStream = (args.originalLibraryFile.ffProbeData.streams || []).find(function(s) { return s.codec_type === 'video'; });
+                var frameRate = (videoStream && videoStream.r_frame_rate) || '60000/1001';
+                var fpsParts = frameRate.split('/');
+                var fpsNum = fpsParts[0] || '60000';
+                var fpsDen = fpsParts[1] || '1001';
+                var settsBsf = 'setts=pts=N*' + fpsDen + ':dts=N*' + fpsDen + ':time_base=1/' + fpsNum;
                 cli = new cliUtils_1.CLI({
                     cli: 'ffmpeg',
                     spawnArgs: [
                         '-hide_banner', '-y',
+                        '-r', frameRate,
                         '-i', p8RpuHevcPath,
                         '-i', args.originalLibraryFile._id,
                         '-map', '0:v',
                         '-map', '1:a?',
-                        '-c', 'copy',
+                        '-c:v', 'copy', '-bsf:v', settsBsf,
+                        '-c:a', 'copy',
                         outputFilePath,
                     ],
                     spawnOpts: {},
