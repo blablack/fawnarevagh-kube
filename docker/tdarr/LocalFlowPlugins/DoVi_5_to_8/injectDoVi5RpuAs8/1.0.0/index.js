@@ -65,7 +65,7 @@ exports.details = details;
 
 var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function () {
     var lib, pluginWorkDir, baseName,
-        p5HevcPath, rpuP5Path, rpuP8Path, p8HevcPath, p8RpuHevcPath, outputFilePath,
+        p5HevcPath, p5AsP8HevcPath, rpuP8Path, p8HevcPath, p8RpuHevcPath, outputFilePath,
         cli, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -79,7 +79,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 // dovi_tool only accepts raw Annex B HEVC streams.
                 // The P5 source (MP4) and the re-encoded P8 MKV both need ffmpeg demux first.
                 p5HevcPath    = pluginWorkDir + "/" + baseName + "_p5_raw.hevc";
-                rpuP5Path     = pluginWorkDir + "/" + baseName + "_rpu_p5.bin";
+                p5AsP8HevcPath = pluginWorkDir + "/" + baseName + "_p5_as_p8.hevc";
                 rpuP8Path     = pluginWorkDir + "/" + baseName + "_rpu_p8.bin";
                 p8HevcPath    = pluginWorkDir + "/" + baseName + "_p8_raw.hevc";
                 p8RpuHevcPath = pluginWorkDir + "/" + baseName + "_p8_rpu.hevc";
@@ -112,17 +112,18 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     throw new Error('ffmpeg demux of P5 source failed');
                 }
 
-                // Step 2: Extract P5 RPU from raw HEVC
+                // Step 2: Convert P5 HEVC → P8.1 HEVC (dovi_tool 2.x convert operates on HEVC streams)
                 cli = new cliUtils_1.CLI({
                     cli: '/usr/local/bin/dovi_tool',
                     spawnArgs: [
-                        'extract-rpu',
+                        'convert',
+                        '-p', '8.1',
                         '-i', p5HevcPath,
-                        '-o', rpuP5Path,
+                        '-o', p5AsP8HevcPath,
                     ],
                     spawnOpts: {},
                     jobLog: args.jobLog,
-                    outputFilePath: rpuP5Path,
+                    outputFilePath: p5AsP8HevcPath,
                     inputFileObj: args.inputFileObj,
                     logFullCliOutput: args.logFullCliOutput,
                     updateWorker: args.updateWorker,
@@ -131,18 +132,16 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
             case 2:
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to extract RPU from P5 raw HEVC');
-                    throw new Error('dovi_tool extract-rpu failed');
+                    args.jobLog('Failed to convert P5 HEVC to P8.1');
+                    throw new Error('dovi_tool convert P5→P8.1 failed');
                 }
 
-                // Step 3: Convert P5 RPU → P8.1 RPU
-                // dovi_tool 2.x uses 'convert' not 'convert-rpu'
+                // Step 3: Extract P8.1 RPU from the converted HEVC
                 cli = new cliUtils_1.CLI({
                     cli: '/usr/local/bin/dovi_tool',
                     spawnArgs: [
-                        'convert',
-                        '--to', '8.1',
-                        '-i', rpuP5Path,
+                        'extract-rpu',
+                        '-i', p5AsP8HevcPath,
                         '-o', rpuP8Path,
                     ],
                     spawnOpts: {},
@@ -156,8 +155,8 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
             case 3:
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to convert RPU to Profile 8.1');
-                    throw new Error('dovi_tool convert failed');
+                    args.jobLog('Failed to extract P8.1 RPU from converted HEVC');
+                    throw new Error('dovi_tool extract-rpu (P8.1) failed');
                 }
 
                 // Step 4: Demux re-encoded P8 MKV → raw HEVC Annex B

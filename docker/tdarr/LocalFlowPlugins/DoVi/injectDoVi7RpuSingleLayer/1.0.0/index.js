@@ -109,12 +109,12 @@ var plugin = function (args) {
 
           if (fallbackMissing) {
             // Force single-layer
-            cliString = "dovi_tool -m 2 convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
+            cliString = "/usr/local/bin/dovi_tool convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
           } else {
             // Normal approach
             if (videoStreamCount === 1) {
               // Single-stream => convert
-              cliString = "dovi_tool -m 2 convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
+              cliString = "/usr/local/bin/dovi_tool convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
             } else {
               // Dual-stream => inject
               cliString =
