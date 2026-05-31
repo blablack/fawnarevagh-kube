@@ -79,7 +79,7 @@ data:
         }
     .:53 {
         errors
-        cache 30
+        cache 300
         reload
         loop
         bind 169.254.20.10 10.43.0.10

@@ -31,6 +31,20 @@ spec:
         - image: postgres:15
           imagePullPolicy: Always
           name: postgres
+          command:
+            - postgres
+            - -c
+            - shared_buffers=64MB
+            - -c
+            - work_mem=4MB
+            - -c
+            - maintenance_work_mem=16MB
+            - -c
+            - checkpoint_completion_target=0.9
+            - -c
+            - wal_buffers=4MB
+            - -c
+            - effective_cache_size=224MB
           env:
             - name: POSTGRES_USER
               value: "mealie"

@@ -8,7 +8,7 @@ parameters:
   fromBackup: ""
   fsType: ext4
   numberOfReplicas: "2"
-  staleReplicaTimeout: "30"
+  staleReplicaTimeout: "300"
 reclaimPolicy: Retain
 allowVolumeExpansion: true
 volumeBindingMode: Immediate

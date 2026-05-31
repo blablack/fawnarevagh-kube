@@ -100,8 +100,8 @@ spec:
               memory: 4000Mi
               gpu.intel.com/i915: 1
             requests:
-              cpu: 100m
-              memory: 200Mi
+              cpu: 200m
+              memory: 1Gi
               gpu.intel.com/i915: 1
 ---
 apiVersion: v1

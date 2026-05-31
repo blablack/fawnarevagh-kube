@@ -40,6 +40,20 @@ spec:
         - image: postgres:16-alpine
           imagePullPolicy: Always
           name: postgresql
+          command:
+            - postgres
+            - -c
+            - shared_buffers=256MB
+            - -c
+            - work_mem=16MB
+            - -c
+            - maintenance_work_mem=64MB
+            - -c
+            - checkpoint_completion_target=0.9
+            - -c
+            - wal_buffers=16MB
+            - -c
+            - effective_cache_size=768MB
           env:
             - name: POSTGRES_USER
               valueFrom:
@@ -86,12 +100,12 @@ spec:
               memory: 1000Mi
             requests:
               cpu: 50m
-              memory: 200Mi
+              memory: 256Mi
         - image: redis:alpine
           imagePullPolicy: Always
           name: redis
           command: ["redis-server"]
-          args: ["--save", "60", "1", "--loglevel", "warning"]
+          args: ["--save", "", "--appendonly", "no", "--loglevel", "warning"]
           volumeMounts:
             - mountPath: "/data"
               subPath: "redis"
