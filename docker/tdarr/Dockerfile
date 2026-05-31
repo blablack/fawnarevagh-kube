@@ -35,12 +35,12 @@ RUN wget -O - "https://github.com/quietvoid/hdr10plus_tool/releases/download/${H
 
 FROM ghcr.io/haveagitgat/tdarr:latest
 
+ARG JELLYFIN_FFMPEG_VERSION="7.1.4-1"
+
 # Upgrade to latest Jellyfin FFmpeg
-RUN CODENAME=$(. /etc/os-release && echo "$VERSION_CODENAME") && \
-    VERSION=$(wget -qO- "https://api.github.com/repos/jellyfin/jellyfin-ffmpeg/releases/latest" | grep -o '"tag_name": *"v[^"]*"' | grep -o '[0-9][^"]*') && \
-    wget -q "https://github.com/jellyfin/jellyfin-ffmpeg/releases/download/v${VERSION}/jellyfin-ffmpeg5_${VERSION}-${CODENAME}_amd64.deb" && \
-    apt-get install -y ./jellyfin-ffmpeg5_${VERSION}-${CODENAME}_amd64.deb && \
-    rm -f ./jellyfin-ffmpeg5_*.deb && \
+RUN wget -O /tmp/ffmpeg.deb -q "https://github.com/jellyfin/jellyfin-ffmpeg/releases/download/v${JELLYFIN_FFMPEG_VERSION}/jellyfin-ffmpeg5_${JELLYFIN_FFMPEG_VERSION}-bookworm_amd64.deb" && \
+    apt-get install -y /tmp/ffmpeg.deb && \
+    rm -f /tmp/ffmpeg.deb && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy tools from the build stage
