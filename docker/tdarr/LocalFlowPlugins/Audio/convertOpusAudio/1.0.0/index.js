@@ -15,7 +15,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
         while (g && (g = 0, op[0] && (_ = 0)), _) try {
-            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = op[0] ? t.call(y, op[1])).done) return t;
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
                 case 0: case 1: t = op; break;
@@ -24,6 +24,8 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
                 case 7: op = _.ops.pop(); _.trys.pop(); continue;
                 default:
                     if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
                     if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
                     if (t[2]) _.ops.pop();
                     _.trys.pop(); continue;
@@ -98,7 +100,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
 
                 if (opusAudioIndices.length === 0) {
                     args.jobLog('No OPUS audio streams found, skipping conversion');
-                    return [2, {
+                    return [2 /*return*/, {
                         outputFileObj: args.inputFileObj,
                         outputNumber: 2,
                         variables: args.variables,
@@ -112,13 +114,13 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }).join(' ');
 
                 path = require('path');
-                ext = path.extname(args.inputFileObj._id).slice(1) || 'mkv';
+                ext = path.extname(args.inputFileObj.file).slice(1) || 'mkv';
                 pluginWorkDir = (0, fileUtils_1.getPluginWorkDir)(args);
-                baseName = (0, fileUtils_1.getFileName)(args.inputFileObj._id);
+                baseName = (0, fileUtils_1.getFileName)(args.originalLibraryFile._id);
                 outputFilePath = pluginWorkDir + '/' + baseName + '_opus_converted.' + ext;
 
                 shellCmd = 'ffmpeg -hide_banner -y'
-                    + ' -i "' + args.inputFileObj._id + '"'
+                    + ' -i "' + args.inputFileObj.file + '"'
                     + ' -c copy'
                     + ' ' + codecOverrides
                     + ' "' + outputFilePath + '"';
@@ -136,7 +138,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     updateWorker: args.updateWorker,
                 });
 
-                return [4, cli.runCli()];
+                return [4 /*yield*/, cli.runCli()];
             case 1:
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
@@ -145,7 +147,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }
 
                 args.logOutcome('tSuc');
-                return [2, {
+                return [2 /*return*/, {
                     outputFileObj: { _id: outputFilePath },
                     outputNumber: 1,
                     variables: args.variables,
