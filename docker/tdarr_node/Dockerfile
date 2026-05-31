@@ -38,7 +38,9 @@ FROM ghcr.io/haveagitgat/tdarr_node:latest
 ARG JELLYFIN_FFMPEG_VERSION="7.1.4-1"
 
 # Upgrade to latest Jellyfin FFmpeg
-RUN wget -O /tmp/ffmpeg.deb -q "https://github.com/jellyfin/jellyfin-ffmpeg/releases/download/v${JELLYFIN_FFMPEG_VERSION}/jellyfin-ffmpeg7_${JELLYFIN_FFMPEG_VERSION}-bookworm_amd64.deb" && \
+RUN . /etc/os-release && \
+    wget -O /tmp/ffmpeg.deb -q "https://github.com/jellyfin/jellyfin-ffmpeg/releases/download/v${JELLYFIN_FFMPEG_VERSION}/jellyfin-ffmpeg7_${JELLYFIN_FFMPEG_VERSION}-${VERSION_CODENAME}_amd64.deb" && \
+    apt-get update && \
     apt-get install -y /tmp/ffmpeg.deb && \
     rm -f /tmp/ffmpeg.deb && \
     rm -rf /var/lib/apt/lists/*
