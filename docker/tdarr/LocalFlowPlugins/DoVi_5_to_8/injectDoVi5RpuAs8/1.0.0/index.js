@@ -136,13 +136,14 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }
 
                 // Step 3: Convert P5 RPU → P8.1 RPU
+                // dovi_tool 2.x uses 'convert' not 'convert-rpu'
                 cli = new cliUtils_1.CLI({
                     cli: '/usr/local/bin/dovi_tool',
                     spawnArgs: [
-                        'convert-rpu',
+                        'convert',
+                        '--to', '8.1',
                         '-i', rpuP5Path,
                         '-o', rpuP8Path,
-                        '--target-profile', '8.1',
                     ],
                     spawnOpts: {},
                     jobLog: args.jobLog,
@@ -156,7 +157,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
                     args.jobLog('Failed to convert RPU to Profile 8.1');
-                    throw new Error('dovi_tool convert-rpu failed');
+                    throw new Error('dovi_tool convert failed');
                 }
 
                 // Step 4: Demux re-encoded P8 MKV → raw HEVC Annex B
