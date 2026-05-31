@@ -35,7 +35,7 @@ RUN wget -O - "https://github.com/quietvoid/hdr10plus_tool/releases/download/${H
 
 FROM ghcr.io/haveagitgat/tdarr_node:latest
 
-ARG JELLYFIN_FFMPEG_VERSION="7.1.4-1"
+ARG JELLYFIN_FFMPEG_VERSION="8.1.1-1"
 
 # Upgrade to latest Jellyfin FFmpeg
 RUN . /etc/os-release && \
