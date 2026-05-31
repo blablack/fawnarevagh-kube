@@ -120,8 +120,8 @@ spec:
               memory: 8Gi
               gpu.intel.com/i915: 1
             requests:
-              cpu: 50m
-              memory: 100Mi
+              cpu: 500m
+              memory: 2Gi
               gpu.intel.com/i915: 1
 ---
 apiVersion: apps/v1
@@ -199,8 +199,8 @@ spec:
               memory: 8Gi
               gpu.intel.com/i915: 1
             requests:
-              cpu: 50m
-              memory: 100Mi
+              cpu: 500m
+              memory: 2Gi
               gpu.intel.com/i915: 1
 ---
 apiVersion: v1

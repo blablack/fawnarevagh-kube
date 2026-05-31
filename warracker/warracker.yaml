@@ -34,6 +34,20 @@ spec:
         - image: postgres:15-alpine
           imagePullPolicy: Always
           name: postgres
+          command:
+            - postgres
+            - -c
+            - shared_buffers=128MB
+            - -c
+            - work_mem=8MB
+            - -c
+            - maintenance_work_mem=32MB
+            - -c
+            - checkpoint_completion_target=0.9
+            - -c
+            - wal_buffers=8MB
+            - -c
+            - effective_cache_size=384MB
           env:
             - name: POSTGRES_DB
               value: "warranty_db"
@@ -82,8 +96,8 @@ spec:
               cpu: 500m
               memory: 512Mi
             requests:
-              cpu: 10m
-              memory: 50Mi
+              cpu: 25m
+              memory: 64Mi
         - image: ghcr.io/sassanix/warracker/main:latest
           imagePullPolicy: Always
           name: warracker

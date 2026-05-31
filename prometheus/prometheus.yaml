@@ -32,15 +32,24 @@ spec:
           - longhorn-prometheus-servicemonitor
           - kubelet
           - snmp-exporter
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app: prometheus
+            topologyKey: kubernetes.io/hostname
   storage:
     volumeClaimTemplate:
       spec:
-        storageClassName: local-path
+        storageClassName: my-longhorn
         resources:
           requests:
-            storage: 5Gi
+            storage: 10Gi
   retention: "15d"
-  retentionSize: "4900MiB"
+  retentionSize: "9500MiB"
   walCompression: true
 ---
 apiVersion: v1
