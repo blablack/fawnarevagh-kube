@@ -40,8 +40,8 @@ var fileUtils_1 = require("../../../../FlowHelpers/1.0.0/fileUtils");
 
 var details = function () { return ({
     name: 'Convert DoVi Profile 5 to Profile 8',
-    description: 'Re-encode DoVi Profile 5 to Profile 8 using libplacebo + libx265. '
-        + 'Applies Dolby Vision tone mapping via libplacebo and outputs an MKV with p010le pixel format.',
+    description: 'Re-encode DoVi Profile 5 to Profile 8 using libplacebo + hevc_qsv (Intel Quick Sync). '
+        + 'Applies Dolby Vision tone mapping via libplacebo, uploads frames to QSV, and outputs an MKV with Main 10 profile.',
     style: {
         borderColor: 'orange',
     },
@@ -53,23 +53,23 @@ var details = function () { return ({
     icon: '',
     inputs: [
         {
-            label: 'x265 Preset',
+            label: 'QSV Preset',
             name: 'preset',
             type: 'string',
-            defaultValue: 'slow',
+            defaultValue: 'medium',
             inputUI: {
                 type: 'dropdown',
-                options: ['ultrafast', 'superfast', 'veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
+                options: ['veryfast', 'faster', 'fast', 'medium', 'slow', 'slower', 'veryslow'],
             },
-            tooltip: 'x265 encoding preset (default: slow)',
+            tooltip: 'hevc_qsv encoding preset — slower = better quality/compression (default: medium)',
         },
         {
-            label: 'CRF',
+            label: 'Global Quality',
             name: 'crf',
             type: 'number',
             defaultValue: '20',
             inputUI: { type: 'text' },
-            tooltip: 'x265 CRF value — lower = better quality, larger file (default: 20)',
+            tooltip: 'hevc_qsv global_quality — lower = better quality, larger file (default: 20, range 1-51)',
         },
     ],
     outputs: [
@@ -95,7 +95,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }
                 width = String(videoStream.width);
                 height = String(videoStream.height);
-                preset = String(args.inputs.preset || 'slow');
+                preset = String(args.inputs.preset || 'medium');
                 crf = String(args.inputs.crf || '20');
 
                 pluginWorkDir = (0, fileUtils_1.getPluginWorkDir)(args);
@@ -104,14 +104,17 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
 
                 vf = "libplacebo=w=" + width + ":h=" + height
                     + ":format=p010:colorspace=bt2020nc:color_primaries=bt2020"
-                    + ":color_trc=smpte2084:apply_dolbyvision=true";
+                    + ":color_trc=smpte2084:apply_dolbyvision=true"
+                    + ",hwupload=extra_hw_frames=64";
 
                 shellCmd = "ffmpeg -hide_banner -y"
+                    + " -init_hw_device qsv=hw:/dev/dri/renderD128"
                     + " -i \"" + args.inputFileObj.file + "\""
                     + " -vf \"" + vf + "\""
-                    + " -c:v libx265 -pix_fmt p010le"
+                    + " -c:v hevc_qsv"
+                    + " -profile:v main10"
                     + " -preset " + preset
-                    + " -crf " + crf
+                    + " -global_quality " + crf
                     + " -c:a copy"
                     + " -max_muxing_queue_size 9999"
                     + " \"" + outputFilePath + "\"";
