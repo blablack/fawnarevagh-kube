@@ -31,7 +31,7 @@ spec:
         - image: postgres:15
           imagePullPolicy: Always
           name: postgres
-          command:
+          args:
             - postgres
             - -c
             - shared_buffers=64MB

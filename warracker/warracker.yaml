@@ -34,7 +34,7 @@ spec:
         - image: postgres:15-alpine
           imagePullPolicy: Always
           name: postgres
-          command:
+          args:
             - postgres
             - -c
             - shared_buffers=128MB

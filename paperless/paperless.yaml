@@ -43,7 +43,7 @@ spec:
         - image: docker.io/library/postgres:16
           imagePullPolicy: Always
           name: postgres
-          command:
+          args:
             - postgres
             - -c
             - shared_buffers=128MB
