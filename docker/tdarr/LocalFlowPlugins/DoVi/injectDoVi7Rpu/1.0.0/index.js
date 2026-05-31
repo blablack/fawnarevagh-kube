@@ -111,13 +111,13 @@ var plugin = function (args) {
 
           /*
             If there's only 1 stream (DV p7 single-stream):
-              We do a convert step: "dovi_tool -m 2 convert --discard -i input -o output"
+              We do a convert step: "dovi_tool convert --discard input -o output"
             If there are 2 streams:
               We do: "dovi_tool inject-rpu -i BL.hevc --rpu-in RPU.bin -o BL_RPU.hevc"
           */
           if (videoStreamCount === 1) {
             // Single-stream approach => convert p7 to p8
-            cliString = "dovi_tool -m 2 convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
+            cliString = "/usr/local/bin/dovi_tool convert --discard \"" + inputFilePath + "\" -o \"" + outFilePath + "\"";
           } else {
             // Two-stream approach => inject RPU
             cliString =
