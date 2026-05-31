@@ -676,13 +676,11 @@
       }
     },
     {
-      "name": "Convert OPUS Audio to AAC",
-      "sourceRepo": "Community",
-      "pluginName": "runClassicPlugin",
+      "name": "Convert OPUS Audio to EAC3 🎵",
+      "sourceRepo": "Local",
+      "pluginName": "convertOpusAudio",
       "version": "1.0.0",
       "inputsDB": {
-        "pluginSourceId": "community:Tdarr_Plugin_a9hd_FFMPEG_Transcode_Specific_Audio_Stream_Codecs",
-        "inputCodecs": "opus",
         "outputCodec": "eac3"
       },
       "fpEnabled": true,
