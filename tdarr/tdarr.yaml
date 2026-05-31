@@ -33,6 +33,24 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
+      initContainers:
+        - name: copy-plugins
+          image: nucio.nowhere:30038/tdarr:latest
+          imagePullPolicy: Always
+          command:
+            - sh
+            - -c
+            - |
+              mkdir -p /app/server/Tdarr/Plugins/FlowPlugins/LocalFlowPlugins
+              cp -r /tdarr-plugins/. /app/server/Tdarr/Plugins/FlowPlugins/LocalFlowPlugins/
+          volumeMounts:
+            - mountPath: "/app/server"
+              subPath: "server"
+              name: tdarr-pvc
       containers:
         - image: nucio.nowhere:30038/tdarr:latest
           imagePullPolicy: Always
@@ -49,6 +67,8 @@ spec:
               name: tdarr-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
+            - mountPath: /dev/dri
+              name: dev-dri
           env:
             - name: PUID
               value: "1026"
@@ -69,7 +89,7 @@ spec:
             - name: nodeName
               value: "MainNode"
             - name: ffmpegVersion
-              value: "6"
+              value: "7"
           startupProbe:
             httpGet:
               path: /
@@ -96,13 +116,13 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 2000m
+              cpu: 3000m
               memory: 8Gi
-              gpu.intel.com/i915: 1000m
+              gpu.intel.com/i915: 1
             requests:
               cpu: 50m
               memory: 100Mi
-              gpu.intel.com/i915: 1000m
+              gpu.intel.com/i915: 1
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -139,6 +159,10 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: dev-dri
+          hostPath:
+            path: /dev/dri
+            type: Directory
       containers:
         - image: nucio.nowhere:30038/tdarr_node:latest
           imagePullPolicy: Always
@@ -152,6 +176,8 @@ spec:
               name: tdarr-node-pvc
             - mountPath: "/data"
               name: nasio-nfs-pvc
+            - mountPath: /dev/dri
+              name: dev-dri
           env:
             - name: PUID
               value: "1026"
@@ -159,25 +185,23 @@ spec:
               value: "100"
             - name: TZ
               value: "EU/Dublin"
-            - name: serverIP
-              value: "tdarr"
-            - name: serverPort
-              value: "8266"
+            - name: serverURL
+              value: "http://tdarr.default.svc.cluster.local:8266"
             - name: inContainer
               value: "true"
             - name: nodeName
               value: "SecondNode"
             - name: ffmpegVersion
-              value: "6"
+              value: "7"
           resources:
             limits:
-              cpu: 2000m
+              cpu: 3000m
               memory: 8Gi
-              gpu.intel.com/i915: 1000m
+              gpu.intel.com/i915: 1
             requests:
               cpu: 50m
               memory: 100Mi
-              gpu.intel.com/i915: 1000m
+              gpu.intel.com/i915: 1
 ---
 apiVersion: v1
 kind: Service
