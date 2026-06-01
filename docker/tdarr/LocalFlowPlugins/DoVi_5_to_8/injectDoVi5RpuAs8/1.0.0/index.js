@@ -85,7 +85,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 p5AsP8HevcPath = pluginWorkDir + "/" + baseName + "_p5_as_p8.hevc";
                 rpuP8Path     = pluginWorkDir + "/" + baseName + "_rpu_p8.bin";
                 p8RpuHevcPath = pluginWorkDir + "/" + baseName + "_p8_rpu.hevc";
-                outputFilePath = pluginWorkDir + "/" + baseName + "_final_p8.mkv";
+                outputFilePath = pluginWorkDir + "/" + baseName + ".mkv";
 
                 // Step 1: Demux original P5 source → raw HEVC Annex B
                 cli = new cliUtils_1.CLI({
