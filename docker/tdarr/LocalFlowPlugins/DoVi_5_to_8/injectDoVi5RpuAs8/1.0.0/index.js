@@ -68,6 +68,7 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
         p5HevcPath, p5AsP8HevcPath, rpuP8Path, p8RpuHevcPath, outputFilePath,
         videoStream, frameRate,
         cli, res;
+
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -185,28 +186,19 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     throw new Error('dovi_tool inject-rpu failed');
                 }
 
-                // Step 5: Remux P8.1 HEVC + audio from the original P5 source → final MKV
-                // Audio is taken from the original file since convertDoVi5to8 outputs video-only.
-                // Raw HEVC has no container timestamps. Use the setts BSF to synthesise them
-                // from the frame number: for fps=N/D, PTS=DTS=frame_n*D in timebase 1/N.
+                // Step 5: Mux P8.1 HEVC + audio into final MKV using mkvmerge.
+                // ffmpeg cannot reliably mux raw HEVC (no container timestamps, DoVi RPU NALs
+                // confuse packet counting). mkvmerge handles raw HEVC with an explicit
+                // --default-duration, which is the correct tool for this job.
                 var videoStream = (args.originalLibraryFile.ffProbeData.streams || []).find(function(s) { return s.codec_type === 'video'; });
                 var frameRate = (videoStream && videoStream.r_frame_rate) || '60000/1001';
-                var fpsParts = frameRate.split('/');
-                var fpsNum = fpsParts[0] || '60000';
-                var fpsDen = fpsParts[1] || '1001';
-                var settsBsf = 'setts=pts=N*' + fpsDen + ':dts=N*' + fpsDen + ':time_base=1/' + fpsNum;
                 cli = new cliUtils_1.CLI({
-                    cli: 'ffmpeg',
+                    cli: 'mkvmerge',
                     spawnArgs: [
-                        '-hide_banner', '-y',
-                        '-r', frameRate,
-                        '-i', p8RpuHevcPath,
-                        '-i', args.originalLibraryFile._id,
-                        '-map', '0:v',
-                        '-map', '1:a?',
-                        '-c:v', 'copy', '-bsf:v', settsBsf,
-                        '-c:a', 'copy',
-                        outputFilePath,
+                        '-o', outputFilePath,
+                        '--default-duration', '0:' + frameRate + 'fps',
+                        p8RpuHevcPath,
+                        '--no-video', args.originalLibraryFile._id,
                     ],
                     spawnOpts: {},
                     jobLog: args.jobLog,
@@ -219,8 +211,8 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
             case 5:
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to remux P8.1 HEVC + audio into final MKV');
-                    throw new Error('ffmpeg final remux failed');
+                    args.jobLog('Failed to mux P8.1 HEVC + audio into final MKV');
+                    throw new Error('mkvmerge final mux failed');
                 }
 
                 args.logOutcome('tSuc');
