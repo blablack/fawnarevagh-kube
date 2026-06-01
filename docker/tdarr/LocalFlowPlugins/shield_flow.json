@@ -1064,14 +1064,14 @@
       "sourceRepo": "Local",
       "pluginName": "convertDoVi5to8",
       "version": "1.0.0",
+      "inputsDB": {
+        "preset": "medium"
+      },
       "fpEnabled": true,
       "id": "y0Vnqi9nA",
       "position": {
         "x": 984,
         "y": -816
-      },
-      "inputsDB": {
-        "preset": "medium"
       }
     },
     {
@@ -1084,6 +1084,65 @@
       "position": {
         "x": 984,
         "y": -720
+      }
+    },
+    {
+      "name": "Convert OPUS Audio to EAC3 (P5 post-mux) 🎵",
+      "sourceRepo": "Local",
+      "pluginName": "convertOpusAudio",
+      "version": "1.0.0",
+      "inputsDB": {
+        "outputCodec": "eac3"
+      },
+      "fpEnabled": true,
+      "id": "audioOpusP5Fix",
+      "position": {
+        "x": 984,
+        "y": -645
+      }
+    },
+    {
+      "name": "Set opus_was_converted = true 🎯",
+      "sourceRepo": "Community",
+      "pluginName": "setFlowVariable",
+      "version": "1.0.0",
+      "inputsDB": {
+        "variable": "opus_was_converted",
+        "value": "true"
+      },
+      "fpEnabled": true,
+      "id": "setVarOpusConverted",
+      "position": {
+        "x": 1200,
+        "y": -1940
+      }
+    },
+    {
+      "name": "Was OPUS converted? 🔍",
+      "sourceRepo": "Community",
+      "pluginName": "checkFlowVariable",
+      "version": "1.0.0",
+      "inputsDB": {
+        "variable": "{{{args.variables.user.opus_was_converted}}} ",
+        "value": "true"
+      },
+      "fpEnabled": true,
+      "id": "checkVarOpusConverted",
+      "position": {
+        "x": 1996,
+        "y": -1460
+      }
+    },
+    {
+      "name": "Replace Original File",
+      "sourceRepo": "Community",
+      "pluginName": "replaceOriginalFile",
+      "version": "1.0.0",
+      "fpEnabled": true,
+      "id": "replaceOrigNonDovi",
+      "position": {
+        "x": 1996,
+        "y": -1340
       }
     }
   ],
@@ -1098,9 +1157,16 @@
     {
       "source": "audioOpusToAac",
       "sourceHandle": "1",
-      "target": "mA4SWPwTE",
+      "target": "setVarOpusConverted",
       "targetHandle": null,
       "id": "audioOpusToAacSuccess"
+    },
+    {
+      "source": "setVarOpusConverted",
+      "sourceHandle": "1",
+      "target": "mA4SWPwTE",
+      "targetHandle": null,
+      "id": "setVarOpusConverted_continue"
     },
     {
       "source": "audioOpusToAac",
@@ -1686,9 +1752,16 @@
     {
       "source": "FGLxLhenh",
       "sourceHandle": "1",
-      "target": "On2TUw8aQ",
+      "target": "checkVarOpusConverted",
       "targetHandle": null,
       "id": "0KmL2V9fo"
+    },
+    {
+      "source": "checkVarOpusConverted",
+      "sourceHandle": "1",
+      "target": "replaceOrigNonDovi",
+      "targetHandle": null,
+      "id": "checkOpus_replace"
     },
     {
       "source": "ISAGN5272",
@@ -1756,9 +1829,23 @@
     {
       "source": "p5inj_001",
       "sourceHandle": "1",
-      "target": "cH45_OBDR",
+      "target": "audioOpusP5Fix",
       "targetHandle": null,
       "id": "e_p5i_s1d"
+    },
+    {
+      "source": "audioOpusP5Fix",
+      "sourceHandle": "1",
+      "target": "ZF3nnux_N",
+      "targetHandle": null,
+      "id": "e_p5_opus_converted"
+    },
+    {
+      "source": "audioOpusP5Fix",
+      "sourceHandle": "2",
+      "target": "ZF3nnux_N",
+      "targetHandle": null,
+      "id": "e_p5_opus_nochange"
     }
   ]
 }
