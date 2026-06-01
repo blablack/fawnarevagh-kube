@@ -1144,6 +1144,40 @@
         "x": 1996,
         "y": -1340
       }
+    },
+    {
+      "name": "Notify Radarr 🔔",
+      "sourceRepo": "Community",
+      "pluginName": "notifyRadarrOrSonarr",
+      "version": "1.0.0",
+      "inputsDB": {
+        "arr": "radarr",
+        "arr_api_key": "",
+        "arr_host": "http://radarr"
+      },
+      "fpEnabled": true,
+      "id": "notifyRadarr",
+      "position": {
+        "x": 1383,
+        "y": 760
+      }
+    },
+    {
+      "name": "Notify Sonarr 🔔",
+      "sourceRepo": "Community",
+      "pluginName": "notifyRadarrOrSonarr",
+      "version": "1.0.0",
+      "inputsDB": {
+        "arr": "sonarr",
+        "arr_api_key": "",
+        "arr_host": "http://sonarr"
+      },
+      "fpEnabled": true,
+      "id": "notifySonarr",
+      "position": {
+        "x": 1383,
+        "y": 860
+      }
     }
   ],
   "flowEdges": [
@@ -1846,6 +1880,27 @@
       "target": "ZF3nnux_N",
       "targetHandle": null,
       "id": "e_p5_opus_nochange"
+    },
+    {
+      "source": "ZF3nnux_N",
+      "sourceHandle": "1",
+      "target": "notifyRadarr",
+      "targetHandle": null,
+      "id": "ZF3nnux_N_to_notifyRadarr"
+    },
+    {
+      "source": "replaceOrigNonDovi",
+      "sourceHandle": "1",
+      "target": "notifyRadarr",
+      "targetHandle": null,
+      "id": "replaceOrigNonDovi_to_notifyRadarr"
+    },
+    {
+      "source": "notifyRadarr",
+      "sourceHandle": "2",
+      "target": "notifySonarr",
+      "targetHandle": null,
+      "id": "notifyRadarr_to_notifySonarr"
     }
   ]
 }
