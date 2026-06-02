@@ -145,6 +145,45 @@ spec:
             requests:
               cpu: 50m
               memory: 50Mi
+        - image: ghcr.io/thephaseless/byparr:latest
+          imagePullPolicy: Always
+          name: byparr
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
+            - name: LOG_LEVEL
+              value: "info"
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8191
+            initialDelaySeconds: 30
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8191
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8191
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 1000Mi
+            requests:
+              cpu: 100m
+              memory: 256Mi
         - image: linuxserver/qbittorrent:latest
           imagePullPolicy: Always
           name: qbittorrent
