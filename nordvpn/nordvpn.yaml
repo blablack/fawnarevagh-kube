@@ -273,6 +273,21 @@ spec:
       name: prowlarr-web
   type: ClusterIP
 ---
+# Prowlarr
+apiVersion: v1
+kind: Service
+metadata:
+  name: byparr
+  namespace: default
+spec:
+  selector:
+    app: nordvpn
+  ports:
+    - port: 8191
+      targetPort: 8191
+      name: byparr-web
+  type: ClusterIP
+---
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
