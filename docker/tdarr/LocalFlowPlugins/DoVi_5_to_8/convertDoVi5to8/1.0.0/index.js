@@ -121,13 +121,24 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 args.jobLog("Running: " + shellCmd);
 
                 cli = new cliUtils_1.CLI({
-                    cli: '/bin/sh',
-                    spawnArgs: ['-c', shellCmd],
+                    cli: 'ffmpeg',
+                    spawnArgs: [
+                        '-hide_banner', '-y',
+                        '-init_hw_device', 'qsv=hw:/dev/dri/renderD128',
+                        '-i', args.inputFileObj.file,
+                        '-vf', vf,
+                        '-c:v', 'hevc_qsv',
+                        '-profile:v', 'main10',
+                        '-preset', preset,
+                        '-global_quality', crf,
+                        '-an',
+                        outputFilePath,
+                    ],
                     spawnOpts: {},
                     jobLog: args.jobLog,
                     outputFilePath: outputFilePath,
                     inputFileObj: args.inputFileObj,
-                    logFullCliOutput: args.logFullCliOutput,
+                    logFullCliOutput: true,
                     updateWorker: args.updateWorker,
                 });
 
