@@ -82,7 +82,7 @@ var details = function () { return ({
 exports.details = details;
 
 var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function () {
-    var lib, videoStream, width, height, preset, crf, pluginWorkDir, baseName, outputFilePath, vf, shellCmd, cli, res;
+    var lib, videoStream, width, height, preset, crf, pluginWorkDir, baseName, outputFilePath, vf, cli, res;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
@@ -107,22 +107,22 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     + ":color_trc=smpte2084:apply_dolbyvision=true"
                     + ",hwupload=extra_hw_frames=64";
 
-                shellCmd = "ffmpeg -hide_banner -y"
-                    + " -init_hw_device qsv=hw:/dev/dri/renderD128"
-                    + " -i \"" + args.inputFileObj.file + "\""
-                    + " -vf \"" + vf + "\""
-                    + " -c:v hevc_qsv"
-                    + " -profile:v main10"
-                    + " -preset " + preset
-                    + " -global_quality " + crf
-                    + " -an"
-                    + " \"" + outputFilePath + "\"";
-
-                args.jobLog("Running: " + shellCmd);
+                args.jobLog("Running ffmpeg DoVi P5->P8: input=" + args.inputFileObj.file + " output=" + outputFilePath);
 
                 cli = new cliUtils_1.CLI({
-                    cli: '/bin/sh',
-                    spawnArgs: ['-c', shellCmd],
+                    cli: 'ffmpeg',
+                    spawnArgs: [
+                        '-hide_banner', '-y',
+                        '-init_hw_device', 'qsv=hw:/dev/dri/renderD128',
+                        '-i', args.inputFileObj.file,
+                        '-vf', vf,
+                        '-c:v', 'hevc_qsv',
+                        '-profile:v', 'main10',
+                        '-preset', preset,
+                        '-global_quality', crf,
+                        '-an',
+                        outputFilePath,
+                    ],
                     spawnOpts: {},
                     jobLog: args.jobLog,
                     outputFilePath: outputFilePath,
