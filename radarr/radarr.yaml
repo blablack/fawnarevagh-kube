@@ -65,11 +65,11 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 200m
-              memory: 250Mi
+              cpu: 400m
+              memory: 500Mi
             requests:
-              cpu: 50m
-              memory: 100Mi
+              cpu: 100m
+              memory: 200Mi
 ---
 apiVersion: v1
 kind: Service
