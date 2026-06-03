@@ -66,8 +66,7 @@ exports.details = details;
 var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function () {
     var lib, pluginWorkDir, baseName,
         p5HevcPath, p5AsP8HevcPath, rpuP8Path, p8RpuHevcPath, outputFilePath,
-        videoStream, frameRate,
-        cli, res;
+        videoStream, frameRate, shellCmd, cli, res;
 
     return __generator(this, function (_a) {
         switch (_a.label) {
@@ -78,128 +77,51 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 pluginWorkDir = (0, fileUtils_1.getPluginWorkDir)(args);
                 baseName = (0, fileUtils_1.getFileName)(args.originalLibraryFile._id);
 
-                // dovi_tool only accepts raw Annex B HEVC streams.
-                // The P5 source (MP4) needs demuxing; the P8 input is already raw HEVC Annex B
-                // from the encoder (output of convertDoVi5to8 which encodes directly to .hevc).
                 p5HevcPath    = pluginWorkDir + "/" + baseName + "_p5_raw.hevc";
                 p5AsP8HevcPath = pluginWorkDir + "/" + baseName + "_p5_as_p8.hevc";
                 rpuP8Path     = pluginWorkDir + "/" + baseName + "_rpu_p8.bin";
                 p8RpuHevcPath = pluginWorkDir + "/" + baseName + "_p8_rpu.hevc";
                 outputFilePath = pluginWorkDir + "/" + baseName + ".mkv";
 
-                // Step 1: Demux original P5 source → raw HEVC Annex B
-                cli = new cliUtils_1.CLI({
-                    cli: 'ffmpeg',
-                    spawnArgs: [
-                        '-hide_banner', '-y',
-                        '-i', args.originalLibraryFile._id,
-                        '-c:v', 'copy',
-                        '-bsf:v', 'hevc_mp4toannexb',
-                        '-an',
-                        '-f', 'hevc',
-                        p5HevcPath,
-                    ],
-                    spawnOpts: {},
-                    jobLog: args.jobLog,
-                    outputFilePath: p5HevcPath,
-                    inputFileObj: args.inputFileObj,
-                    logFullCliOutput: args.logFullCliOutput,
-                    updateWorker: args.updateWorker,
-                });
-                return [4 /*yield*/, cli.runCli()];
-            case 1:
-                res = _a.sent();
-                if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to extract raw HEVC from original P5 source');
-                    throw new Error('ffmpeg demux of P5 source failed');
-                }
+                videoStream = (args.originalLibraryFile.ffProbeData.streams || []).find(function(s) { return s.codec_type === 'video'; });
+                frameRate = (videoStream && videoStream.r_frame_rate) || '60000/1001';
 
-                // Step 2: Convert P5 HEVC → P8.1 HEVC (-m 3 is a global flag meaning "mode 3: P5→P8.1")
-                cli = new cliUtils_1.CLI({
-                    cli: '/usr/local/bin/dovi_tool',
-                    spawnArgs: [
-                        '-m', '3',
-                        'convert',
-                        '-i', p5HevcPath,
-                        '-o', p5AsP8HevcPath,
-                    ],
-                    spawnOpts: {},
-                    jobLog: args.jobLog,
-                    outputFilePath: p5AsP8HevcPath,
-                    inputFileObj: args.inputFileObj,
-                    logFullCliOutput: args.logFullCliOutput,
-                    updateWorker: args.updateWorker,
-                });
-                return [4 /*yield*/, cli.runCli()];
-            case 2:
-                res = _a.sent();
-                if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to convert P5 HEVC to P8.1');
-                    throw new Error('dovi_tool convert P5→P8.1 failed');
-                }
+                // Chain all 5 steps in a single shell command so only one CLI.runCli() call is
+                // needed. Multiple sequential CLI.runCli() calls in one plugin trigger a bug in
+                // Tdarr's cliUtils where updateWorker returns undefined and crashes the worker,
+                // leaving files stuck in staged.
+                //
+                // Step 1: Demux P5 source MKV → raw Annex B HEVC (no hevc_mp4toannexb — MKV
+                //         already uses Annex B; that filter is for MP4 containers only).
+                // Step 2: dovi_tool -m 3 convert: rewrite RPU from P5 → P8.1 format.
+                // Step 3: dovi_tool extract-rpu: pull the P8.1 RPU bin out.
+                // Step 4: dovi_tool inject-rpu: inject P8.1 RPU into the re-encoded P8 HEVC.
+                // Step 5: mkvmerge: mux P8 HEVC + audio/subs from original into final MKV.
+                shellCmd = "ffmpeg -hide_banner -y"
+                    + " -i \"" + args.originalLibraryFile._id + "\""
+                    + " -c:v copy -an -f hevc"
+                    + " \"" + p5HevcPath + "\""
+                    + " && /usr/local/bin/dovi_tool -m 3 convert"
+                    + " -i \"" + p5HevcPath + "\""
+                    + " -o \"" + p5AsP8HevcPath + "\""
+                    + " && /usr/local/bin/dovi_tool extract-rpu"
+                    + " -i \"" + p5AsP8HevcPath + "\""
+                    + " -o \"" + rpuP8Path + "\""
+                    + " && /usr/local/bin/dovi_tool inject-rpu"
+                    + " -i \"" + args.inputFileObj.file + "\""
+                    + " --rpu-in \"" + rpuP8Path + "\""
+                    + " -o \"" + p8RpuHevcPath + "\""
+                    + " && mkvmerge"
+                    + " -o \"" + outputFilePath + "\""
+                    + " --default-duration \"0:" + frameRate + "fps\""
+                    + " \"" + p8RpuHevcPath + "\""
+                    + " --no-video \"" + args.originalLibraryFile._id + "\"";
 
-                // Step 3: Extract P8.1 RPU from the converted HEVC
-                cli = new cliUtils_1.CLI({
-                    cli: '/usr/local/bin/dovi_tool',
-                    spawnArgs: [
-                        'extract-rpu',
-                        '-i', p5AsP8HevcPath,
-                        '-o', rpuP8Path,
-                    ],
-                    spawnOpts: {},
-                    jobLog: args.jobLog,
-                    outputFilePath: rpuP8Path,
-                    inputFileObj: args.inputFileObj,
-                    logFullCliOutput: args.logFullCliOutput,
-                    updateWorker: args.updateWorker,
-                });
-                return [4 /*yield*/, cli.runCli()];
-            case 3:
-                res = _a.sent();
-                if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to extract P8.1 RPU from converted HEVC');
-                    throw new Error('dovi_tool extract-rpu (P8.1) failed');
-                }
+                args.jobLog("Running: " + shellCmd);
 
-                // Step 4: Inject P8.1 RPU into raw HEVC
-                // args.inputFileObj.file is already raw HEVC Annex B (output of convertDoVi5to8)
                 cli = new cliUtils_1.CLI({
-                    cli: '/usr/local/bin/dovi_tool',
-                    spawnArgs: [
-                        'inject-rpu',
-                        '-i', args.inputFileObj.file,
-                        '--rpu-in', rpuP8Path,
-                        '-o', p8RpuHevcPath,
-                    ],
-                    spawnOpts: {},
-                    jobLog: args.jobLog,
-                    outputFilePath: p8RpuHevcPath,
-                    inputFileObj: args.inputFileObj,
-                    logFullCliOutput: args.logFullCliOutput,
-                    updateWorker: args.updateWorker,
-                });
-                return [4 /*yield*/, cli.runCli()];
-            case 4:
-                res = _a.sent();
-                if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to inject P8.1 RPU into re-encoded HEVC');
-                    throw new Error('dovi_tool inject-rpu failed');
-                }
-
-                // Step 5: Mux P8.1 HEVC + audio into final MKV using mkvmerge.
-                // ffmpeg cannot reliably mux raw HEVC (no container timestamps, DoVi RPU NALs
-                // confuse packet counting). mkvmerge handles raw HEVC with an explicit
-                // --default-duration, which is the correct tool for this job.
-                var videoStream = (args.originalLibraryFile.ffProbeData.streams || []).find(function(s) { return s.codec_type === 'video'; });
-                var frameRate = (videoStream && videoStream.r_frame_rate) || '60000/1001';
-                cli = new cliUtils_1.CLI({
-                    cli: 'mkvmerge',
-                    spawnArgs: [
-                        '-o', outputFilePath,
-                        '--default-duration', '0:' + frameRate + 'fps',
-                        p8RpuHevcPath,
-                        '--no-video', args.originalLibraryFile._id,
-                    ],
+                    cli: '/bin/sh',
+                    spawnArgs: ['-c', shellCmd],
                     spawnOpts: {},
                     jobLog: args.jobLog,
                     outputFilePath: outputFilePath,
@@ -208,11 +130,11 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     updateWorker: args.updateWorker,
                 });
                 return [4 /*yield*/, cli.runCli()];
-            case 5:
+            case 1:
                 res = _a.sent();
                 if (res.cliExitCode !== 0) {
-                    args.jobLog('Failed to mux P8.1 HEVC + audio into final MKV');
-                    throw new Error('mkvmerge final mux failed');
+                    args.jobLog('DoVi P5→P8 RPU inject pipeline failed');
+                    throw new Error('DoVi P5→P8 inject pipeline failed');
                 }
 
                 args.logOutcome('tSuc');
