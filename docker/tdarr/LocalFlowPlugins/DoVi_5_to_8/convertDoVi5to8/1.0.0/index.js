@@ -138,8 +138,9 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                     jobLog: args.jobLog,
                     outputFilePath: outputFilePath,
                     inputFileObj: args.inputFileObj,
-                    logFullCliOutput: true,
+                    logFullCliOutput: args.logFullCliOutput,
                     updateWorker: args.updateWorker,
+                    args: args,
                 });
 
                 return [4 /*yield*/, cli.runCli()];
