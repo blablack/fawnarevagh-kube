@@ -51,4 +51,7 @@ COPY --from=build /usr/local/bin/hdr10plus_tool /usr/local/bin/
 COPY --from=build /usr/local/bin/MP4Box /usr/local/bin/
 COPY --from=build /usr/local/bin/gpac /usr/local/bin/
 
+# Remove the startup script that tries to re-download Jellyfin FFmpeg
+RUN rm -f /etc/cont-init.d/03-setup-ffmpeg
+
 RUN chmod 755 /usr/local/bin/dovi_tool /usr/local/bin/hdr10plus_tool /usr/local/bin/MP4Box /usr/local/bin/gpac
