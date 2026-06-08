@@ -33,6 +33,10 @@ spec:
         - name: qbittorrent-logs-dir
           emptyDir:
             medium: Memory
+        - name: byparr-dshm          
+          emptyDir:
+            medium: Memory
+            sizeLimit: 2Gi
       initContainers:
         - name: clear-qb-lockfile
           image: busybox:1.36
@@ -148,11 +152,16 @@ spec:
         - image: ghcr.io/thephaseless/byparr:latest
           imagePullPolicy: Always
           name: byparr
+          volumeMounts:
+            - name: byparr-dshm      
+              mountPath: /dev/shm
           env:
             - name: TZ
               value: "Europe/Dublin"
             - name: LOG_LEVEL
               value: "info"
+            - name: CAPTCHA_SOLVER_TIMEOUT  
+              value: "180"
           startupProbe:
             httpGet:
               path: /
@@ -258,7 +267,6 @@ spec:
     app: nordvpn
   type: ClusterIP
 ---
-# Prowlarr
 apiVersion: v1
 kind: Service
 metadata:
@@ -273,7 +281,6 @@ spec:
       name: prowlarr-web
   type: ClusterIP
 ---
-# Prowlarr
 apiVersion: v1
 kind: Service
 metadata:
@@ -329,7 +336,6 @@ spec:
                 port:
                   number: 9696
 ---
-# qBittorrent
 apiVersion: v1
 kind: Service
 metadata:
