@@ -4,7 +4,8 @@
 #   kubectl apply -f ./postgres-recovery.yaml
 #   kubectl exec -it postgres-recovery -- bash
 #   su - postgres
-#   pg_resetwal -f /var/lib/postgresql/data/postgresql/
+#   cd /usr/lib/postgresql/16/bin/
+#   ./pg_resetwal -f /var/lib/postgresql/data/
 #
 # When done: kubectl delete -f ./postgres-recovery.yaml
 apiVersion: v1
