@@ -74,7 +74,7 @@ data:
           - type: ntfy
       - name: HortusFox
         group: service
-        url: "http://hortusfox.default.svc.cluster.local/login"
+        url: "http://hortusfox.default.svc.cluster.local/"
         interval: 5m
         conditions:
           - "[STATUS] == 200"
