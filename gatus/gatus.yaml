@@ -72,6 +72,14 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
+      - name: HortusFox
+        group: service
+        url: "http://hortusfox.default.svc.cluster.local/login"
+        interval: 5m
+        conditions:
+          - "[STATUS] == 200"
+        alerts:
+          - type: ntfy
       - name: Immich
         group: service
         url: "http://immich.default.svc.cluster.local:3001"
