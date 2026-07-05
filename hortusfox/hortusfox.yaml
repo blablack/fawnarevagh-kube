@@ -75,8 +75,11 @@ spec:
               value: "ChangeMe!2026"
             - name: APP_TIMEZONE
               value: "Europe/Dublin"
+            # Must stay "true": the image's entrypoint runs its DB migrations
+            # and setup through the Asatru CLI, which refuses to run unless
+            # APP_DEBUG is enabled ("CLI tool is only available in debug mode").
             - name: APP_DEBUG
-              value: "false"
+              value: "true"
             - name: APP_UPDATEDEPS
               value: "false"
             - name: APACHE_SERVER_NAME
