@@ -74,10 +74,13 @@ data:
           - type: ntfy
       - name: HortusFox
         group: service
+        # Behind Authentik forward-auth: an unauthenticated request (no
+        # X-authentik-* headers) returns 401, which confirms the app is up and
+        # enforcing auth. A 200 here would actually mean auth is NOT engaged.
         url: "http://hortusfox.default.svc.cluster.local/"
         interval: 5m
         conditions:
-          - "[STATUS] == 200"
+          - "[STATUS] == 401"
         alerts:
           - type: ntfy
       - name: Immich
