@@ -129,25 +129,26 @@ spec:
             - containerPort: 80
               name: http
               protocol: TCP
+          # TCP probes, not HTTP: with PROXY_ENABLE=true the app returns 401 to
+          # any request without the X-authentik-* headers (which a kube-probe
+          # can't supply), so an httpGet on "/" would always fail. Port 80 being
+          # open means Apache/mod_php is up and serving.
           startupProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: 80
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 30
           readinessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: 80
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 10
             failureThreshold: 5
           livenessProbe:
-            httpGet:
-              path: /
+            tcpSocket:
               port: 80
             initialDelaySeconds: 60
             periodSeconds: 15
