@@ -70,7 +70,7 @@ spec:
           name: hortusfox
           env:
             - name: APP_ADMIN_EMAIL
-              value: "aurelien.leblond@gmail.com"
+              value: "blablack@gmail.com"
             - name: APP_ADMIN_PASSWORD
               value: "ChangeMe!2026"
             - name: APP_TIMEZONE
@@ -96,6 +96,19 @@ spec:
               value: "hortusfox"
             - name: DB_CHARSET
               value: "utf8mb4"
+            # Forward-auth via Authentik: trust the X-authentik-* headers that
+            # the Traefik forwardAuth middleware injects. Access is enforced at
+            # the ingress, so these headers can only come from the outpost.
+            - name: PROXY_ENABLE
+              value: "true"
+            - name: PROXY_OVERWRITE_VALUES
+              value: "true"
+            - name: PROXY_HEADER_EMAIL
+              value: "X-authentik-email"
+            - name: PROXY_HEADER_USERNAME
+              value: "X-authentik-username"
+            - name: PROXY_AUTO_SIGNUP
+              value: "true"
           volumeMounts:
             - mountPath: "/var/www/html/public/img"
               subPath: "img"
@@ -177,6 +190,32 @@ spec:
   privateKey:
     rotationPolicy: Always
 ---
+# Traefik forward-auth middleware that delegates authentication to the
+# Authentik embedded outpost. Reusable by any ingress in the default namespace
+# via the annotation: default-authentik-forwardauth@kubernetescrd
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: authentik-forwardauth
+  namespace: default
+spec:
+  forwardAuth:
+    address: http://authentik.default.svc.cluster.local:9000/outpost.goauthentik.io/auth/traefik
+    trustForwardHeader: true
+    authResponseHeaders:
+      - X-authentik-username
+      - X-authentik-groups
+      - X-authentik-entitlements
+      - X-authentik-email
+      - X-authentik-name
+      - X-authentik-uid
+      - X-authentik-jwt
+      - X-authentik-meta-jwks
+      - X-authentik-meta-outpost
+      - X-authentik-meta-provider
+      - X-authentik-meta-app
+      - X-authentik-meta-version
+---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -184,6 +223,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.middlewares: default-authentik-forwardauth@kubernetescrd
     external-dns.alpha.kubernetes.io/hostname: hortusfox.nowhere
 spec:
   ingressClassName: traefik
@@ -202,3 +242,31 @@ spec:
                 name: hortusfox
                 port:
                   number: 80
+---
+# The outpost's auth/callback endpoint must be reachable on the app's own host
+# and must NOT go through the forwardAuth middleware (that would loop). The
+# longer PathPrefix gives this router priority for /outpost.goauthentik.io.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hortusfox-outpost
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - hortusfox.nowhere
+      secretName: hortusfox-tls
+  rules:
+    - host: hortusfox.nowhere
+      http:
+        paths:
+          - path: /outpost.goauthentik.io
+            pathType: Prefix
+            backend:
+              service:
+                name: authentik
+                port:
+                  number: 9000
