@@ -25,7 +25,7 @@ kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.12.0/dep
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
 # https://github.com/cert-manager/cert-manager
-kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.20.3/cert-manager.yaml
+kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.0/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/nasio-nfs.yaml
