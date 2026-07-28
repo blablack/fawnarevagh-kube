@@ -25,7 +25,7 @@ spec:
             claimName: nasio-nfs-pvc
       containers:
         - image: linuxserver/bazarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: bazarr
           volumeMounts:
             - mountPath: "/config"

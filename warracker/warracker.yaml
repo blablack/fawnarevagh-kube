@@ -32,7 +32,7 @@ spec:
       terminationGracePeriodSeconds: 60
       containers:
         - image: postgres:15-alpine
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: postgres
           args:
             - postgres
@@ -99,7 +99,7 @@ spec:
               cpu: 25m
               memory: 64Mi
         - image: ghcr.io/sassanix/warracker/main:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: warracker
           env:
             - name: DB_HOST

@@ -7,7 +7,7 @@ spec:
     spec:
       containers:
         - name: intel-gpu-plugin
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           args:
             - "-shared-dev-num"
             - "2"

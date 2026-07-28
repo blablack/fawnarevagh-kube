@@ -25,7 +25,7 @@ spec:
             claimName: syncthing-yvonne-pvc
       containers:
         - image: syncthing/syncthing:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: syncthing-yvonne
           volumeMounts:
             - mountPath: "/nasio"
