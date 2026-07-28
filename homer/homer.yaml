@@ -80,7 +80,7 @@ data:
         icon: "fas fa-archive"
         items:
           - name: "Immich"
-            url: "https://immich.nowhere"
+            url: "http://immich.nowhere"
             target: "_blank"
             logo: "assets/apps/immich.png"
             subtitle: "Photos and Videos"
