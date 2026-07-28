@@ -22,7 +22,7 @@ spec:
             claimName: node-red-pvc
       containers:
         - image: nodered/node-red:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: node-red
           volumeMounts:
             - mountPath: "/data"

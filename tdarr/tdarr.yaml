@@ -40,7 +40,7 @@ spec:
       initContainers:
         - name: copy-plugins
           image: nucio.nowhere:30038/tdarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           command:
             - sh
             - -c
@@ -54,7 +54,7 @@ spec:
               name: tdarr-pvc
       containers:
         - image: nucio.nowhere:30038/tdarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: tdarr
           volumeMounts:
             - mountPath: "/app/server"
@@ -166,7 +166,7 @@ spec:
             type: Directory
       containers:
         - image: nucio.nowhere:30038/tdarr_node:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: tdarr-node
           volumeMounts:
             - mountPath: "/app/configs"

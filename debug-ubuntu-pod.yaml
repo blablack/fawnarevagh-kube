@@ -16,7 +16,7 @@ spec:
       containers:
         - name: ubuntu
           image: ubuntu:26.04
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           command: ["/bin/sleep", "3650d"]
           resources:
             limits:

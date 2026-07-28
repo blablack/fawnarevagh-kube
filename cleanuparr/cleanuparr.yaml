@@ -22,7 +22,7 @@ spec:
             claimName: cleanuparr-pvc
       containers:
         - image: ghcr.io/cleanuparr/cleanuparr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: cleanuparr
           volumeMounts:
             - mountPath: "/config"

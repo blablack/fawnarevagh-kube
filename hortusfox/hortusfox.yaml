@@ -23,7 +23,7 @@ spec:
             claimName: hortusfox-pvc
       containers:
         - image: mariadb:11.4
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: mariadb
           env:
             - name: MARIADB_ROOT_PASSWORD
@@ -66,7 +66,7 @@ spec:
               cpu: 50m
               memory: 128Mi
         - image: ghcr.io/danielbrendel/hortusfox-web:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: hortusfox
           env:
             - name: APP_ADMIN_EMAIL

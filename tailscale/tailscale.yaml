@@ -20,7 +20,7 @@ spec:
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           env:
             - name: TS_HOSTNAME
               value: "blinky"

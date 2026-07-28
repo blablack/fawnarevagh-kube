@@ -25,7 +25,7 @@ spec:
             claimName: nasio-nfs-pvc
       containers:
         - image: linuxserver/sonarr:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           name: sonarr
           volumeMounts:
             - mountPath: "/config"
