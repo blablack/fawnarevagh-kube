@@ -17,6 +17,15 @@ spec:
         app: tailscale
     spec:
       serviceAccountName: tailscale
+      # nodelocaldns forwards external names to pihole (192.168.2.2). If pihole is
+      # down that SERVFAILs, containerboot can't reach api.tailscale.com to mint its
+      # auth key, and the pod won't start — losing remote access exactly when it's
+      # needed (seen 2026-07-19). Appended after the cluster resolver, so cluster
+      # names still resolve first and Go falls through to these on SERVFAIL.
+      dnsConfig:
+        nameservers:
+          - "1.1.1.1"
+          - "8.8.8.8"
       containers:
         - name: tailscale
           image: tailscale/tailscale:latest
