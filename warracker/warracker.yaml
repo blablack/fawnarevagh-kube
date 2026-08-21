@@ -204,7 +204,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    external-dns.alpha.kubernetes.io/hostname: warracker.nowhere
+    external-dns.kubernetes.io/hostname: warracker.nowhere
 spec:
   ingressClassName: traefik
   rules:

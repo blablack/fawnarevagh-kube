@@ -81,7 +81,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    external-dns.alpha.kubernetes.io/hostname: ha.nowhere
+    external-dns.kubernetes.io/hostname: ha.nowhere
 spec:
   ingressClassName: traefik
   tls:
