@@ -21,11 +21,11 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.16.1/confi
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
 # https://github.com/longhorn/longhorn
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.12.0/deploy/longhorn.yaml
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.12.1/deploy/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
 # https://github.com/cert-manager/cert-manager
-kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.0/cert-manager.yaml
+kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.1/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/nasio-nfs.yaml
