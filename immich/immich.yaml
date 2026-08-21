@@ -224,7 +224,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: web
-    external-dns.alpha.kubernetes.io/hostname: immich.nowhere
+    external-dns.kubernetes.io/hostname: immich.nowhere
 spec:
   ingressClassName: traefik
   rules:

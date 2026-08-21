@@ -317,7 +317,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    external-dns.alpha.kubernetes.io/hostname: prowlarr.nowhere
+    external-dns.kubernetes.io/hostname: prowlarr.nowhere
 spec:
   ingressClassName: traefik
   tls:
@@ -372,7 +372,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    external-dns.alpha.kubernetes.io/hostname: qbittorrent.nowhere
+    external-dns.kubernetes.io/hostname: qbittorrent.nowhere
 spec:
   ingressClassName: traefik
   tls:

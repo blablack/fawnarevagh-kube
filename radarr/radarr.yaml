@@ -107,7 +107,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    external-dns.alpha.kubernetes.io/hostname: radarr.nowhere
+    external-dns.kubernetes.io/hostname: radarr.nowhere
 spec:
   ingressClassName: traefik
   tls:

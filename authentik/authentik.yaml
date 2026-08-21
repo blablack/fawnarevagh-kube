@@ -291,7 +291,7 @@ metadata:
   namespace: default
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    external-dns.alpha.kubernetes.io/hostname: authentik.nowhere
+    external-dns.kubernetes.io/hostname: authentik.nowhere
 spec:
   ingressClassName: traefik
   tls:
