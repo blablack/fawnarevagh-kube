@@ -39,7 +39,7 @@ spec:
             runAsUser: 0
       containers:
         - image: postgres:15
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: postgres
           args:
             - postgres
@@ -101,7 +101,7 @@ spec:
               memory: 100Mi
 
         - image: vikunja/vikunja:latest
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: vikunja
           volumeMounts:
             - mountPath: "/app/vikunja/files"

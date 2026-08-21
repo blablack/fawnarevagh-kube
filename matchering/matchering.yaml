@@ -23,7 +23,7 @@ spec:
       terminationGracePeriodSeconds: 30
       containers:
         - image: sergree/matchering-web
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           name: matchering
           volumeMounts:
             - mountPath: "/app/data"

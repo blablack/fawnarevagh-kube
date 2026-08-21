@@ -59,7 +59,7 @@ spec:
       containers:
         - name: external-dns
           image: registry.k8s.io/external-dns/external-dns:v0.22.0
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: EXTERNAL_DNS_PIHOLE_PASSWORD
               valueFrom:
