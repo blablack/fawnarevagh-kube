@@ -143,6 +143,10 @@ spec:
                   name: mealie
             - name: OIDC_SIGNUP_ENABLED
               value: "true"
+            # Authentik has no email-verification concept; its stock 'email' scope
+            # mapping always returns email_verified: false
+            - name: OIDC_REQUIRES_EMAIL_VERIFICATION
+              value: "false"
             - name: OIDC_USER_GROUP
               value: "Regular Users"
             - name: OIDC_ADMIN_GROUP
