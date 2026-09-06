@@ -486,3 +486,39 @@
       ansible.builtin.service:
         name: k3s-agent
         state: restarted
+
+# Both nodes' CPUs (nucio's i5-7260U, quario's i5-8259U) are ULV mobile/NUC-class
+# parts running Ubuntu's default intel_pstate "powersave" governor, which ramps
+# frequency up more slowly under the bursty request patterns a k3s control plane
+# and 45+ probed pods generate - meaning tasks can spend more wall-clock time at
+# lower clocks than "performance" would. Applies immediately (no reboot) and can
+# be pushed on its own to an already-running cluster:
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags cpu-governor
+- name: Set CPU governor to performance
+  hosts: quario,nucio
+  become: true
+  tags: cpu-governor
+
+  tasks:
+    - name: Copy CPU performance governor service
+      ansible.builtin.copy:
+        src: all/cpu-performance-governor.service
+        dest: /etc/systemd/system/cpu-performance-governor.service
+
+    - name: Reload systemd daemon
+      ansible.builtin.systemd:
+        daemon_reload: true
+
+    - name: Enable and start CPU performance governor service
+      ansible.builtin.systemd:
+        name: cpu-performance-governor
+        enabled: true
+        state: started
+
+# Tried raising the apiserver's watch-cache size via a --kube-apiserver-arg config.yaml
+# drop-in (default-watch-cache-size / watch-cache-sizes) to trade RAM for fewer LIST calls
+# against the embedded datastore. Reverted: this k3s's Kubernetes version (v1.36) has
+# deprecated both flags in favor of automatic dynamic watch-cache sizing - the apiserver
+# logs "watch caches are sized automatically" and drops the value at startup, so the
+# tuning was a no-op. Nothing to configure here; kept as a note in case that changes
+# upstream.
