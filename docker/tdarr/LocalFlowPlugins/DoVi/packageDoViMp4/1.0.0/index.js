@@ -76,17 +76,32 @@ var plugin = function (args) {
           pluginWorkDir = (0, fileUtils_1.getPluginWorkDir)(args);
           outputFilePath = pluginWorkDir + "/" + (0, fileUtils_1.getFileName)(args.originalLibraryFile._id) + ".rpu.hevc.mp4";
 
-          // ✅ Dynamic FPS
+          // Determine the true source frame rate from the ORIGINAL file's own
+          // ffprobe data. args.inputFileObj.meta is never populated by the
+          // preceding inject step (injectDoViRpu returns just {_id: path}, no
+          // .meta field), so this lookup always silently fell through to the
+          // hardcoded '23.976' fallback -- mismatching any source that wasn't
+          // actually 23.976fps and desyncing audio/video over the file's runtime.
           try {
-            const metaFps = args.inputFileObj.meta?.VideoFrameRate;
-            fps = metaFps ? `fps=${metaFps}` : 'fps=23.976';
+            const videoStream = (args.originalLibraryFile.ffProbeData.streams || [])
+              .find((s) => s.codec_type === 'video');
+            fps = (videoStream && videoStream.r_frame_rate && videoStream.r_frame_rate.includes('/'))
+              ? `fps=${videoStream.r_frame_rate}`
+              : 'fps=24000/1001';
+            if (!videoStream || !videoStream.r_frame_rate) {
+              args.jobLog('WARNING: could not read source r_frame_rate, falling back to fps=24000/1001');
+            }
           } catch (e) {
-            fps = 'fps=23.976';
+            fps = 'fps=24000/1001';
+            args.jobLog('WARNING: error reading source frame rate, falling back to fps=24000/1001');
           }
 
           // 🔧 Final clean packaging options
+          // MP4Box's -fps option accepts an exact "timescale/increment" fraction
+          // directly, so pass the probed rate through untouched instead of pairing
+          // it with a separately hardcoded timescale.
           cliArgs = [
-            '-add', `${args.inputFileObj.file}:${fps}:timescale=24000:dvp=8.1:xps_inband`,
+            '-add', `${args.inputFileObj.file}:${fps}:dvp=8.1:xps_inband`,
             '-tmp', pluginWorkDir + "/tmp",
             '-brand', 'mp42isom',
             '-ab', 'dby1',

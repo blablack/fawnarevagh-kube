@@ -100,6 +100,9 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
 
                 if (opusAudioIndices.length === 0) {
                     args.jobLog('No OPUS audio streams found, skipping conversion');
+                    // Record the file that later steps should treat as "the correctly
+                    // audio-processed file" -- see the note below for why this matters.
+                    args.variables.audioFixedFile = args.inputFileObj._id;
                     return [2 /*return*/, {
                         outputFileObj: args.inputFileObj,
                         outputNumber: 2,
@@ -147,6 +150,12 @@ var plugin = function (args) { return __awaiter(void 0, void 0, void 0, function
                 }
 
                 args.logOutcome('tSuc');
+                // Record this converted file in a flow variable so downstream steps that
+                // have to reference args.originalLibraryFile for other reasons (e.g. the
+                // DoVi remux stage rebuilding the container from a raw elementary stream)
+                // don't silently fall back to the untouched original and discard this
+                // conversion -- see ffmpegCommandRemuxMp4Dovi for the consumer.
+                args.variables.audioFixedFile = outputFilePath;
                 return [2 /*return*/, {
                     outputFileObj: { _id: outputFilePath },
                     outputNumber: 1,
