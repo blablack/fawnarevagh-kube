@@ -36,6 +36,11 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
+        # redis runs --save "" --appendonly no (persistence disabled), so /data
+        # is never durably written to - no reason for it to sit on replicated
+        # Longhorn storage.
+        - name: redis-data
+          emptyDir: {}
       containers:
         - image: postgres:16-alpine
           imagePullPolicy: Always
@@ -108,8 +113,7 @@ spec:
           args: ["--save", "", "--appendonly", "no", "--loglevel", "warning"]
           volumeMounts:
             - mountPath: "/data"
-              subPath: "redis"
-              name: authentik-pvc
+              name: redis-data
           startupProbe:
             exec:
               command:

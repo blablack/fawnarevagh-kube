@@ -37,6 +37,10 @@ spec:
             items:
               - key: ca.crt
                 path: ca.crt
+        # Pure celery broker/cache - rebuilt from Postgres state on restart, no
+        # reason for it to sit on replicated Longhorn storage.
+        - name: redis-data
+          emptyDir: {}
       # https://github.com/paperless-ngx/paperless-ngx/blob/main/docker/compose/docker-compose.postgres.yml
       terminationGracePeriodSeconds: 60
       containers:
@@ -117,8 +121,7 @@ spec:
           name: redis
           volumeMounts:
             - mountPath: "/data"
-              subPath: "redis"
-              name: paperless-pvc
+              name: redis-data
           resources:
             limits:
               cpu: 100m
