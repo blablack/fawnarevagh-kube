@@ -10,7 +10,7 @@ spec:
   imagePullPolicy: Always
   nodeSelector:
     kubernetes.io/os: linux
-  replicas: 2
+  replicas: 1
   resources:
     limits:
       memory: "600Mi"
