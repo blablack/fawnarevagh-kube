@@ -32,6 +32,30 @@ cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 ```
 
+### Upgrading k3s
+
+k3s itself is upgraded by re-running the official install script on each node
+(what used to be a manual `ssh` in and run `./install_k3s.sh` on Nucio, then
+Quario). `ansible/upgrade_k3s.yml` does both in one go:
+
+```bash
+cd ansible
+ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./upgrade_k3s.yml
+```
+
+The install script is safe to re-run — it fetches the latest stable release
+and only reinstalls/restarts the service when the version or flags actually
+change. Quario's `K3S_TOKEN` is never stored in this repo or on disk anywhere:
+the playbook reads it live from Nucio's node-token file at run time, so
+there's no secret to manage or `.gitignore`.
+
+To upgrade a single node (e.g. to check Nucio came back healthy before
+touching Quario):
+
+```bash
+ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./upgrade_k3s.yml -l nucio
+```
+
 ## Deployments
 
 ### Cert

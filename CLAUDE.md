@@ -42,6 +42,9 @@ This is a home Kubernetes (k3s) cluster configuration repo ("Fawnarevagh Cloud")
 cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 ```
+To push just the kubelet graceful-shutdown config (see Deployment Conventions below) to an
+already-running cluster without re-running the whole playbook (which also reboots both
+machines): `ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown`
 
 ### Bootstrap cluster (first time only)
 ```bash
@@ -82,7 +85,8 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 
 ### Disaster recovery
 - `docs/longhorn-disaster-recovery.md` — restoring Longhorn volumes from S3 backup after full cluster loss
-- `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment
+- `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless, mealie) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment. Adjust the postgres image tag and PVC `subPath` to match the app (e.g. mealie uses `postgres:15` and `subPath: postgresql_15`, not paperless's `postgres:16`/`postgresql`)
+- This corruption was recurring because nodes were never drained before a reboot (daily unattended-upgrades reboot at 06:00, or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below
 
 ### Checking pinned versions
 Most apps track `:latest` with `imagePullPolicy: Always`, but 6 versions are hardcoded
@@ -128,3 +132,40 @@ Secrets are created manually with `kubectl create secret` — they are not store
 - `argocd-secret` (argocd namespace) — created by the base ArgoCD install (admin password, server signing key); `dex.authentik.clientSecret` is patched into it manually (see README) and referenced from `argocd/patches/argocd-dex-config.yaml` as `$dex.authentik.clientSecret` — this is Argo CD's own convention for resolving `$`-prefixed values in `dex.config` against `argocd-secret`, not a `secretKeyRef`
 
 Exception: `authentik/authentik.yaml` defines its own `authentik-secrets` Secret inline with placeholder values (`AUTHENTIK_SECRET_KEY`, `PG_PASS`, etc.) that must be edited in place rather than created out-of-band like the others.
+
+## Deployment Conventions
+
+Kubernetes Deployments have no equivalent of a Job's `backoffLimit` — `restartPolicy` must be
+`Always`, so a crash-looping pod always keeps retrying (with kubelet's own exponential backoff,
+capped at 5 minutes). The conventions below are what actually bound the cost of that and reduce
+how often it happens; follow them for every new app's `<app>.yaml`, matching the ~34 existing ones:
+
+- `imagePullPolicy: Always` + `:latest` tag by default (see "Checking pinned versions" above for
+  the 6 exceptions that must be hardcoded instead).
+- `revisionHistoryLimit: 0`.
+- `strategy: {type: Recreate}` for single-replica apps owning their own PVC/DB, so two pods never
+  race for the same `ReadWriteOnce` volume. Only use `RollingUpdate` for stateless apps that are
+  safe to run at >1 replica briefly.
+- `resources.requests`/`resources.limits` (cpu + memory) on every container — this is what bounds
+  the CPU cost of any future crash loop.
+- `startupProbe` + `readinessProbe` (+ `livenessProbe` on the main app container). An embedded
+  Postgres sidecar should have an exec `pg_isready` startup/readiness probe.
+- For apps with an embedded Postgres sidecar: `terminationGracePeriodSeconds: 60` and a `preStop`
+  hook running `pg_ctl stop -m fast` (see `paperless/paperless.yaml`, `warracker/warracker.yaml`)
+  so a normal pod eviction (drain, rolling update) shuts Postgres down cleanly. This doesn't help
+  against an un-drained node reboot — see the node-level fix below.
+- Use Authentik OIDC SSO where the app supports it, following the existing `<app>` secret
+  `oidc_secret`/`service_secret` convention (see Secrets above).
+- Own `<app>-pvc.yaml` alongside `<app>.yaml`; TLS via cert-manager + Ingress
+  `secretName: <app>-tls` (see TLS above).
+
+**Node-level**: both nodes run kubelet with Graceful Node Shutdown enabled via
+`ansible/all/01-graceful-shutdown.conf` (a `KubeletConfiguration` fragment dropped into
+`/var/lib/rancher/k3s/agent/etc/kubelet.conf.d/`, which k3s merges with its own generated
+defaults — `shutdownGracePeriod`/`shutdownGracePeriodCriticalPods` are config-file-only in this
+kubelet version, passing them as `--kubelet-arg` flags instead makes the whole k3s service fail to
+start). This makes a node reboot (the 06:00 unattended-upgrades reboot, or the watchdog forcing
+one) wait for pods to terminate cleanly — honoring `preStop`/`terminationGracePeriodSeconds` above
+— instead of killing containers mid-write, which is what caused the recurring Postgres WAL
+corruption documented under Disaster recovery. It doesn't help against a genuine hardware-watchdog
+hard reset (fully hung kernel), only against the two "OS still responsive" reboot paths.

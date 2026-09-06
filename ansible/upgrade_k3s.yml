@@ -1,0 +1,77 @@
+# Upgrades k3s on both nodes by re-running the official install script,
+# replacing the manual "ssh in and run ./install_k3s.sh on each box" routine.
+#
+# The k3s install script is safe to re-run: it always fetches the latest
+# stable release, compares it (and the INSTALL_K3S_EXEC flags) against what's
+# currently running, and only reinstalls/restarts the service when something
+# actually changed.
+#
+# No token is stored anywhere for this. Quario's K3S_TOKEN is read live from
+# Nucio's /var/lib/rancher/k3s/server/node-token file at run time (the same
+# way the initial-install play in playbook.yml already does it), so there's
+# nothing secret to gitignore or keep in sync.
+#
+# Usage:
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./upgrade_k3s.yml
+#
+# To upgrade just one node (e.g. Quario after confirming Nucio came back healthy):
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./upgrade_k3s.yml -l quario
+
+- name: Upgrade k3s server on Nucio
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Re-run k3s install script
+      ansible.builtin.shell:
+        cmd: >
+          curl -sfL https://get.k3s.io |
+          INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs --kubelet-arg cluster-dns=169.254.20.10"
+          sh -s
+      register: k3s_upgrade_nucio
+
+    - name: Show install script output
+      ansible.builtin.debug:
+        msg: "{{ k3s_upgrade_nucio.stdout_lines }}"
+
+- name: Upgrade k3s agent on Quario
+  hosts: quario
+  become: true
+
+  tasks:
+    - name: Get current node token from Nucio
+      ansible.builtin.slurp:
+        src: /var/lib/rancher/k3s/server/node-token
+      delegate_to: 192.168.2.2
+      register: master_node_token
+      no_log: true
+
+    - name: Re-run k3s install script
+      ansible.builtin.shell:
+        cmd: >
+          curl -sfL https://get.k3s.io |
+          K3S_URL=https://192.168.2.2:6443
+          K3S_TOKEN={{ master_node_token['content'] | b64decode | trim }}
+          INSTALL_K3S_EXEC="--kubelet-arg cluster-dns=169.254.20.10"
+          sh -s
+      register: k3s_upgrade_quario
+      no_log: true
+
+    - name: Show install script output
+      ansible.builtin.debug:
+        msg: "{{ k3s_upgrade_quario.stdout_lines }}"
+
+- name: Verify cluster status
+  hosts: nucio
+  become: true
+
+  tasks:
+    - name: Get node status
+      ansible.builtin.command:
+        cmd: k3s kubectl get nodes -o wide
+      register: node_status
+      changed_when: false
+
+    - name: Show node status
+      ansible.builtin.debug:
+        msg: "{{ node_status.stdout_lines }}"
