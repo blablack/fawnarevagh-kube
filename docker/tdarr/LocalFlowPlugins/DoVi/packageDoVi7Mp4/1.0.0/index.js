@@ -68,7 +68,7 @@ exports.details = details;
 
 var plugin = function (args) {
   return __awaiter(void 0, void 0, void 0, function () {
-    var lib, pluginWorkDir, outFileName, outFilePath, fpsValue, fpsTag, timescaleTag, spawnArgs, cli, res;
+    var lib, pluginWorkDir, outFileName, outFilePath, fpsTag, spawnArgs, cli, res;
     return __generator(this, function (_a) {
       switch (_a.label) {
         case 0:
@@ -79,27 +79,36 @@ var plugin = function (args) {
           outFileName = (0, fileUtils_1.getFileName)(args.originalLibraryFile._id) + "_dolby.mp4";
           outFilePath = pluginWorkDir + "/" + outFileName;
 
-          // ✅ Dynamically extract and normalize FPS
-          let fpsValue = '23.976';
+          // Determine the true source frame rate from the ORIGINAL file's own
+          // ffprobe data. args.inputFileObj.meta is never populated at this point
+          // in the DoVi7 pipeline (injectDoVi7Rpu's output is just {_id: outFilePath},
+          // with no .meta field), so the previous lookup here always silently fell
+          // through to the hardcoded '23.976' default -- mismatching any source that
+          // was actually exactly 24fps (or another rate), which desyncs audio and
+          // video more and more over the runtime of the file (e.g. a source that's
+          // truly 24fps but gets stamped 23.976fps drifts by ~9s over a 156min film).
+          let fpsFraction = '24000/1001';
           try {
-            const raw = args.inputFileObj.meta?.VideoFrameRate;
-            if (raw) fpsValue = raw;
-          } catch (_) {}
+            const videoStream = (args.originalLibraryFile.ffProbeData.streams || [])
+              .find((s) => s.codec_type === 'video');
+            if (videoStream && videoStream.r_frame_rate && videoStream.r_frame_rate.includes('/')) {
+              fpsFraction = videoStream.r_frame_rate;
+            } else {
+              args.jobLog(`WARNING: could not read source r_frame_rate, falling back to ${fpsFraction}`);
+            }
+          } catch (_) {
+            args.jobLog(`WARNING: error reading source frame rate, falling back to ${fpsFraction}`);
+          }
 
-          fpsTag = `fps=${fpsValue}`;
-
-          // ✅ Normalize timescale based on FPS
-          let timescale = '24000';
-          if (fpsValue === '24') timescale = '24000';
-          else if (fpsValue === '25') timescale = '25000';
-          else if (fpsValue === '29.97') timescale = '30000';
-          else if (fpsValue === '30') timescale = '30000';
-          else if (fpsValue === '60') timescale = '60000';
-          timescaleTag = `timescale=${timescale}`;
+          // MP4Box's -fps import option accepts an exact "timescale/increment"
+          // fraction directly, so pass the probed rate through untouched instead
+          // of rounding it to a decimal and re-deriving a separate timescale from
+          // a lookup table (which had no entry for 23.976 in the first place).
+          fpsTag = `fps=${fpsFraction}`;
 
           spawnArgs = [
             '-add',
-            `${args.inputFileObj.file}:${fpsTag}:${timescaleTag}:dvp=8.1`,
+            `${args.inputFileObj.file}:${fpsTag}:dvp=8.1`,
             '-tmp', pluginWorkDir + "/tmp",
             '-brand', 'mp42isom',
             '-ab', 'dby1',
