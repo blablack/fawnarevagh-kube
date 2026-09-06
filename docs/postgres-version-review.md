@@ -181,6 +181,7 @@ wasn't affected since the old layout is unchanged through 17.
 - `authentik` and `warracker`: already current, nothing to do.
 - `immich`: already ahead of upstream's own default, nothing to do (optional extension-version bump only).
 - `mealie`, `vikunja`, `paperless-ngx`: bumped and verified 2026-09-06 (see per-app sections and
-  migration notes above). Old versioned subPaths (`postgresql_15` for mealie/vikunja, plain
-  `postgresql` for paperless) were left in place on each PVC as a fallback — safe to delete once
-  you're confident, to reclaim a little space on each small Longhorn volume.
+  migration notes above). The old data directories (`postgresql_15` for mealie/vikunja, plain
+  `postgresql` for paperless) were deleted from each PVC on 2026-09-06 after re-confirming the
+  new versions were healthy — see `docs/pvc-subpath-audit.md` for how that was done and what else
+  it turned up while checking.
