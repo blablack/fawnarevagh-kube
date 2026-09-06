@@ -349,7 +349,7 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs" sh -s
+        cmd: curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs --kubelet-arg cluster-dns=169.254.20.10" sh -s
       when: not k3s_exist.stat.exists
 
 - name: Install k3s on Quario
@@ -362,10 +362,7 @@
         src: /var/lib/rancher/k3s/server/node-token
       delegate_to: 192.168.2.2
       register: master_node_token
-
-    - name: Debug token
-      ansible.builtin.debug:
-        msg: Token {{ master_node_token['content'] | b64decode | trim }}
+      no_log: true
 
     - name: Check if k3s binary present
       stat:
@@ -374,8 +371,9 @@
 
     - name: Install
       ansible.builtin.shell:
-        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_TOKEN={{master_node_token['content'] | b64decode | trim}} sh -s
+        cmd: curl -sfL https://get.k3s.io | K3S_URL=https://192.168.2.2:6443 K3S_TOKEN={{master_node_token['content'] | b64decode | trim}} INSTALL_K3S_EXEC="--kubelet-arg cluster-dns=169.254.20.10" sh -s
       when: not k3s_exist.stat.exists
+      no_log: true
 
 - name: Setup Docker registry
   hosts: quario,nucio
@@ -443,9 +441,34 @@
         src: all/watchdog.conf
         dest: /etc/
 
+# k3s's embedded kubelet reads /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/*
+# (k3s itself writes 00-k3s-defaults.conf there on first start) and merges every
+# KubeletConfiguration fragment found. This one enables Graceful Node Shutdown so
+# a node reboot (unattended-upgrades at 06:00, or the watchdog forcing a reboot
+# when it can't reach the gateway) waits for pods to terminate cleanly instead of
+# killing them mid-write - this is what was causing recurring Postgres WAL
+# corruption (see postgres-recovery.yaml). Must run after k3s/k3s-agent have
+# started at least once (so the directory already exists) - NOT settable via
+# --kubelet-arg/config.yaml: shutdownGracePeriod is config-file-only in this
+# kubelet version and passing it as a CLI flag makes the whole k3s service fail
+# to start. Tagged separately so it can be pushed to an already-running cluster
+# without re-running the whole playbook (which also reboots both machines):
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown
+- name: Configure kubelet graceful node shutdown
+  hosts: quario,nucio
+  become: true
+  tags: graceful-shutdown
+
+  tasks:
+    - name: Copy graceful shutdown kubelet config fragment
+      ansible.builtin.copy:
+        src: all/01-graceful-shutdown.conf
+        dest: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/01-graceful-shutdown.conf
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
+  tags: graceful-shutdown
 
   tasks:
     - name: Restart master
@@ -456,6 +479,7 @@
 - name: Restart k3s on Quario
   hosts: quario
   become: true
+  tags: graceful-shutdown
 
   tasks:
     - name: Restart agent
