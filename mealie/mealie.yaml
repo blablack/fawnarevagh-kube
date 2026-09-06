@@ -28,7 +28,7 @@ spec:
               - key: ca.crt
                 path: ca.crt
       containers:
-        - image: postgres:15
+        - image: postgres:17
           imagePullPolicy: Always
           name: postgres
           args:
@@ -56,7 +56,7 @@ spec:
               value: "mealie"
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
-              subPath: "postgresql_15"
+              subPath: "postgresql_17"
               name: mealie-pvc
           startupProbe:
             exec:

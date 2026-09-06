@@ -38,7 +38,7 @@ spec:
           securityContext:
             runAsUser: 0
       containers:
-        - image: postgres:15
+        - image: postgres:18
           imagePullPolicy: Always
           name: postgres
           args:
@@ -65,8 +65,11 @@ spec:
             - name: PGUSER
               value: "vikunja"
           volumeMounts:
-            - mountPath: "/var/lib/postgresql/data"
-              subPath: "postgresql_15"
+            # postgres 18+ images manage a versioned data dir themselves; the
+            # mount point is the parent /var/lib/postgresql, not .../data
+            # (see https://github.com/docker-library/postgres/pull/1259)
+            - mountPath: "/var/lib/postgresql"
+              subPath: "postgresql_18"
               name: vikunja-pvc
           startupProbe:
             exec:
