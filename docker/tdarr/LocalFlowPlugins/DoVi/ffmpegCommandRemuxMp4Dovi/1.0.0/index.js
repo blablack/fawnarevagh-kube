@@ -81,7 +81,13 @@ var plugin = function (args) {
             '-map_metadata:c', '-1',
         ]);
         outputArguments.unshift.apply(outputArguments, mappingArguments_1);
-        outputFileId = args.originalLibraryFile._id;
+        // Use the file convertOpusAudio actually produced (stashed in this flow
+        // variable), not args.originalLibraryFile directly. This becomes the
+        // second ffmpeg input below (via ffmpegCommandExecute), which is what
+        // '-map 1:a' above pulls audio from -- pointing it at the untouched
+        // original silently discarded the Opus->EAC3 conversion done at the
+        // start of the flow for every DoVi-processed file that needed it.
+        outputFileId = args.variables.audioFixedFile || args.originalLibraryFile._id;
     }
     // The 'title' tag in the stream metadata is not recognized in mp4 containers
     // as a workaround setting the title in the 'handler_name' tag works
