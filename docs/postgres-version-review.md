@@ -1,22 +1,24 @@
 # PostgreSQL version review (2026-09-06)
 
 Six deployments in this repo run their own embedded Postgres container with a hardcoded
-image tag. This is a one-time audit of each against what upstream currently ships/recommends,
-plus a recommendation on whether to bump.
+image tag. This started as an audit of each against what upstream currently ships/recommends;
+`mealie`, `vikunja`, and `paperless-ngx` have since been bumped (2026-09-06) via dump/restore,
+one at a time, each verified healthy before moving to the next. See "Migration log" below for
+what was actually done and a gotcha hit along the way (Postgres 18's changed volume layout).
 
 ## Summary
 
-| App | Current image | Current major | Upstream recommends | Action needed? |
+| App | Image | Current major | Upstream recommends | Status |
 |---|---|---|---|---|
-| `authentik` | `postgres:16-alpine` | 16 | 16-alpine (current official compose) | **No** — already matches upstream |
-| `warracker` | `postgres:15-alpine` | 15 | 15-alpine (current official compose) | **No** — already matches upstream |
-| `immich` | `ghcr.io/immich-app/postgres:16-vectorchord0.5.3-pgvector0.8.1` | 16 | Officially still ships 14 (deliberately frozen); 16/17/18 confirmed working | **No** — already ahead of upstream's own default. Optional: bump the vectorchord/pgvector extension build (see below) |
-| `mealie` | `postgres:15` | 15 | `postgres:17` (current docs example) | **Optional** — 15 is fine and in support until Nov 2027, but 17 is what's documented/tested now |
-| `vikunja` | `postgres:15` | 15 | `postgres:18` (current docs example) | **Optional** — minimum requirement is only 12+; no upstream deprecation of 15 found |
-| `paperless-ngx` | `postgres:16` | 16 | `postgres:18` (current `docker-compose.postgres.yml`) | **Worth doing** — upstream moved the default Postgres data path in a recent release, so drifting further behind makes a future forced upgrade messier |
+| `authentik` | `postgres:16-alpine` | 16 | 16-alpine (current official compose) | Already matched upstream — no change |
+| `warracker` | `postgres:15-alpine` | 15 | 15-alpine (current official compose) | Already matched upstream — no change |
+| `immich` | `ghcr.io/immich-app/postgres:16-vectorchord0.5.3-pgvector0.8.1` | 16 | Officially still ships 14 (deliberately frozen); 16/17/18 confirmed working | Already ahead of upstream's own default — no change. Optional: bump the vectorchord/pgvector extension build (see below) |
+| `mealie` | `postgres:17` (was 15) | 17 | `postgres:17` (current docs example) | **Bumped 2026-09-06** ✅ |
+| `vikunja` | `postgres:18` (was 15) | 18 | `postgres:18` (current docs example) | **Bumped 2026-09-06** ✅ |
+| `paperless-ngx` | `postgres:18` (was 16) | 18 | `postgres:18` (current `docker-compose.postgres.yml`) | **Bumped 2026-09-06** ✅ |
 
-None of these are urgent from a support/EOL standpoint — see the Postgres EOL table below. This
-is a "nice to do during a maintenance window" list, not a fire drill.
+None of these were urgent from a support/EOL standpoint — see the Postgres EOL table below. This
+was a "nice to do during a maintenance window" list, not a fire drill.
 
 ### Postgres upstream support (EOL) reference
 
@@ -37,29 +39,66 @@ Nothing here is on an unsupported major version. The oldest in use is 15, suppor
 
 This matters because **none of these are safe to fix by just editing the image tag.** Postgres
 data files are not forward-compatible across major versions — a `postgres:18` binary refuses to
-start against a `postgres:15` data directory. All six deployments mount the data dir at a fixed
-path (`/var/lib/postgresql/data`, via `subPath` on the app's PVC), so swapping the tag in place
-would just crash-loop the pod.
+start against a `postgres:15` data directory. All of these deployments mount the data dir via a
+fixed `subPath` on the app's PVC, so swapping the tag in place would just crash-loop the pod.
 
-The generic safe procedure (small homelab-scale DBs, so `pg_dumpall`/restore is simplest — no
-need for `pg_upgrade` machinery):
+This is the procedure actually used for the `mealie`/`vikunja`/`paperless-ngx` bumps
+(small homelab-scale DBs, so `pg_dump`/`pg_restore` is simplest — no need for `pg_upgrade`
+machinery):
 
-1. `./scripts/stop_argocd.sh` if the app is ArgoCD-managed (so selfHeal doesn't fight you), or
-   just `kubectl scale deploy/<app> --replicas=0` isn't enough since postgres runs as a sidecar
-   container in the same pod as the app — you need the *old* image still running to dump from.
-2. With the old container still up: `kubectl exec` in and run
-   `pg_dumpall -U <user> > /tmp/backup.sql` (or `pg_dump -Fc` for just the one DB).
-   Copy it out with `kubectl cp`.
-3. Bump the image tag in the app's yaml. `mealie` and `vikunja` already namespace their data dir
-   by version (`subPath: postgresql_15`) — bump that too (e.g. `postgresql_17`) so the new major
-   version starts against an empty directory rather than the old one. `authentik`, `immich`,
-   `paperless`, and `warracker` use an unversioned `subPath: postgresql`, so for those you'd want
-   to rename the subPath (or point at a fresh PVC) to get a clean init, keeping the old path as a
-   fallback until the restore is verified.
-4. Let the new container initialize, then restore: `kubectl cp` the dump back in and
-   `psql -U <user> -d <db> -f backup.sql` (or `pg_restore` for a custom-format dump).
-5. Verify the app works, then `./scripts/start_argocd.sh` and clean up the old data dir/subPath
-   once you're confident.
+1. `./scripts/stop_argocd.sh` (once, covers all apps being migrated in the same window) so
+   selfHeal doesn't revert the manual steps below.
+2. With the *old* container still running (needed since postgres is a sidecar in the same pod
+   as the app — scaling the deployment to 0 kills it too): `kubectl exec` in and run
+   `pg_dump -U <user> -d <db> -Fc -f /tmp/backup.dump`, then `kubectl cp` it out to a local file.
+3. Swap the deployment to a **temporary postgres-only** version — same PVC, new image tag, new
+   `subPath` — with the app (and any other sidecar, e.g. redis) container removed entirely. This
+   is the step that needs a real teardown of the container list, not a patch:
+   `kubectl apply -f` alone was **not reliable for dropping a container** — it depends on
+   `kubectl` having a clean `last-applied-configuration` baseline to diff against, and one of the
+   three migrations here (`vikunja`) briefly ended up with the app container still present and
+   racing against a not-yet-restored empty database. No data was lost (postgres itself was
+   crash-looping so nothing had been written yet), but the fix was to force it with a JSON patch
+   that replaces the whole container list outright:
+   `kubectl patch deployment <app> --type=json -p '[{"op":"replace","path":"/spec/template/spec/containers","value":[<postgres-only container spec>]}]'`.
+   Confirm with `kubectl get deployment <app> -o jsonpath='{.spec.template.spec.containers[*].name}'`
+   before proceeding — it should print `postgres` alone.
+4. Let the new container initialize fresh (empty subPath ⇒ auto-creates the role/db from
+   `POSTGRES_USER`/`PASSWORD`/`DB` env vars), then restore:
+   `kubectl cp` the dump in and `pg_restore -U <user> -d <db> --no-owner /tmp/backup.dump`.
+   A clean (exit 0) restore into a *genuinely* empty database is itself a check — if the app
+   container had touched the db first and run its own migrations, restore would fail with
+   "already exists" errors instead.
+5. Verify row/table counts match the pre-migration numbers, **then** edit the tracked yaml with
+   the real final state (new image, new subPath, app container back) and `kubectl apply -f` it —
+   adding a container back this way works fine, it's only removal that needs the JSON-patch
+   workaround. Verify the app itself (logs, a table count via `psql`, an HTTP check) before
+   moving to the next app.
+6. **Commit and push the matching yaml edits to `main` before running `start_argocd.sh`.**
+   ArgoCD reconciles against `origin/main`, not the local working tree — resuming it while your
+   edits are only local/`kubectl apply`'d makes selfHeal immediately revert every app back to the
+   old image/subPath the moment it comes back up (hit this live during this exact migration;
+   caught and fixed by committing+pushing, then forcing a resync per app with
+   `kubectl -n argocd patch application <app> --type merge -p '{"operation":{"sync":{"revision":"HEAD"}}}'`
+   rather than waiting for the poll interval). Once pushed and confirmed synced, `start_argocd.sh`
+   and leave the old versioned subPath (e.g. `postgresql_15`) in place for a while as a fallback
+   before deleting it.
+
+### Gotcha: Postgres 18 changed its expected volume layout
+
+Postgres 18+ official images no longer expect the data directory to be mounted directly at
+`/var/lib/postgresql/data`. They now manage a versioned path themselves
+(`/var/lib/postgresql/<major>/docker`) and expect the **volume mounted at the parent**,
+`/var/lib/postgresql` — see
+[docker-library/postgres#1259](https://github.com/docker-library/postgres/pull/1259). Mounting
+at the old `.../data` path makes the postgres:18 entrypoint refuse to start, treating it as
+leftover data from an unmanaged upgrade ("there appears to be PostgreSQL data in:
+/var/lib/postgresql/data (unused mount/volume)"). This hit both `vikunja` and `paperless-ngx`
+(both went to postgres:18) — the fix was mounting the subPath at `/var/lib/postgresql` instead
+of `/var/lib/postgresql/data`, with no other change needed. `paperless.yaml` also had a
+`preStop` hook hardcoding `pg_ctl stop -D /var/lib/postgresql/data/pgdata`, which needed
+updating to the new real PGDATA path (`/var/lib/postgresql/18/docker`). `mealie` (→ postgres:17)
+wasn't affected since the old layout is unchanged through 17.
 
 ---
 
@@ -87,42 +126,46 @@ need for `pg_upgrade` machinery):
   this deployment's `vectorchord0.5.3` is a few extension releases behind. Optional bump, no
   urgency, and it's an extension version rather than a Postgres major version.
 
-### mealie
+### mealie — bumped 15 → 17 ✅
 
-- Current: `postgres:15` (`mealie/mealie.yaml:31`), data at `subPath: postgresql_15`
-- Mealie's install docs (`docs.mealie.io/.../installation/postgres/`) currently show
-  `postgres:17` as the example image. A maintainer confirmed in
+- `mealie/mealie.yaml:31`, data at `subPath: postgresql_17` (was `postgresql_15`)
+- Mealie's install docs (`docs.mealie.io/.../installation/postgres/`) show `postgres:17` as the
+  example image. A maintainer confirmed in
   [discussion #5481](https://github.com/mealie-recipes/mealie/discussions/5481) that the sample
-  compose file just hadn't been updated for a while, and 17 is what they'd point people at now
-  (15/16 also still work fine — no hard requirement).
-- **Optional.** 15 remains in upstream Postgres support until Nov 2027. Worth bumping to 17
-  next time this deployment gets touched, mostly to stay off a version that's 2 majors behind
-  what's documented.
+  compose file just hadn't been updated for a while, and 17 is what they'd point people at now.
+- Migrated 2026-09-06 via `pg_dump`/`pg_restore` (see procedure above). Verified: table count,
+  `users` row count, and the alembic migration marker all matched pre-migration; app came up
+  clean with no restarts and served `200` over HTTP.
 
-### paperless-ngx
+### paperless-ngx — bumped 16 → 18 ✅
 
-- Current: `postgres:16` (`paperless/paperless.yaml:43`), data at unversioned `subPath: postgresql`
-- Upstream's `docker/compose/docker-compose.postgres.yml` now specifies `postgres:18`.
-- There's an added wrinkle here beyond just the version number: a paperless-ngx commit
-  ([#11084](https://github.com/paperless-ngx/paperless-ngx)) changed the default Postgres data
-  path in their reference compose file, which is what prompted
-  [discussion #11678](https://github.com/paperless-ngx/paperless-ngx/discussions/11678) ("place
-  to put hints for Postgres DB update v16 => v18") — other self-hosters going through this same
-  16→18 jump have needed to combine the dump/restore with a data-path change, matching the
-  procedure above.
-- **Worth doing**, not urgent. This is the one that's furthest behind (2 majors) of the ones with
-  an unversioned data path, and the repo already has a one-off recovery pod pattern
-  (`postgres-recovery.yaml`) that could be adapted for the dump/restore step if useful.
+- `paperless/paperless.yaml:43`, data at `subPath: postgresql_18` (was unversioned `postgresql`)
+- Upstream's `docker/compose/docker-compose.postgres.yml` specifies `postgres:18`. A
+  paperless-ngx commit ([#11084](https://github.com/paperless-ngx/paperless-ngx)) had already
+  changed the default Postgres data path in their reference compose file for the same reason
+  covered in the Postgres-18-layout gotcha above — see
+  [discussion #11678](https://github.com/paperless-ngx/paperless-ngx/discussions/11678>) for
+  other self-hosters going through the same 16→18 jump.
+- Migrated 2026-09-06. Hit the postgres:18 volume-layout change (see gotcha above); fixed by
+  mounting `subPath: postgresql_18` at `/var/lib/postgresql` instead of `.../data`, and updating
+  the `preStop` hook's `pg_ctl stop -D` path to match. Verified: table count (74) and
+  `documents_document` row count (76) matched pre-migration exactly; paperless's own startup
+  migrations reported "No migrations to apply", and the app came up 3/3 healthy serving the
+  expected `302` redirect-to-login over HTTP.
 
-### vikunja
+### vikunja — bumped 15 → 18 ✅
 
-- Current: `postgres:15` (`vikunja/vikunja.yaml:41`), data at `subPath: postgresql_15`
+- `vikunja/vikunja.yaml:41`, data at `subPath: postgresql_18` (was `postgresql_15`)
 - Vikunja's documented minimum is Postgres 12+, and the current "Full docker example" in their
-  docs uses `postgres:18`. I did not find any upstream statement that vikunja itself is dropping
-  15 support — a "postgres 15 deprecated" reference that turned up in search is from a third-party
-  app catalog (TrueNAS Apps), not vikunja upstream.
-- **Optional.** Same reasoning as mealie: not urgent, but 15 is 3 majors behind what's currently
-  documented, worth closing the gap opportunistically.
+  docs uses `postgres:18`.
+- Migrated 2026-09-06. Also hit the postgres:18 volume-layout gotcha (same fix as paperless:
+  mount at `/var/lib/postgresql`, not `.../data`). This was also the migration where the
+  container-list-removal issue described above showed up — resolved with the JSON-patch replace.
+  Verified: table count (37) and `users` row count (1) matched pre-migration; vikunja's own
+  migrations ran and reported success; app came up 2/2 healthy serving `200` on `/api/v1/info`.
+  (One harmless restart of the `vikunja` container during the final rollout — it raced postgres's
+  own startup by about a second on the first attempt, same benign race that already existed
+  before this change since nothing enforces container start order within the pod.)
 
 ### warracker
 
@@ -137,9 +180,7 @@ need for `pg_upgrade` machinery):
 
 - `authentik` and `warracker`: already current, nothing to do.
 - `immich`: already ahead of upstream's own default, nothing to do (optional extension-version bump only).
-- `mealie` and `vikunja`: fine to leave, but if you're touching either deployment anyway, bumping
-  to the version in their current docs (17 and 18 respectively) is low-risk and keeps you off
-  versions further from what's tested/documented.
-- `paperless-ngx`: the one I'd actually schedule — 2 majors behind, and the longer it sits the
-  more upstream's own compose file (including that data-path change) will have drifted from what
-  a future dump/restore needs to account for.
+- `mealie`, `vikunja`, `paperless-ngx`: bumped and verified 2026-09-06 (see per-app sections and
+  migration notes above). Old versioned subPaths (`postgresql_15` for mealie/vikunja, plain
+  `postgresql` for paperless) were left in place on each PVC as a fallback — safe to delete once
+  you're confident, to reclaim a little space on each small Longhorn volume.
