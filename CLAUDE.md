@@ -84,6 +84,13 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 - `docs/longhorn-disaster-recovery.md` — restoring Longhorn volumes from S3 backup after full cluster loss
 - `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment
 
+### Checking pinned versions
+Most apps track `:latest` with `imagePullPolicy: Always`, but 6 versions are hardcoded
+(authentik, external-dns, intel-gpu-plugin, and the metallb/longhorn/cert-manager URLs
+in `scripts/deploy_all.sh`) and need a manual bump when upstream releases. Use the
+`check-pinned-versions` skill (`.claude/skills/check-pinned-versions/`) to check them
+against GitHub releases and update any that are behind.
+
 ## Custom Docker Images
 
 Four custom images are built and pushed to `nucio.nowhere:30038`:
