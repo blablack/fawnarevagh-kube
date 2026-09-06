@@ -21,6 +21,9 @@ spec:
         - name: hortusfox-pvc
           persistentVolumeClaim:
             claimName: hortusfox-pvc
+        # Plain app logs - no reason for them to sit on replicated Longhorn storage.
+        - name: hortusfox-logs
+          emptyDir: {}
       containers:
         - image: mariadb:11.4
           imagePullPolicy: Always
@@ -114,8 +117,7 @@ spec:
               subPath: "img"
               name: hortusfox-pvc
             - mountPath: "/var/www/html/app/logs"
-              subPath: "logs"
-              name: hortusfox-pvc
+              name: hortusfox-logs
             - mountPath: "/var/www/html/public/backup"
               subPath: "backup"
               name: hortusfox-pvc
