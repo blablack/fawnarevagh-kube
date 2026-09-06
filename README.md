@@ -32,12 +32,6 @@ cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 ```
 
-### Ansible Lumio
-```bash
-cd ansible
-ansible-playbook --limit lumio.nowhere -i hosts --ask-become-pass -u MYUSER --ask-pass ./lumio.yml --extra-vars "wifi_ssid=MYWIFISSID wifi_password=MYWIFIPASSWORD"
-```
-
 ## Deployments
 
 ### Cert
@@ -58,6 +52,11 @@ kubectl create secret generic paperless-password --from-literal=password='MYPASS
 kubectl create secret generic grafana-password --from-literal=password='MYPASSWORD' --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic warracker --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic tailscale --from-literal=TS_AUTHKEY='TAILSCALEKEY'
+
+# ArgoCD's own OIDC connector (dex.config in argocd/patches/argocd-dex-config.yaml) reads its
+# client secret from a key on the argocd-secret Secret that the base ArgoCD install already
+# creates — patch it in rather than creating a new Secret:
+kubectl -n argocd patch secret argocd-secret --type merge -p '{"stringData": {"dex.authentik.clientSecret": "OIDCSECRET"}}'
 ```
 
 ### Deployments
