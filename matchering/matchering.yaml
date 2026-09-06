@@ -1,3 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: matchering-supervisord
+  namespace: default
+data:
+  # Same as the image's baked-in /app/supervisord.conf, except mgweb runs with
+  # --noreload: the image otherwise starts Django's dev server (manage.py
+  # runserver) with its autoreloader on, which stats the whole source tree
+  # every second and burns ~6% of a CPU core even when the app sits idle.
+  supervisord.conf: |
+    [supervisord]
+    nodaemon=true
+    user=root
+
+    [program:redis]
+    command=redis-server
+    autorestart=true
+    stdout_logfile=/dev/null
+    stdout_logfile_maxbytes=0
+    redirect_stderr=true
+
+    [program:mgcore]
+    directory=/app
+    command=python3 manage.py rqworker default
+    autorestart=true
+    stdout_logfile=/dev/fd/1
+    stdout_logfile_maxbytes=0
+    redirect_stderr=true
+
+    [program:mgweb]
+    directory=/app
+    command=python3 manage.py runserver --noreload 0:8360
+    autorestart=true
+    stdout_logfile=/dev/fd/1
+    stdout_logfile_maxbytes=0
+    redirect_stderr=true
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -20,6 +58,9 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: supervisord-conf
+          configMap:
+            name: matchering-supervisord
       terminationGracePeriodSeconds: 30
       containers:
         - image: sergree/matchering-web
@@ -29,6 +70,9 @@ spec:
             - mountPath: "/app/data"
               subPath: "Kubernetes/Matchering"
               name: nasio-nfs-pvc
+            - mountPath: "/app/supervisord.conf"
+              subPath: "supervisord.conf"
+              name: supervisord-conf
           ports:
             - containerPort: 8360
               name: matchering-web
