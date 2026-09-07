@@ -26,7 +26,7 @@
       ansible.builtin.shell:
         cmd: >
           curl -sfL https://get.k3s.io |
-          INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs --kubelet-arg cluster-dns=169.254.20.10"
+          INSTALL_K3S_EXEC="--tls-san nucio.nowhere --disable servicelb --flannel-backend=host-gw --kube-proxy-arg proxy-mode=ipvs --kube-proxy-arg ipvs-strict-arp=true --kubelet-arg cluster-dns=169.254.20.10"
           sh -s
       register: k3s_upgrade_nucio
 
@@ -52,7 +52,7 @@
           curl -sfL https://get.k3s.io |
           K3S_URL=https://192.168.2.2:6443
           K3S_TOKEN={{ master_node_token['content'] | b64decode | trim }}
-          INSTALL_K3S_EXEC="--kubelet-arg cluster-dns=169.254.20.10"
+          INSTALL_K3S_EXEC="--kube-proxy-arg proxy-mode=ipvs --kube-proxy-arg ipvs-strict-arp=true --kubelet-arg cluster-dns=169.254.20.10"
           sh -s
       register: k3s_upgrade_quario
       no_log: true
