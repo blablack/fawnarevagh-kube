@@ -32,7 +32,7 @@ kubectl wait --for=condition=Available --timeout=120s deployment -n longhorn-sys
 kubectl scale deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui --replicas=1
 
 # https://github.com/cert-manager/cert-manager
-kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.1/cert-manager.yaml
+kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.2/cert-manager.yaml
 kubectl apply -f $SCRIPT_DIR/../cert-manager/cert-manager.yaml
 
 kubectl apply -f $SCRIPT_DIR/../persistent-volumes/nasio-nfs.yaml
