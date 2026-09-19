@@ -148,7 +148,7 @@ spec:
             requests:
               cpu: 25m
               memory: 50Mi
-        - image: ghcr.io/goauthentik/server:2026.8.1
+        - image: ghcr.io/goauthentik/server:2026.8.3
           imagePullPolicy: Always
           name: authentik-server
           command: ["ak"]
@@ -214,7 +214,7 @@ spec:
             requests:
               cpu: 100m
               memory: 300Mi
-        - image: ghcr.io/goauthentik/server:2026.8.1
+        - image: ghcr.io/goauthentik/server:2026.8.3
           imagePullPolicy: Always
           name: authentik-worker
           command: ["ak"]
