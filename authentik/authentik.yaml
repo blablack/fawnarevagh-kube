@@ -99,6 +99,16 @@ spec:
             periodSeconds: 5
             timeoutSeconds: 5
             failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    # su without PATH/PGDATA passed through can't find pg_ctl on the
+                    # Debian-based postgres images (they add it to PATH via ENV only)
+                    su postgres -s /bin/sh -c "PATH=$PATH pg_ctl stop -D $PGDATA -m fast -t 30"
           resources:
             limits:
               cpu: 1000m
