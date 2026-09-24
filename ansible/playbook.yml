@@ -465,6 +465,25 @@
         src: all/01-graceful-shutdown.conf
         dest: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/01-graceful-shutdown.conf
 
+    # kubelet implements graceful shutdown via a logind inhibitor lock, which
+    # needs logind's InhibitDelayMaxSec >= shutdownGracePeriod. kubelet writes
+    # /etc/systemd/logind.conf.d/99-kubelet.conf itself, but unattended-upgrades
+    # ships a lower value that sorts after it and wins - override it by name.
+    - name: Create logind drop-in directory
+      ansible.builtin.file:
+        path: /etc/systemd/logind.conf.d
+        state: directory
+
+    - name: Override unattended-upgrades logind InhibitDelayMaxSec
+      ansible.builtin.copy:
+        src: all/unattended-upgrades-logind-maxdelay.conf
+        dest: /etc/systemd/logind.conf.d/unattended-upgrades-logind-maxdelay.conf
+
+    - name: Restart systemd-logind to apply InhibitDelayMaxSec
+      ansible.builtin.service:
+        name: systemd-logind
+        state: restarted
+
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true

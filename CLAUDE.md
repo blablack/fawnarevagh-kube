@@ -86,7 +86,7 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 ### Disaster recovery
 - `docs/longhorn-disaster-recovery.md` — restoring Longhorn volumes from S3 backup after full cluster loss
 - `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless, mealie) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment. Adjust the postgres image tag and PVC `subPath` to match the app (e.g. mealie uses `postgres:15` and `subPath: postgresql_15`, not paperless's `postgres:16`/`postgresql`)
-- This corruption was recurring because nodes were never drained before a reboot (daily unattended-upgrades reboot at 06:00, or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below
+- This corruption was recurring because nodes were never drained before a reboot (unattended-upgrades reboots at 06:00 whenever an update sets `/var/run/reboot-required` — roughly every 1-2 weeks, not daily — or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below
 
 ### Checking pinned versions
 Most apps track `:latest` with `imagePullPolicy: Always`, but 6 versions are hardcoded
@@ -151,7 +151,8 @@ how often it happens; follow them for every new app's `<app>.yaml`, matching the
 - `startupProbe` + `readinessProbe` (+ `livenessProbe` on the main app container). An embedded
   Postgres sidecar should have an exec `pg_isready` startup/readiness probe.
 - For apps with an embedded Postgres sidecar: `terminationGracePeriodSeconds: 60` and a `preStop`
-  hook running `pg_ctl stop -m fast` (see `paperless/paperless.yaml`, `warracker/warracker.yaml`)
+  hook running `pg_ctl stop -m fast` (copy the exact command from `paperless/paperless.yaml` — `su - postgres` resets PATH and
+  silently fails to find `pg_ctl` on the Debian-based postgres images)
   so a normal pod eviction (drain, rolling update) shuts Postgres down cleanly. This doesn't help
   against an un-drained node reboot — see the node-level fix below.
 - Use Authentik OIDC SSO where the app supports it, following the existing `<app>` secret
@@ -167,5 +168,10 @@ kubelet version, passing them as `--kubelet-arg` flags instead makes the whole k
 start). This makes a node reboot (the 06:00 unattended-upgrades reboot, or the watchdog forcing
 one) wait for pods to terminate cleanly — honoring `preStop`/`terminationGracePeriodSeconds` above
 — instead of killing containers mid-write, which is what caused the recurring Postgres WAL
-corruption documented under Disaster recovery. It doesn't help against a genuine hardware-watchdog
+corruption documented under Disaster recovery. It also requires logind's `InhibitDelayMaxSec` >=
+`shutdownGracePeriod`: the unattended-upgrades package's `/usr/lib/systemd/logind.conf.d/unattended-upgrades-logind-maxdelay.conf`
+(30s) sorts after kubelet's own `99-kubelet.conf` and wins, so the playbook overrides it by name in
+`/etc/systemd/logind.conf.d/` (`ansible/all/unattended-upgrades-logind-maxdelay.conf`). Verify with
+`systemd-inhibit --list` on each node — a `kubelet` delay lock must be listed; if not, grep the k3s
+journal for `Failed to start node shutdown manager`. It doesn't help against a genuine hardware-watchdog
 hard reset (fully hung kernel), only against the two "OS still responsive" reboot paths.
