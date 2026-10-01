@@ -118,6 +118,13 @@ spec:
               value: "100"
             - name: TZ
               value: "Europe/Dublin"
+            # Behind Traefik: trust its X-Forwarded-* headers and only answer to the names we use
+            - name: PROWLARR__SERVER__ALLOWEDHOSTS
+              value: "prowlarr.nowhere, prowlarr.default.svc.cluster.local, localhost"
+            - name: PROWLARR__SERVER__TRUSTEDNETWORKS
+              value: "10.42.0.0/16"
+            - name: PROWLARR__SERVER__URLBASE
+              value: ""
           startupProbe:
             httpGet:
               path: /system/status/
