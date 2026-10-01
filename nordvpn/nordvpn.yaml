@@ -122,6 +122,9 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
+              httpHeaders:
+                - name: Host
+                  value: localhost
             initialDelaySeconds: 120
             periodSeconds: 30
             timeoutSeconds: 5
@@ -130,6 +133,9 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
+              httpHeaders:
+                - name: Host
+                  value: localhost
             initialDelaySeconds: 120
             periodSeconds: 30
             timeoutSeconds: 5
@@ -138,6 +144,9 @@ spec:
             httpGet:
               path: /system/status/
               port: 9696
+              httpHeaders:
+                - name: Host
+                  value: localhost
             initialDelaySeconds: 120
             periodSeconds: 10
             timeoutSeconds: 5
