@@ -76,3 +76,26 @@ spec:
       ports:
         - protocol: TCP
           port: 9500
+---
+# Let the daily filesystem-trim recurring job (trim-daily) also reclaim space held in the
+# backup-monthly snapshot. Without this, blocks freed by the filesystem after a backup stay
+# pinned in that snapshot, get coalesced into the next month's snapshot when the old one is
+# deleted, and can never be trimmed - Longhorn's actual size drifts well above what the
+# filesystem uses (~2.9GiB across all volumes, e.g. registry 3.1GiB actual vs 2.0GiB used).
+# Trade-off: the local backup snapshot gets marked removed, so restores come from the NAS
+# backup target instead of an in-cluster snapshot.
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: remove-snapshots-during-filesystem-trim
+  namespace: longhorn-system
+value: "true"
+---
+# Upgrade volume engines live after a Longhorn version bump, one volume per node at a time,
+# instead of leaving them on the old engine until upgraded by hand in the UI.
+apiVersion: longhorn.io/v1beta2
+kind: Setting
+metadata:
+  name: concurrent-automatic-engine-upgrade-per-node-limit
+  namespace: longhorn-system
+value: "1"
