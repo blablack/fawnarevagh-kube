@@ -21,15 +21,15 @@ kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.16.1/confi
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
 # https://github.com/longhorn/longhorn
-kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.12.1/deploy/longhorn.yaml
+kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.13.0/deploy/longhorn.yaml
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
 # Upstream's manifest defaults these to production-fleet HA counts (3 replicas each for the
-# CSI sidecar controllers via leader election, 2 for the UI) which don't fit a 2-node cluster -
+# CSI sidecar controllers via leader election and for longhorn-global-manager, 2 for the UI) which don't fit a 2-node cluster -
 # right-size down to 1 each. Re-run after every longhorn.yaml re-apply (e.g. a version bump)
 # since that would otherwise silently reset these back to 3/2.
-kubectl wait --for=condition=Available --timeout=120s deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui
-kubectl scale deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui --replicas=1
+kubectl wait --for=condition=Available --timeout=120s deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui longhorn-global-manager
+kubectl scale deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui longhorn-global-manager --replicas=1
 
 # https://github.com/cert-manager/cert-manager
 kubectl apply --server-side -f https://github.com/cert-manager/cert-manager/releases/download/v1.21.2/cert-manager.yaml

@@ -53,4 +53,26 @@ spec:
               service:
                 name: longhorn
                 port:
-                  number: 80
+                  number: 80---
+# Longhorn >= 1.12's upstream manifest ships NetworkPolicies that only let Longhorn's own pods
+# reach longhorn-manager. NetworkPolicies are additive, so this opens just the metrics port to
+# Prometheus (monitoring namespace) for the longhorn-prometheus-servicemonitor scrape.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: longhorn-manager-allow-prometheus
+  namespace: longhorn-system
+spec:
+  podSelector:
+    matchLabels:
+      app: longhorn-manager
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: monitoring
+      ports:
+        - protocol: TCP
+          port: 9500
