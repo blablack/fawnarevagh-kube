@@ -28,6 +28,21 @@ kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 # CSI sidecar controllers via leader election and for longhorn-global-manager, 2 for the UI) which don't fit a 2-node cluster -
 # right-size down to 1 each. Re-run after every longhorn.yaml re-apply (e.g. a version bump)
 # since that would otherwise silently reset these back to 3/2.
+#
+# The csi-* deployments aren't in the upstream manifest - longhorn-driver-deployer (re)creates
+# them asynchronously once the new longhorn-manager is up, resetting them to 3 replicas. On a
+# version bump the old csi-* deployments are still there and Available, so a plain `kubectl
+# wait` passes immediately and the scale-down below gets undone a minute later. Instead, wait
+# until each csi-* deployment runs the image the new driver-deployer wants (its CSI_*_IMAGE
+# env vars), i.e. until the redeploy has actually happened.
+kubectl rollout status --timeout=300s deployment -n longhorn-system longhorn-driver-deployer
+for sidecar in attacher provisioner resizer snapshotter; do
+    want=$(kubectl get deployment -n longhorn-system longhorn-driver-deployer \
+        -o jsonpath="{.spec.template.spec.containers[0].env[?(@.name==\"CSI_${sidecar^^}_IMAGE\")].value}")
+    echo "Waiting for csi-$sidecar to be redeployed with $want..."
+    timeout 600 bash -c "until [ \"\$(kubectl get deployment -n longhorn-system csi-$sidecar \
+        -o jsonpath='{.spec.template.spec.containers[0].image}' 2>/dev/null)\" = '$want' ]; do sleep 5; done"
+done
 kubectl wait --for=condition=Available --timeout=120s deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui longhorn-global-manager
 kubectl scale deployment -n longhorn-system csi-attacher csi-provisioner csi-resizer csi-snapshotter longhorn-ui longhorn-global-manager --replicas=1
 
