@@ -182,6 +182,7 @@ total of the priority groups (110s; set to 120): the unattended-upgrades package
 `/etc/systemd/logind.conf.d/` (`ansible/all/unattended-upgrades-logind-maxdelay.conf`). Verify with
 `systemd-inhibit --list` on each node — a `kubelet` delay lock must be listed; if not, grep the k3s
 journal for `Failed to start node shutdown manager`. It doesn't help against a genuine hardware-watchdog
-hard reset (fully hung kernel), only against the two "OS still responsive" reboot paths. Side effect: every pod kubelet stops this way is left behind as phase
-`Failed` (reason `Terminated`) next to its replacement, and PodGC won't touch it below 12500
-terminated pods — the `pod-cleanup/` CronJob (07:00 daily) deletes the Deployment-owned ones.
+hard reset (fully hung kernel), only against the two "OS still responsive" reboot paths. Side effect: every pod kubelet stops this way is left behind as a terminal pod
+next to its replacement — phase `Succeeded` if its containers exited 0 on SIGTERM (most do), `Failed`
+otherwise — and PodGC won't touch it below 12500 terminated pods — the `pod-cleanup/` CronJob
+(07:00 daily) deletes the Deployment-owned ones in either phase.

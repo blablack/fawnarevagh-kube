@@ -53,7 +53,8 @@ spec:
               service:
                 name: longhorn
                 port:
-                  number: 80---
+                  number: 80
+---
 # Longhorn >= 1.12's upstream manifest ships NetworkPolicies that only let Longhorn's own pods
 # reach longhorn-manager. NetworkPolicies are additive, so this opens just the metrics port to
 # Prometheus (monitoring namespace) for the longhorn-prometheus-servicemonitor scrape.
