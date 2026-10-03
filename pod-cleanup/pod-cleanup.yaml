@@ -1,6 +1,7 @@
-# Graceful Node Shutdown (ansible/all/01-graceful-shutdown.conf) marks every pod
-# it stops as phase Failed ("Pod was terminated in response to imminent node
-# shutdown"). Deployments replace them, but the dead pod objects linger until
+# Graceful Node Shutdown (ansible/all/01-graceful-shutdown.conf) leaves every pod
+# it stops behind as a terminal pod ("Pod was terminated in response to imminent
+# node shutdown") - phase Succeeded if its containers exited 0 on SIGTERM (most
+# do), Failed otherwise. Deployments replace them, but the dead pod objects linger until
 # PodGC's terminated-pod-gc-threshold (12500) is hit - i.e. forever here. Run
 # after both nodes' unattended-upgrades reboot windows (06:00 / 06:30) and
 # delete them.
@@ -62,7 +63,8 @@ spec:
                 - delete
                 - pods
                 - --all-namespaces
-                - --field-selector=status.phase=Failed
+                # Failed or Succeeded - field selectors can't OR, so exclude the rest
+                - --field-selector=status.phase!=Running,status.phase!=Pending,status.phase!=Unknown
                 - --selector=pod-template-hash
               securityContext:
                 runAsNonRoot: true
