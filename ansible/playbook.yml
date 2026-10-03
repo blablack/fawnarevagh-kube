@@ -29,6 +29,15 @@
       ansible.builtin.copy:
         src: all/20auto-upgrades
         dest: /etc/apt/apt.conf.d/
+    # Stagger the automatic reboots (nucio 06:00 from 20auto-upgrades, quario
+    # 06:30) so both nodes - and so both Longhorn replicas of every volume - are
+    # never down at once. Push on its own with --tags reboot-schedule.
+    - name: Stagger unattended-upgrades reboot time on quario
+      ansible.builtin.copy:
+        src: quario/21auto-upgrades-reboot-time
+        dest: /etc/apt/apt.conf.d/
+      when: inventory_hostname == 'quario'
+      tags: reboot-schedule
 
 - name: Configure kernel
   hosts: all
@@ -447,11 +456,12 @@
 # a node reboot (unattended-upgrades at 06:00, or the watchdog forcing a reboot
 # when it can't reach the gateway) waits for pods to terminate cleanly instead of
 # killing them mid-write - this is what was causing recurring Postgres WAL
-# corruption (see postgres-recovery.yaml). Must run after k3s/k3s-agent have
-# started at least once (so the directory already exists) - NOT settable via
-# --kubelet-arg/config.yaml: shutdownGracePeriod is config-file-only in this
-# kubelet version and passing it as a CLI flag makes the whole k3s service fail
-# to start. Tagged separately so it can be pushed to an already-running cluster
+# corruption (see postgres-recovery.yaml). The fragment orders shutdown by pod
+# priority so Longhorn outlives the apps whose volumes it serves. Must run after
+# k3s/k3s-agent have started at least once (so the directory already exists) -
+# NOT settable via --kubelet-arg/config.yaml: shutdownGracePeriod* are
+# config-file-only in this kubelet version and passing them as CLI flags makes
+# the whole k3s service fail to start. Tagged separately so it can be pushed to an already-running cluster
 # without re-running the whole playbook (which also reboots both machines):
 #   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown
 - name: Configure kubelet graceful node shutdown
