@@ -22,17 +22,25 @@ kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
 # https://github.com/longhorn/longhorn
 kubectl apply -f https://raw.githubusercontent.com/longhorn/longhorn/v1.13.0/deploy/longhorn.yaml
+# The csi-* deployments aren't in the upstream manifest - longhorn-driver-deployer (re)creates
+# them with its CSI_*_REPLICA_COUNT env vars (default 3), and not necessarily right away: after
+# the v1.13.0 bump it only did so at the next node reboot, silently undoing the scale-down below.
+# Set the count on the deployer itself so every redeploy creates them at 1. The env vars survive
+# later client-side re-applies of the upstream manifest (env is merged by name), but set them
+# every run anyway. The deployer skips csi-* deployments already at its version, so this alone
+# doesn't fix existing ones - the scale below still does that.
+kubectl set env -n longhorn-system deployment/longhorn-driver-deployer \
+    CSI_ATTACHER_REPLICA_COUNT=1 CSI_PROVISIONER_REPLICA_COUNT=1 \
+    CSI_RESIZER_REPLICA_COUNT=1 CSI_SNAPSHOTTER_REPLICA_COUNT=1
 kubectl apply -f $SCRIPT_DIR/../longhorn/longhorn.yaml
 
 # Upstream's manifest defaults these to production-fleet HA counts (3 replicas each for the
 # CSI sidecar controllers via leader election and for longhorn-global-manager, 2 for the UI) which don't fit a 2-node cluster -
 # right-size down to 1 each. Re-run after every longhorn.yaml re-apply (e.g. a version bump)
-# since that would otherwise silently reset these back to 3/2.
+# since that would otherwise reset longhorn-ui/longhorn-global-manager back to 2/3.
 #
-# The csi-* deployments aren't in the upstream manifest - longhorn-driver-deployer (re)creates
-# them asynchronously once the new longhorn-manager is up, resetting them to 3 replicas. On a
-# version bump the old csi-* deployments are still there and Available, so a plain `kubectl
-# wait` passes immediately and the scale-down below gets undone a minute later. Instead, wait
+# On a version bump the old csi-* deployments are still there and Available, so a plain
+# `kubectl wait` passes immediately, before the driver-deployer has redeployed them. Wait
 # until each csi-* deployment runs the image the new driver-deployer wants (its CSI_*_IMAGE
 # env vars), i.e. until the redeploy has actually happened.
 kubectl rollout status --timeout=300s deployment -n longhorn-system longhorn-driver-deployer
