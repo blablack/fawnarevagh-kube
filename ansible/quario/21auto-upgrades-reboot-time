@@ -1,0 +1,4 @@
+// Sorts after 20auto-upgrades and overrides its 06:00, so the two nodes never
+// reboot at the same time: with one Longhorn replica per node, simultaneous
+// reboots take down every copy of every volume at once.
+Unattended-Upgrade::Automatic-Reboot-Time "06:30";

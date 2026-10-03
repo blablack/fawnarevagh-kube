@@ -257,6 +257,37 @@ spec:
                 secretKeyRef:
                   name: authentik-secrets
                   key: PG_PASS
+            # Since 2026.8 the worker opens its own health (9000) and metrics
+            # (9300) listeners - the same defaults as the server. Both containers
+            # share the pod's network namespace, so whichever starts second gets
+            # "Address already in use" and the server crash-loops; move the
+            # worker's off the server's ports.
+            - name: AUTHENTIK_LISTEN__HTTP
+              value: "[::]:9001"
+            - name: AUTHENTIK_LISTEN__METRICS
+              value: "[::]:9301"
+          ports:
+            - containerPort: 9001
+              name: worker-http
+          # No readinessProbe: the Service only routes to the server, and a
+          # worker hiccup shouldn't pull the whole pod (and SSO) out of it.
+          # The livenessProbe restarts a worker whose task process has died -
+          # its health endpoint then returns 503 while the listener stays up.
+          startupProbe:
+            httpGet:
+              path: /-/health/live/
+              port: worker-http
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /-/health/live/
+              port: worker-http
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm

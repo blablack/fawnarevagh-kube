@@ -86,7 +86,7 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 ### Disaster recovery
 - `docs/longhorn-disaster-recovery.md` — restoring Longhorn volumes from S3 backup after full cluster loss
 - `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless, mealie) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment. Adjust the postgres image tag and PVC `subPath` to match the app (e.g. mealie uses `postgres:15` and `subPath: postgresql_15`, not paperless's `postgres:16`/`postgresql`)
-- This corruption was recurring because nodes were never drained before a reboot (unattended-upgrades reboots at 06:00 whenever an update sets `/var/run/reboot-required` — roughly every 1-2 weeks, not daily — or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below
+- This corruption was recurring because nodes were never drained before a reboot (unattended-upgrades reboots — nucio at 06:00, quario at 06:30 — whenever an update sets `/var/run/reboot-required` — roughly every 1-2 weeks, not daily — or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below. The first version of that fix (2026-09) still let Postgres die uncleanly on 2026-10-03: it terminated Longhorn alongside the apps, so the volumes vanished mid-shutdown — now ordered by pod priority, see below
 
 ### Checking pinned versions
 Most apps track `:latest` with `imagePullPolicy: Always`, but 6 versions are hardcoded
@@ -163,13 +163,21 @@ how often it happens; follow them for every new app's `<app>.yaml`, matching the
 **Node-level**: both nodes run kubelet with Graceful Node Shutdown enabled via
 `ansible/all/01-graceful-shutdown.conf` (a `KubeletConfiguration` fragment dropped into
 `/var/lib/rancher/k3s/agent/etc/kubelet.conf.d/`, which k3s merges with its own generated
-defaults — `shutdownGracePeriod`/`shutdownGracePeriodCriticalPods` are config-file-only in this
-kubelet version, passing them as `--kubelet-arg` flags instead makes the whole k3s service fail to
-start). This makes a node reboot (the 06:00 unattended-upgrades reboot, or the watchdog forcing
+defaults — the shutdown settings are config-file-only in this kubelet version, passing them as
+`--kubelet-arg` flags instead makes the whole k3s service fail to start). It uses
+`shutdownGracePeriodByPodPriority` so pods stop in groups: apps (priority 0, 70s), then Longhorn
+(`longhorn-critical`, 1000000000, 30s), then `system-*-critical` (10s). The simpler
+`shutdownGracePeriod`/`shutdownGracePeriodCriticalPods` pair only splits at 2000000000, which put
+Longhorn's instance-manager/csi-plugin in the same group as the apps: they were killed in parallel
+with Postgres, the volumes went away mid-checkpoint (iSCSI/ext4 I/O errors in the kernel log) and the
+`pg_ctl stop` preStop timed out. Any new storage/infra component an app depends on during its own
+shutdown needs a priority above 0 for the same reason. Nodes reboot at staggered times (quario's
+`ansible/quario/21auto-upgrades-reboot-time` overrides the shared 06:00) so both Longhorn replicas of
+a volume are never down at once. This makes a node reboot (the unattended-upgrades reboot, or the watchdog forcing
 one) wait for pods to terminate cleanly — honoring `preStop`/`terminationGracePeriodSeconds` above
 — instead of killing containers mid-write, which is what caused the recurring Postgres WAL
-corruption documented under Disaster recovery. It also requires logind's `InhibitDelayMaxSec` >=
-`shutdownGracePeriod`: the unattended-upgrades package's `/usr/lib/systemd/logind.conf.d/unattended-upgrades-logind-maxdelay.conf`
+corruption documented under Disaster recovery. It also requires logind's `InhibitDelayMaxSec` >= the
+total of the priority groups (110s; set to 120): the unattended-upgrades package's `/usr/lib/systemd/logind.conf.d/unattended-upgrades-logind-maxdelay.conf`
 (30s) sorts after kubelet's own `99-kubelet.conf` and wins, so the playbook overrides it by name in
 `/etc/systemd/logind.conf.d/` (`ansible/all/unattended-upgrades-logind-maxdelay.conf`). Verify with
 `systemd-inhibit --list` on each node — a `kubelet` delay lock must be listed; if not, grep the k3s
