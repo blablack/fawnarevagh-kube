@@ -5,6 +5,7 @@ metadata:
   namespace: default
 spec:
   schedule: "0 0 15 * *"
+  timeZone: Europe/Dublin
   successfulJobsHistoryLimit: 0
   failedJobsHistoryLimit: 1
   concurrencyPolicy: Forbid
