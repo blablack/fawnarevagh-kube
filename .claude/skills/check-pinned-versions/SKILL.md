@@ -18,7 +18,7 @@ them, so they drift silently until someone checks.
 |---|---|---|---|---|
 | 1 | authentik | `authentik/authentik.yaml` | `image: ghcr.io/goauthentik/server:X.Y.Z` (appears **twice** — server + worker container, always kept identical) | `goauthentik/authentik` |
 | 2 | external-dns | `external-dns/external-dns.yaml` | `image: registry.k8s.io/external-dns/external-dns:vX.Y.Z` | `kubernetes-sigs/external-dns` |
-| 3 | intel-gpu-plugin | `intel-gpu-plugin/kustomization.yaml` | `?ref=vX.Y.Z` (appears **three times**, one per kustomize remote base, always kept identical) | `intel/intel-device-plugins-for-kubernetes` |
+| 3 | intel-gpu-plugin | `intel-gpu-plugin/kustomization.yaml` | `?ref=vX.Y.Z` (single kustomize remote base — the plain `gpu_plugin` deployment, no NFD overlay) | `intel/intel-device-plugins-for-kubernetes` |
 | 4 | metallb | `scripts/deploy_all.sh` | `.../metallb/metallb/vX.Y.Z/config/manifests/metallb-native.yaml` | `metallb/metallb` |
 | 5 | longhorn | `scripts/deploy_all.sh` | `.../longhorn/longhorn/vX.Y.Z/deploy/longhorn.yaml` | `longhorn/longhorn` |
 | 6 | cert-manager | `scripts/deploy_all.sh` | `.../cert-manager/releases/download/vX.Y.Z/cert-manager.yaml` | `cert-manager/cert-manager` |
@@ -71,8 +71,8 @@ For each of the 7 (kubectl is the exception to steps 2-3 — see its bullet in s
 4. **If behind, update the file(s):**
    - authentik: edit the image tag with `replace_all: true` so both occurrences move
      together.
-   - intel-gpu-plugin: edit `?ref=vOLD` → `?ref=vNEW` with `replace_all: true` so all
-     three kustomize bases move together.
+   - intel-gpu-plugin: edit `?ref=vOLD` → `?ref=vNEW` (one occurrence; use `replace_all: true`
+     anyway in case more remote bases get added later).
    - external-dns / kubectl / metallb / longhorn / cert-manager: single targeted edit.
    - Do **not** run `scripts/deploy_all.sh`, `kubectl apply`, or commit/push anything —
      this only edits the working tree. Applying is the user's call (bootstrap-layer
