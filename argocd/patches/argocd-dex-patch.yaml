@@ -9,13 +9,25 @@ spec:
         - name: wait-for-authentik
           image: curlimages/curl:latest
           imagePullPolicy: Always
+          # Same URL dex's connector uses (not the in-cluster service), so this also
+          # waits for authentik.nowhere to resolve via pihole
           command:
             - sh
             - -c
             - |
               echo "Waiting for Authentik to be ready..."
-              until curl -f -s http://authentik.default.svc.cluster.local:9000/application/o/argocd/.well-known/openid-configuration > /dev/null; do
+              until curl -f -s -k https://authentik.nowhere/application/o/argocd/.well-known/openid-configuration > /dev/null; do
                 echo "Authentik not ready, waiting 10 seconds..."
                 sleep 10
               done
               echo "Authentik is ready!"
+      containers:
+        - name: dex
+          # argocd-dex rundex keeps running when the dex subprocess exits (e.g. authentik
+          # unreachable at startup), leaving the pod Running but with nothing on 5556
+          livenessProbe:
+            tcpSocket:
+              port: 5556
+            initialDelaySeconds: 30
+            periodSeconds: 30
+            failureThreshold: 3
