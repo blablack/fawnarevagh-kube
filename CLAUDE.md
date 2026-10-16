@@ -97,7 +97,7 @@ against GitHub releases and update any that are behind.
 
 ## Custom Docker Images
 
-Four custom images are built and pushed to `nucio.nowhere:30038`:
+Five custom images are built and pushed to `nucio.nowhere:30038`:
 
 | Image | Directory | Purpose |
 |---|---|---|
@@ -105,6 +105,7 @@ Four custom images are built and pushed to `nucio.nowhere:30038`:
 | `tdarr_node` | `docker/tdarr_node/` | Tdarr worker node (same tools) |
 | `nordvpn` | `docker/nordvpn/` | NordVPN with Prowlarr + qBittorrent sidecar logic |
 | `homer` | `docker/homer/` | Homer dashboard with custom icons and app links baked in |
+| `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) for vibe-coding Android apps, with the Android SDK baked in. Claude Code's self-update is disabled — it's updated by rebuilding the image |
 
 The tdarr deployment uses an **init container** to copy plugins from the image into the server's plugin directory on startup (so plugin updates take effect by restarting the pod).
 
@@ -129,6 +130,7 @@ Secrets are created manually with `kubectl create secret` — they are not store
 - `grafana-password` — includes OIDC secret
 - `warracker`, `mealie`, `vikunja` — each includes an `oidc_secret`/`service_secret` key for Authentik SSO
 - `tailscale` — Tailscale auth key (`TS_AUTHKEY`)
+- `claude-code` — `gh_token`, a fine-grained GitHub PAT exposed as `GH_TOKEN` (Claude Code's own claude.ai login is not a secret: it's done once with `claude auth login` and persists on the PVC)
 - `argocd-secret` (argocd namespace) — created by the base ArgoCD install (admin password, server signing key); `dex.authentik.clientSecret` is patched into it manually (see README) and referenced from `argocd/patches/argocd-dex-config.yaml` as `$dex.authentik.clientSecret` — this is Argo CD's own convention for resolving `$`-prefixed values in `dex.config` against `argocd-secret`, not a `secretKeyRef`
 
 Exception: `authentik/authentik.yaml` defines its own `authentik-secrets` Secret inline with placeholder values (`AUTHENTIK_SECRET_KEY`, `PG_PASS`, etc.) that must be edited in place rather than created out-of-band like the others.
