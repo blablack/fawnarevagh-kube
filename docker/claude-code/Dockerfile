@@ -23,23 +23,26 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
     cp -L /root/.local/bin/claude /usr/local/bin/claude && \
     rm -rf /root/.local /root/.claude /root/.claude.json
 
-# Android SDK: latest cmdline-tools (no pinned version), then platform-tools and the latest
-# stable platform + build-tools. Owned by uid 1000 so AGP can still fetch anything else a
-# project needs (that lands in the container layer and is lost on restart).
+# Android SDK: latest cmdline-tools (no pinned version), then platform-tools, the latest
+# build-tools and the newest major platform. sdkmanager is deprecated and now just forwards
+# to the native `android` CLI, which lists paths with "/" and accepts licenses itself
+# (writing licenses/, so AGP can still auto-download). Major platforms are named either
+# android-N or android-N.0 (37 onwards); the pattern skips the N.1/N.2 quarterly releases,
+# betas, -extNN and canaries. Owned by uid 1000 so AGP can fetch anything else a project
+# needs (that lands in the container layer and is lost on restart).
 ENV ANDROID_HOME=/opt/android-sdk
 RUN ZIP=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml | grep -o 'commandlinetools-linux-[0-9]*_latest.zip' | sort -V | tail -n1) && \
     curl -fsSL "https://dl.google.com/android/repository/${ZIP}" -o /tmp/cmdline-tools.zip && \
     unzip -q /tmp/cmdline-tools.zip -d /tmp && \
     mkdir -p "$ANDROID_HOME/cmdline-tools" && \
     mv /tmp/cmdline-tools "$ANDROID_HOME/cmdline-tools/latest" && \
-    SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" && \
-    (yes || true) | "$SDKMANAGER" --licenses > /dev/null && \
-    LIST=$("$SDKMANAGER" --list 2>/dev/null) && \
-    PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms;android-[0-9]+ ' | tr -d ' ' | sort -V | tail -n1) && \
-    BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools;[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1) && \
+    ANDROID_CLI="$ANDROID_HOME/cmdline-tools/latest/bin/android --no-metrics --sdk=$ANDROID_HOME" && \
+    LIST=$($ANDROID_CLI sdk list --all) && \
+    PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms/android-[0-9]+(\.0)? ' | tr -d ' ' | sort -V | tail -n1) && \
+    BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools/[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1) && \
     echo "Installing $PLATFORM and $BUILD_TOOLS" && \
     [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && \
-    "$SDKMANAGER" "platform-tools" "$PLATFORM" "$BUILD_TOOLS" > /dev/null && \
+    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" < /dev/null > /dev/null && \
     chown -R 1000:1000 "$ANDROID_HOME" && \
     rm -rf /tmp/* /root/.android
 
