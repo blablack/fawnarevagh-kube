@@ -2,7 +2,8 @@ FROM ubuntu:26.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# No SHELL instruction: buildah ignores it when building OCI images (Jenkins), so RUN
+# lines always go through /bin/sh (dash) — keep them POSIX
 
 RUN apt-get update -y && \
     apt-get install -y --no-install-recommends ca-certificates curl git tmux tini tzdata unzip zip jq ripgrep less nano python3 openjdk-21-jdk-headless && \
@@ -34,8 +35,10 @@ RUN ZIP=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml 
     SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" && \
     (yes || true) | "$SDKMANAGER" --licenses > /dev/null && \
     LIST=$("$SDKMANAGER" --list 2>/dev/null) && \
-    PLATFORM=$(grep -oE '^ *platforms;android-[0-9]+ ' <<< "$LIST" | tr -d ' ' | sort -V | tail -n1) && \
-    BUILD_TOOLS=$(grep -oE '^ *build-tools;[0-9.]+ ' <<< "$LIST" | tr -d ' ' | sort -V | tail -n1) && \
+    PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms;android-[0-9]+ ' | tr -d ' ' | sort -V | tail -n1) && \
+    BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools;[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1) && \
+    echo "Installing $PLATFORM and $BUILD_TOOLS" && \
+    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && \
     "$SDKMANAGER" "platform-tools" "$PLATFORM" "$BUILD_TOOLS" > /dev/null && \
     chown -R 1000:1000 "$ANDROID_HOME" && \
     rm -rf /tmp/* /root/.android
