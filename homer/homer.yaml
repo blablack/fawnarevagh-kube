@@ -189,7 +189,7 @@ data:
           - name: "Hummla"
             url: "https://hummla.nowhere"
             target: "_blank"
-            icon: "fas fa-microphone-lines"
+            logo: "assets/apps/hummla.png"
             subtitle: "Drop a bounce"
 
   infrastructure.yml: |
