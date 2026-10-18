@@ -186,6 +186,11 @@ data:
             target: "_blank"
             logo: "assets/apps/matchering.png"
             subtitle: "Mastering"
+          - name: "Hummla"
+            url: "https://hummla.nowhere"
+            target: "_blank"
+            icon: "fas fa-microphone-lines"
+            subtitle: "Drop a bounce"
 
   infrastructure.yml: |
     subtitle: "Infrastructure"
