@@ -16,6 +16,8 @@ spec:
       labels:
         app: hummla
     spec:
+      securityContext:
+        fsGroup: 10001
       containers:
         - image: nucio.nowhere:30038/hummla:latest
           imagePullPolicy: Always
@@ -23,24 +25,37 @@ spec:
           env:
             - name: TZ
               value: "Europe/Dublin"
+            - name: HUMMLA_DB_PATH
+              value: /data/hummla.db
+            - name: HUMMLA_UPLOAD_DIR
+              value: /data/uploads
+            - name: HUMMLA_API_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: hummla-token
+                  key: token
+                  optional: true
           ports:
             - containerPort: 8000
+          volumeMounts:
+            - name: data
+              mountPath: /data
           startupProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8000
             periodSeconds: 5
             timeoutSeconds: 5
             failureThreshold: 12
           readinessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8000
             periodSeconds: 30
             timeoutSeconds: 5
           livenessProbe:
             httpGet:
-              path: /
+              path: /health
               port: 8000
             periodSeconds: 30
             timeoutSeconds: 5
@@ -48,10 +63,14 @@ spec:
           resources:
             limits:
               cpu: 500m
-              memory: 256Mi
+              memory: 512Mi
             requests:
               cpu: 50m
               memory: 64Mi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hummla-pvc
 ---
 apiVersion: v1
 kind: Service
