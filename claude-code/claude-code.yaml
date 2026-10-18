@@ -54,6 +54,19 @@ spec:
                 secretKeyRef:
                   name: claude-code
                   key: gh_token
+            # Jenkins API access, to trigger builds and read their console logs
+            - name: JENKINS_URL
+              value: "http://jenkins.default.svc.cluster.local"
+            - name: JENKINS_USER
+              valueFrom:
+                secretKeyRef:
+                  name: claude-code
+                  key: jenkins_user
+            - name: JENKINS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: claude-code
+                  key: jenkins_token
           startupProbe:
             exec:
               command: ["tmux", "has-session", "-t", "claude"]

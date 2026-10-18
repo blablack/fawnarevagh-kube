@@ -1,0 +1,109 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hummla
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: hummla
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: hummla
+    spec:
+      containers:
+        - image: nucio.nowhere:30038/hummla:latest
+          imagePullPolicy: Always
+          name: hummla
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
+          ports:
+            - containerPort: 8000
+          startupProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 256Mi
+            requests:
+              cpu: 50m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: hummla
+  namespace: default
+spec:
+  selector:
+    app: hummla
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: hummla-tls
+  namespace: default
+spec:
+  secretName: hummla-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - hummla.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hummla
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.kubernetes.io/hostname: hummla.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - hummla.nowhere
+      secretName: hummla-tls
+  rules:
+    - host: hummla.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: hummla
+                port:
+                  number: 80
