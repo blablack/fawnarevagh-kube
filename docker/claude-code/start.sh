@@ -1,16 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-# Keep Gradle + the Kotlin daemon inside the container's memory limit (8Gi). Lives in
-# ~/.gradle on the PVC (alongside Gradle's caches), so only written if missing.
-if [ ! -f "$HOME/.gradle/gradle.properties" ]; then
-  mkdir -p "$HOME/.gradle"
-  cat > "$HOME/.gradle/gradle.properties" <<EOF
-org.gradle.jvmargs=-Xmx3g -XX:+UseParallelGC
-org.gradle.workers.max=4
-kotlin.daemon.jvmargs=-Xmx2g
-EOF
-fi
+# Directories the deployment wants on PATH (toolchains installed on the PVC); the image knows
+# nothing about them
+export PATH="${EXTRA_PATH:+$EXTRA_PATH:}$PATH"
 
 mkdir -p "$HOME/projects"
 
