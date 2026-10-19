@@ -6,7 +6,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 # lines always go through /bin/sh (dash) — keep them POSIX
 
 RUN apt-get update -y && \
-    apt-get install -y --no-install-recommends ca-certificates curl git tmux tini tzdata unzip zip jq ripgrep less nano python3 openjdk-21-jdk-headless && \
+    apt-get install -y --no-install-recommends ca-certificates curl git tmux tini tzdata unzip zip jq ripgrep less nano python3 openjdk-21-jdk-headless libpulse0 libnss3 libx11-6 libxkbfile1 libgl1-mesa-dri mesa-vulkan-drivers ffmpeg && \
     curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg -o /usr/share/keyrings/githubcli-archive-keyring.gpg && \
     echo "deb [arch=amd64 signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" > /etc/apt/sources.list.d/github-cli.list && \
     apt-get update -y && \
@@ -40,9 +40,10 @@ RUN ZIP=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml 
     LIST=$($ANDROID_CLI sdk list --all) && \
     PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms/android-[0-9]+(\.0)? ' | tr -d ' ' | sort -V | tail -n1) && \
     BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools/[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1) && \
-    echo "Installing $PLATFORM and $BUILD_TOOLS" && \
-    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && \
-    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" < /dev/null > /dev/null && \
+    SYSIMG=$(printf '%s\n' "$LIST" | grep -oE '^ *system-images/android-[0-9]+(\.0)?/google_apis/x86_64 ' | tr -d ' ' | sort -V | tail -n1) && \
+    echo "Installing $PLATFORM, $BUILD_TOOLS, emulator, $SYSIMG" && \
+    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && [ -n "$SYSIMG" ] && \
+    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" emulator "$SYSIMG" < /dev/null > /dev/null && \
     chown -R 1000:1000 "$ANDROID_HOME" && \
     rm -rf /tmp/* /root/.android
 
@@ -59,7 +60,7 @@ RUN chmod +x /usr/local/bin/start.sh /usr/local/bin/remote-control-loop.sh
 # Also blocks `claude update`/`claude install`, which would drop a second copy into
 # ~/.local/bin on the PVC and outlive the next image rebuild
 ENV DISABLE_UPDATES=1
-ENV PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH:/home/claude/.local/bin
+ENV PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH:/home/claude/.local/bin
 
 USER claude
 WORKDIR /home/claude

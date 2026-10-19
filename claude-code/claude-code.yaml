@@ -23,24 +23,36 @@ spec:
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
+        - name: kvm
+          hostPath:
+            path: /dev/kvm
+            type: CharDevice
+      nodeSelector:
+        kubernetes.io/hostname: nucio
       # Claude has no business talking to the Kubernetes API
       automountServiceAccountToken: false
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
+        # GID 993 is the kvm group on nucio; gives uid 1000 rw access to /dev/kvm
+        supplementalGroups: [993]
       containers:
         - image: nucio.nowhere:30038/claude-code:latest
           imagePullPolicy: Always
           name: claude-code
           securityContext:
             allowPrivilegeEscalation: false
+            capabilities:
+              add: ["SYS_PTRACE"]
           volumeMounts:
             - mountPath: "/home/claude"
               name: claude-code-pvc
             - mountPath: "/nasio"
               name: nasio-nfs-pvc
               subPath: "Kubernetes/Claude Code"
+            - mountPath: /dev/kvm
+              name: kvm
           env:
             - name: TZ
               value: "Europe/Dublin"
@@ -88,7 +100,7 @@ spec:
           resources:
             limits:
               cpu: 6000m
-              memory: 8Gi
+              memory: 16Gi
             requests:
               cpu: 500m
               memory: 1Gi
