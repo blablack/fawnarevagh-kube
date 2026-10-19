@@ -41,9 +41,9 @@ RUN ZIP=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml 
     PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms/android-[0-9]+(\.0)? ' | tr -d ' ' | sort -V | tail -n1) && \
     BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools/[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1) && \
     SYSIMG=$(printf '%s\n' "$LIST" | grep -oE '^ *system-images/android-[0-9]+(\.0)?/google_apis/x86_64 ' | tr -d ' ' | sort -V | tail -n1) && \
-    echo "Installing $PLATFORM, $BUILD_TOOLS, emulator" && \
-    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && \
-    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" emulator < /dev/null > /dev/null && \
+    echo "Installing $PLATFORM, $BUILD_TOOLS, emulator, $SYSIMG" && \
+    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && [ -n "$SYSIMG" ] && \
+    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" emulator "$SYSIMG" < /dev/null > /dev/null && \
     chown -R 1000:1000 "$ANDROID_HOME" && \
     rm -rf /tmp/* /root/.android
 

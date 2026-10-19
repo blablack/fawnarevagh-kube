@@ -9,21 +9,19 @@ user's phone or claude.ai/code. There is no display and no sudo.
   `claude update`.
 - GitHub: `gh` is authenticated via `GH_TOKEN`, and `git` over https uses it.
 - Android: SDK at `$ANDROID_HOME` (baked into the image: platform-tools, emulator, the newest
-  major platform, and latest build-tools — `ls $ANDROID_HOME/platforms $ANDROID_HOME/build-tools`),
+  major platform, latest build-tools, and a google_apis x86_64 system image —
+  `ls $ANDROID_HOME/platforms $ANDROID_HOME/build-tools $ANDROID_HOME/system-images`),
   JDK 21. Build with `./gradlew`. Prefer the preinstalled `compileSdk`/build-tools versions:
   other SDK packages (AGP auto-download or `android sdk install <path>`) are lost on every pod
   restart.
 - `sdkmanager` is deprecated and forwards to the `android` CLI (`android sdk list|install`, with
   `/` package paths like `platforms/android-37.0`). Its first run downloads ~250MB into
   `~/.android`, which persists.
-- **Android emulator**: `/dev/kvm` is available. The system image is NOT baked into the image —
-  install it once into `~/.android` (it persists on the PVC):
+- **Android emulator**: `/dev/kvm` is available. Create an AVD once (it persists in `~/.android`):
   ```
-  android sdk install "system-images/android-36/google_apis/x86_64"
-  ```
-  Then create an AVD (also persists):
-  ```
-  avdmanager create avd -n emu -k "system-images/android-36/google_apis/x86_64" --device pixel_6
+  avdmanager create avd -n emu \
+    -k "$(ls -d $ANDROID_HOME/system-images/*/*/x86_64 | head -1 | sed "s|$ANDROID_HOME/||")" \
+    --device pixel_6
   ```
   Start it headless (software rendering — no `/dev/dri` in this pod):
   ```
