@@ -28,15 +28,15 @@ spec:
             path: /dev/kvm
             type: CharDevice
       nodeSelector:
-        kubernetes.io/hostname: nucio
+        kubernetes.io/hostname: quario
       # Claude has no business talking to the Kubernetes API
       automountServiceAccountToken: false
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
         fsGroup: 1000
-        # GID 993 is the kvm group on nucio; gives uid 1000 rw access to /dev/kvm
-        supplementalGroups: [993]
+        # GID 994 is the kvm group on quario; gives uid 1000 rw access to /dev/kvm
+        supplementalGroups: [994]
       containers:
         - image: nucio.nowhere:30038/claude-code:latest
           imagePullPolicy: Always
