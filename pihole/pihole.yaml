@@ -40,7 +40,7 @@ spec:
         kubernetes.io/hostname: nucio
       containers:
         - name: pihole
-          image: pihole/pihole:2026.07.2
+          image: pihole/pihole:latest
           imagePullPolicy: Always
           securityContext:
             capabilities:
@@ -107,7 +107,7 @@ spec:
             requests:
               cpu: 10m
               memory: 100Mi
-        - image: klutchell/unbound:1.25.1
+        - image: klutchell/unbound:latest
           imagePullPolicy: Always
           name: unbound
           volumeMounts:
