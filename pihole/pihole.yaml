@@ -69,6 +69,13 @@ spec:
               value: "10000/60"  
             - name: FTLCONF_dns_listeningMode
               value: "BIND"
+            # Query history lives in RAM (see ftl-db volume): it was ~1.1GB of replicated
+            # Longhorn disk at 91 days, for data that is only graphs. 14 days is ~170MB,
+            # which must stay well under the tmpfs sizeLimit. Wiped on every pod restart.
+            - name: FTLCONF_files_database
+              value: "/ftl-db/pihole-FTL.db"
+            - name: FTLCONF_database_maxDBdays
+              value: "14"
           startupProbe:
             httpGet:
               path: /admin/login
@@ -100,13 +107,15 @@ spec:
             - name: pihole-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
+            - name: ftl-db
+              mountPath: "/ftl-db"
           resources:
             limits:
               cpu: 500m
-              memory: 400Mi
+              memory: 700Mi
             requests:
               cpu: 10m
-              memory: 100Mi
+              memory: 300Mi
         - image: klutchell/unbound:latest
           imagePullPolicy: Always
           name: unbound
@@ -149,6 +158,10 @@ spec:
         - name: pihole-pvc
           persistentVolumeClaim:
             claimName: pihole-pvc
+        - name: ftl-db
+          emptyDir:
+            medium: Memory
+            sizeLimit: 300Mi
         - configMap:
             name: unbound
           name: confmap-vol
