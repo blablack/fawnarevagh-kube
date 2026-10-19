@@ -1,7 +1,10 @@
+# Replaces immich-pvc (5Gi): Longhorn can't shrink a volume, so Postgres (~1.2GB) was copied to
+# this 2Gi one. The ML model cache moved to the NAS (re-downloadable, 1.7GB). The old
+# immich-pvc is left in place (reclaimPolicy Retain, ArgoCD prune is off) until deleted by hand.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: immich-pvc
+  name: immich-data-pvc
   namespace: default
   annotations:
     argocd.argoproj.io/sync-options: "Delete=false"
@@ -11,5 +14,4 @@ spec:
   storageClassName: my-longhorn
   resources:
     requests:
-      storage: 5Gi
-  volumeName: pvc-d053865a-2d76-4211-9a0c-fb46d696cf68
+      storage: 2Gi
