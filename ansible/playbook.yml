@@ -407,12 +407,10 @@
     - name: Install crontab
       ansible.builtin.apt:
         name: cron
-    - name: Create a clean k3s job
+    - name: Remove dangerous crictl rmi --prune cron job
       ansible.builtin.cron:
         name: "clean k3s"
-        minute: "0"
-        hour: "2"
-        job: "k3s crictl rmi --prune"
+        state: absent
 
 - name: Setup chattr cleanup
   hosts: quario,nucio
@@ -474,6 +472,11 @@
       ansible.builtin.copy:
         src: all/01-graceful-shutdown.conf
         dest: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/01-graceful-shutdown.conf
+
+    - name: Copy image GC kubelet config fragment
+      ansible.builtin.copy:
+        src: all/02-image-gc.conf
+        dest: /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/02-image-gc.conf
 
     # kubelet implements graceful shutdown via a logind inhibitor lock, which
     # needs logind's InhibitDelayMaxSec >= shutdownGracePeriod. kubelet writes
