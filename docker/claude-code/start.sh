@@ -14,7 +14,9 @@ fi
 
 mkdir -p "$HOME/projects"
 
-tmux new-session -d -s claude -c "$HOME/projects" /usr/local/bin/remote-control-loop.sh
+WORKDIR="${CLAUDE_WORKDIR:-$HOME/projects}"
+mkdir -p "$WORKDIR"
+tmux new-session -d -s claude -c "$WORKDIR" /usr/local/bin/remote-control-loop.sh
 
 # Container lives as long as the tmux session; on SIGTERM, stop tmux so claude gets SIGHUP
 trap 'tmux kill-server; exit 0' TERM
