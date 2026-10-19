@@ -17,9 +17,6 @@ spec:
         app: claude-code
     spec:
       volumes:
-        - name: claude-code-pvc
-          persistentVolumeClaim:
-            claimName: claude-code-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -34,7 +31,6 @@ spec:
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000
-        fsGroup: 1000
         # GID 994 is the kvm group on quario; gives uid 1000 rw access to /dev/kvm
         supplementalGroups: [994]
       containers:
@@ -45,7 +41,8 @@ spec:
             privileged: true
           volumeMounts:
             - mountPath: "/home/claude"
-              name: claude-code-pvc
+              subPath: "Kubernetes/Claude Code Home"
+              name: nasio-nfs-pvc
             - mountPath: "/nasio"
               name: nasio-nfs-pvc
               subPath: "Kubernetes/Claude Code"
