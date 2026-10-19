@@ -105,7 +105,7 @@ Five custom images are built and pushed to `nucio.nowhere:30038`:
 | `tdarr_node` | `docker/tdarr_node/` | Tdarr worker node (same tools) |
 | `nordvpn` | `docker/nordvpn/` | NordVPN with Prowlarr + qBittorrent sidecar logic |
 | `homer` | `docker/homer/` | Homer dashboard with custom icons and app links baked in |
-| `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) for vibe-coding Android apps, with the Android SDK baked in. Claude Code's self-update is disabled — it's updated by rebuilding the image |
+| `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) with passwordless `sudo` for the `claude` user so it can install what it needs (minimal image, no Android SDK). Claude Code's self-update is disabled — it's updated by rebuilding the image |
 
 The tdarr deployment uses an **init container** to copy plugins from the image into the server's plugin directory on startup (so plugin updates take effect by restarting the pod).
 

@@ -17,6 +17,10 @@ spec:
         app: claude-code
     spec:
       volumes:
+        - name: scripts
+          configMap:
+            name: claude-code-scripts
+            defaultMode: 0755
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -48,9 +52,19 @@ spec:
               subPath: "Kubernetes/Claude Code"
             - mountPath: /dev/kvm
               name: kvm
+            - mountPath: /usr/local/bin/setup-android
+              name: scripts
+              subPath: setup-android
           env:
             - name: TZ
               value: "Europe/Dublin"
+            # Android toolchain installed on the PVC by setup-android (claude-code-scripts ConfigMap)
+            - name: ANDROID_HOME
+              value: "/home/claude/android-sdk"
+            - name: JAVA_HOME
+              value: "/home/claude/jdk"
+            - name: EXTRA_PATH
+              value: "/home/claude/jdk/bin:/home/claude/android-sdk/cmdline-tools/latest/bin:/home/claude/android-sdk/platform-tools:/home/claude/android-sdk/emulator"
             - name: CLAUDE_WORKDIR
               value: "/home/claude/hummla"
             - name: CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX

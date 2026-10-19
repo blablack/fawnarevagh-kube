@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: claude-code-scripts
+  namespace: default
+data:
+  # Mounted at /usr/local/bin/setup-android; edits sync via ArgoCD with no image rebuild
+  # (restart the pod to pick up a change: single-file subPath mounts don't live-update)
+  setup-android: |
+    #!/bin/sh
+    # Idempotent Android toolchain setup. Everything big (JDK, SDK, emulator, system image) goes
+    # under ~ so it persists on the PVC; only the emulator's apt libraries live in the container
+    # layer and are reinstalled after a pod restart. Safe to re-run at any time.
+    set -eu
+
+    ANDROID_HOME="${ANDROID_HOME:-$HOME/android-sdk}"
+    JAVA_HOME="${JAVA_HOME:-$HOME/jdk}"
+
+    echo "==> apt libraries (emulator, software GL, ffmpeg, unzip)"
+    if ! dpkg -s libgl1-mesa-dri ffmpeg libnss3 unzip >/dev/null 2>&1; then
+      sudo apt-get update -y
+      sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+        libpulse0 libnss3 libx11-6 libxkbfile1 libgl1-mesa-dri mesa-vulkan-drivers ffmpeg unzip
+    fi
+
+    echo "==> JDK 21 (Temurin) in $JAVA_HOME"
+    if [ ! -x "$JAVA_HOME/bin/java" ]; then
+      mkdir -p "$JAVA_HOME"
+      curl -fsSL "https://api.adoptium.net/v3/binary/latest/21/ga/linux/x64/jdk/hotspot/normal/eclipse" \
+        | tar -xz -C "$JAVA_HOME" --strip-components=1
+    fi
+
+    echo "==> Android command-line tools in $ANDROID_HOME"
+    if [ ! -x "$ANDROID_HOME/cmdline-tools/latest/bin/android" ]; then
+      ZIP=$(curl -fsSL https://dl.google.com/android/repository/repository2-3.xml | grep -o 'commandlinetools-linux-[0-9]*_latest.zip' | sort -V | tail -n1)
+      TMP=$(mktemp -d)
+      curl -fsSL "https://dl.google.com/android/repository/${ZIP}" -o "$TMP/cmdline-tools.zip"
+      unzip -q "$TMP/cmdline-tools.zip" -d "$TMP"
+      mkdir -p "$ANDROID_HOME/cmdline-tools"
+      rm -rf "$ANDROID_HOME/cmdline-tools/latest"
+      mv "$TMP/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+      rm -rf "$TMP"
+    fi
+
+    # sdkmanager is deprecated and forwards to the native `android` CLI, which lists paths with
+    # "/" and accepts licenses itself. Major platforms are named android-N or android-N.0 (37
+    # onwards); the pattern skips the N.1/N.2 quarterly releases, betas, -extNN and canaries.
+    ANDROID_CLI="$ANDROID_HOME/cmdline-tools/latest/bin/android --no-metrics --sdk=$ANDROID_HOME"
+    export JAVA_HOME PATH="$JAVA_HOME/bin:$PATH"
+    LIST=$($ANDROID_CLI sdk list --all)
+    PLATFORM=$(printf '%s\n' "$LIST" | grep -oE '^ *platforms/android-[0-9]+(\.0)? ' | tr -d ' ' | sort -V | tail -n1)
+    BUILD_TOOLS=$(printf '%s\n' "$LIST" | grep -oE '^ *build-tools/[0-9.]+ ' | tr -d ' ' | sort -V | tail -n1)
+    SYSIMG=$(printf '%s\n' "$LIST" | grep -oE '^ *system-images/android-[0-9]+(\.0)?/google_apis/x86_64 ' | tr -d ' ' | sort -V | tail -n1)
+    [ -n "$PLATFORM" ] && [ -n "$BUILD_TOOLS" ] && [ -n "$SYSIMG" ] || { echo "could not resolve SDK packages" >&2; exit 1; }
+
+    echo "==> Installing $PLATFORM, $BUILD_TOOLS, emulator, $SYSIMG (skips what is already there)"
+    $ANDROID_CLI sdk install platform-tools "$PLATFORM" "$BUILD_TOOLS" emulator "$SYSIMG" < /dev/null > /dev/null
+
+    # Keep Gradle + the Kotlin daemon inside the container's memory limit. Lives in ~/.gradle on
+    # the PVC (alongside Gradle's caches), so only written if missing.
+    if [ ! -f "$HOME/.gradle/gradle.properties" ]; then
+      mkdir -p "$HOME/.gradle"
+      cat > "$HOME/.gradle/gradle.properties" <<EOF
+    org.gradle.jvmargs=-Xmx3g -XX:+UseParallelGC
+    org.gradle.workers.max=4
+    kotlin.daemon.jvmargs=-Xmx2g
+    EOF
+    fi
+
+    echo "Done. ANDROID_HOME=$ANDROID_HOME JAVA_HOME=$JAVA_HOME"
