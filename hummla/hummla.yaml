@@ -16,19 +16,136 @@ spec:
       labels:
         app: hummla
     spec:
+      terminationGracePeriodSeconds: 60
       securityContext:
         fsGroup: 10001
+      volumes:
+        - name: hummla-pvc
+          persistentVolumeClaim:
+            claimName: hummla-pvc
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
       containers:
+        - image: postgres:17
+          imagePullPolicy: Always
+          name: postgres
+          env:
+            - name: POSTGRES_USER
+              value: hummla
+            - name: POSTGRES_DB
+              value: hummla
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: pg_password
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              subPath: postgresql_17
+              name: hummla-pvc
+          startupProbe:
+            exec:
+              command: [pg_isready, -U, hummla, -d, hummla]
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            exec:
+              command: [pg_isready, -U, hummla, -d, hummla]
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - su postgres -s /bin/sh -c "PATH=$PATH pg_ctl stop -D $PGDATA -m fast -t 30"
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+
+        - image: rustfs/rustfs:latest
+          imagePullPolicy: Always
+          name: rustfs
+          args: ["server", "/data", "--console-address", ":9001"]
+          env:
+            - name: MINIO_ROOT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: s3_access_key
+            - name: MINIO_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: s3_secret_key
+          volumeMounts:
+            - mountPath: /data
+              subPath: Kubernetes/Hummla
+              name: nasio-nfs-pvc
+          startupProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /minio/health/live
+              port: 9000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+
         - image: nucio.nowhere:30038/hummla:latest
           imagePullPolicy: Always
           name: hummla
           env:
             - name: TZ
               value: "Europe/Dublin"
-            - name: HUMMLA_DB_PATH
-              value: /data/hummla.db
-            - name: HUMMLA_UPLOAD_DIR
-              value: /data/uploads
+            - name: HUMMLA_DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: database_url
+            - name: HUMMLA_STORAGE
+              value: s3
+            - name: HUMMLA_S3_ENDPOINT
+              value: http://localhost:9000
+            - name: HUMMLA_S3_BUCKET
+              value: hummla
+            - name: HUMMLA_S3_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: s3_access_key
+            - name: HUMMLA_S3_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hummla
+                  key: s3_secret_key
             - name: HUMMLA_API_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -37,9 +154,6 @@ spec:
                   optional: true
           ports:
             - containerPort: 8000
-          volumeMounts:
-            - name: data
-              mountPath: /data
           startupProbe:
             httpGet:
               path: /health
@@ -53,6 +167,7 @@ spec:
               port: 8000
             periodSeconds: 30
             timeoutSeconds: 5
+            failureThreshold: 3
           livenessProbe:
             httpGet:
               path: /health
@@ -67,10 +182,6 @@ spec:
             requests:
               cpu: 50m
               memory: 64Mi
-      volumes:
-        - name: data
-          persistentVolumeClaim:
-            claimName: hummla-pvc
 ---
 apiVersion: v1
 kind: Service
