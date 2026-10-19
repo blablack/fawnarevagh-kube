@@ -1,7 +1,11 @@
+# Replaces pihole-pvc (5Gi): Longhorn can't shrink a volume, so the data that has to persist
+# (gravity.db, config, certs - ~240MB) was copied to a new 1Gi one. The query history and the
+# blocklist cache now live in emptyDirs (see pihole.yaml). The old pihole-pvc is left in
+# place (reclaimPolicy Retain, ArgoCD prune is off) until it is deleted by hand.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: pihole-pvc
+  name: pihole-data-pvc
   namespace: default
   annotations:
     argocd.argoproj.io/sync-options: "Delete=false"
@@ -11,5 +15,4 @@ spec:
   storageClassName: my-longhorn
   resources:
     requests:
-      storage: 5Gi
-  volumeName: pvc-2ed953af-94f0-4e95-bd4d-9781364efa1a
+      storage: 1Gi

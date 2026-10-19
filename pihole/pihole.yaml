@@ -101,12 +101,16 @@ spec:
             timeoutSeconds: 5
             failureThreshold: 5
           volumeMounts:
-            - name: pihole-pvc
+            - name: pihole-data-pvc
               subPath: "pihole"
               mountPath: "/etc/pihole"
-            - name: pihole-pvc
+            - name: pihole-data-pvc
               subPath: "pihole-dnsmasq"
               mountPath: "/etc/dnsmasq.d"
+            # Downloaded blocklist copies (~83MB): only needed while rebuilding gravity.db,
+            # re-fetched on the next gravity update, so no reason to keep them on the PVC.
+            - name: lists-cache
+              mountPath: "/etc/pihole/listsCache"
             - name: ftl-db
               mountPath: "/ftl-db"
           resources:
@@ -155,9 +159,12 @@ spec:
               cpu: 50m
               memory: 128Mi
       volumes:
-        - name: pihole-pvc
+        - name: pihole-data-pvc
           persistentVolumeClaim:
-            claimName: pihole-pvc
+            claimName: pihole-data-pvc
+        - name: lists-cache
+          emptyDir:
+            sizeLimit: 300Mi
         - name: ftl-db
           emptyDir:
             medium: Memory
