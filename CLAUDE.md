@@ -89,8 +89,8 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 - This corruption was recurring because nodes were never drained before a reboot (unattended-upgrades reboots — nucio at 06:00, quario at 06:30 — whenever an update sets `/var/run/reboot-required` — roughly every 1-2 weeks, not daily — or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below. The first version of that fix (2026-09) still let Postgres die uncleanly on 2026-10-03: it terminated Longhorn alongside the apps, so the volumes vanished mid-shutdown — now ordered by pod priority, see below
 
 ### Checking pinned versions
-Most apps track `:latest` with `imagePullPolicy: Always`, but 7 versions are hardcoded
-(authentik, external-dns, intel-gpu-plugin, the `pod-cleanup` kubectl image, and the metallb/longhorn/cert-manager URLs
+Most apps track `:latest` with `imagePullPolicy: Always`, but 8 versions are hardcoded
+(authentik, external-dns, intel-gpu-plugin, the `pod-cleanup` kubectl image, the nodelocaldns image, and the metallb/longhorn/cert-manager URLs
 in `scripts/deploy_all.sh`) and need a manual bump when upstream releases. Use the
 `check-pinned-versions` skill (`.claude/skills/check-pinned-versions/`) to check them
 against GitHub releases and update any that are behind.
@@ -143,7 +143,7 @@ capped at 5 minutes). The conventions below are what actually bound the cost of 
 how often it happens; follow them for every new app's `<app>.yaml`, matching the ~34 existing ones:
 
 - `imagePullPolicy: Always` + `:latest` tag by default (see "Checking pinned versions" above for
-  the 7 exceptions that must be hardcoded instead).
+  the 8 exceptions that must be hardcoded instead).
 - `revisionHistoryLimit: 0`.
 - `strategy: {type: Recreate}` for single-replica apps owning their own PVC/DB, so two pods never
   race for the same `ReadWriteOnce` volume. Only use `RollingUpdate` for stateless apps that are

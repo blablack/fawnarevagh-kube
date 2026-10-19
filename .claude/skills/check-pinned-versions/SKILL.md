@@ -1,18 +1,18 @@
 ---
 name: check-pinned-versions
-description: Check whether the 7 hardcoded/pinned upstream versions in this repo (authentik, external-dns, intel-gpu-plugin, the pod-cleanup kubectl image, and the metallb/longhorn/cert-manager URLs in scripts/deploy_all.sh) are current, and update any that are behind. Use when the user asks to check for updates, check pinned versions, or update authentik/external-dns/intel-gpu-plugin/kubectl/metallb/longhorn/cert-manager.
+description: Check whether the 8 hardcoded/pinned upstream versions in this repo (authentik, external-dns, intel-gpu-plugin, the pod-cleanup kubectl image, the nodelocaldns node-cache image, and the metallb/longhorn/cert-manager URLs in scripts/deploy_all.sh) are current, and update any that are behind. Use when the user asks to check for updates, check pinned versions, or update authentik/external-dns/intel-gpu-plugin/kubectl/nodelocaldns/metallb/longhorn/cert-manager.
 ---
 
 # Check pinned versions
 
 Everything else in this repo tracks `:latest` with `imagePullPolicy: Always` (see
-CLAUDE.md). These 7 are the deliberate exceptions — pinned because they're either
+CLAUDE.md). These 8 are the deliberate exceptions — pinned because they're either
 core cluster infra (bootstrap script), apps where an unreviewed auto-upgrade would
 be risky (auth provider, DNS automation, GPU driver plugin), or images that don't
-publish a `:latest` tag at all (kubectl). Nothing else auto-updates
+publish a `:latest` tag at all (kubectl, nodelocaldns node-cache). Nothing else auto-updates
 them, so they drift silently until someone checks.
 
-## The 7 pinned versions
+## The 8 pinned versions
 
 | # | Component | File | Current version pattern | Upstream repo |
 |---|---|---|---|---|
@@ -23,6 +23,7 @@ them, so they drift silently until someone checks.
 | 5 | longhorn | `scripts/deploy_all.sh` | `.../longhorn/longhorn/vX.Y.Z/deploy/longhorn.yaml` | `longhorn/longhorn` |
 | 6 | cert-manager | `scripts/deploy_all.sh` | `.../cert-manager/releases/download/vX.Y.Z/cert-manager.yaml` | `cert-manager/cert-manager` |
 | 7 | kubectl (pod-cleanup) | `pod-cleanup/pod-cleanup.yaml` | `image: registry.k8s.io/kubectl:vX.Y.Z` | — see below, **not** the newest upstream |
+| 8 | nodelocaldns | `nodelocaldns/nodelocaldns.yaml` | `image: registry.k8s.io/dns/k8s-dns-node-cache:X.Y.Z` (no `v` prefix; no `:latest` tag exists) | `kubernetes/dns` (GitHub releases lag behind; use `curl -sL https://registry.k8s.io/v2/dns/k8s-dns-node-cache/tags/list` for the newest plain `X.Y.Z` tag) |
 
 Don't trust the version numbers above — they're patterns, not current values. Always
 re-read the actual pinned version from the file at run time (`grep` for the pattern in
@@ -30,7 +31,7 @@ that row) before comparing to upstream.
 
 ## Workflow
 
-For each of the 7 (kubectl is the exception to steps 2-3 — see its bullet in step 2):
+For each of the 8 (kubectl is the exception to steps 2-3 — see its bullet in step 2):
 
 1. **Extract the current pinned version** from the file with `grep`/`Read`.
 2. **Find the latest upstream release.** Load `WebFetch` (it's a deferred tool — call
@@ -82,7 +83,7 @@ For each of the 7 (kubectl is the exception to steps 2-3 — see its bullet in s
 
 ## Report format
 
-Finish with one table covering all 7, even the ones already current:
+Finish with one table covering all 8, even the ones already current:
 
 | Component | Current | Latest | Status | Notes |
 |---|---|---|---|---|
@@ -93,6 +94,7 @@ Finish with one table covering all 7, even the ones already current:
 | longhorn | v1.12.1 | v1.13.0 | ⬆️ updated | check volume migration notes before applying |
 | cert-manager | v1.21.1 | v1.21.1 | ✅ up to date | |
 | kubectl | v1.36.5 | v1.36.5 | ✅ matches cluster 1.36 | |
+| nodelocaldns | 1.27.1 | 1.27.1 | ✅ up to date | |
 
 Then remind the user: files were edited in the working tree only; re-run the relevant
 part of `scripts/deploy_all.sh` (or `kubectl apply -f <url>` for that one component)
