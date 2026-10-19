@@ -54,6 +54,8 @@ spec:
           env:
             - name: TZ
               value: "Europe/Dublin"
+            - name: CLAUDE_WORKDIR
+              value: "/home/claude/hummla"
             - name: CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX
               value: "fawnarevagh"
             # Where Claude drops APKs/files for the user (see docker/claude-code/CLAUDE.md)

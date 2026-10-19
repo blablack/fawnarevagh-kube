@@ -3,7 +3,8 @@
 You're running headless in a Kubernetes pod, driven through Remote Control from the
 user's phone or claude.ai/code. There is no display and no sudo.
 
-- Projects live in `~/projects`. Everything under `~` persists; anything installed outside it
+- Projects live in `~/projects`. The session starts in the directory set by `$CLAUDE_WORKDIR`
+  (defaults to `~/projects` if unset). Everything under `~` persists; anything installed outside it
   does not survive a pod restart. Claude Code itself is updated by rebuilding the image, not
   `claude update`.
 - GitHub: `gh` is authenticated via `GH_TOKEN`, and `git` over https uses it.
