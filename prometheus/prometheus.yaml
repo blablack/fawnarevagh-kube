@@ -13,10 +13,10 @@ spec:
   replicas: 1
   resources:
     limits:
-      memory: "600Mi"
+      memory: "2200Mi"
       cpu: "200m"
     requests:
-      memory: "400Mi"
+      memory: "1800Mi"
       cpu: "100m"
   securityContext:
     fsGroup: 2000
@@ -41,15 +41,15 @@ spec:
               matchLabels:
                 app: prometheus
             topologyKey: kubernetes.io/hostname
+  # TSDB lives in RAM on purpose: metrics are expendable and this keeps ~5GiB of replicated
+  # Longhorn disk free. History is lost on every pod restart / node reboot. tmpfs counts
+  # against the container memory limit, so the limit below = sizeLimit + working set.
   storage:
-    volumeClaimTemplate:
-      spec:
-        storageClassName: my-longhorn
-        resources:
-          requests:
-            storage: 10Gi
-  retention: "15d"
-  retentionSize: "9500MiB"
+    emptyDir:
+      medium: Memory
+      sizeLimit: 1500Mi
+  retention: "3d"
+  retentionSize: "1GiB"
   walCompression: true
 ---
 apiVersion: v1
