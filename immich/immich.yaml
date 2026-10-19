@@ -4,7 +4,7 @@ metadata:
   name: immich
   namespace: default
 spec:
-  replicas: 0
+  replicas: 1
   revisionHistoryLimit: 0
   selector:
     matchLabels:
@@ -18,9 +18,9 @@ spec:
     spec:
       terminationGracePeriodSeconds: 60
       volumes:
-        - name: immich-pvc
+        - name: immich-data-pvc
           persistentVolumeClaim:
-            claimName: immich-pvc
+            claimName: immich-data-pvc
         - name: nasio-nfs-pvc
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
@@ -49,7 +49,7 @@ spec:
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               subPath: "postgresql"
-              name: immich-pvc
+              name: immich-data-pvc
           startupProbe:
             exec:
               command:
@@ -201,9 +201,11 @@ spec:
             timeoutSeconds: 10
             failureThreshold: 5
           volumeMounts:
+            # Models are re-downloadable (1.7GB), so they live on the NAS rather than on
+            # replicated Longhorn storage; the pod already depends on the NAS for the photos.
             - mountPath: "/cache"
-              subPath: "ml-cache"
-              name: immich-pvc
+              subPath: "Kubernetes/Immich ML Cache"
+              name: nasio-nfs-pvc
           resources:
             limits:
               cpu: 1500m
