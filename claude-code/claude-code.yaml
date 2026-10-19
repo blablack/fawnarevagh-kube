@@ -42,9 +42,7 @@ spec:
           imagePullPolicy: Always
           name: claude-code
           securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              add: ["SYS_PTRACE"]
+            privileged: true
           volumeMounts:
             - mountPath: "/home/claude"
               name: claude-code-pvc
