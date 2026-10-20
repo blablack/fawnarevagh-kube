@@ -34,9 +34,7 @@ spec:
       automountServiceAccountToken: false
       securityContext:
         runAsUser: 1024
-        runAsGroup: 1024
-        # GID 994 is the kvm group on quario; gives uid 1024 rw access to /dev/kvm
-        supplementalGroups: [994]
+        runAsGroup: 100
       containers:
         - image: nucio.nowhere:30038/claude-code:latest
           imagePullPolicy: Always
