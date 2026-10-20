@@ -24,9 +24,10 @@ RUN curl -fsSL https://claude.ai/install.sh | bash && \
     rm -rf /root/.local /root/.claude /root/.claude.json
 
 # The base image ships an "ubuntu" user on uid 1000; replace it with "claude" at uid 1024
-# to match NAS file ownership (NFS exports map to uid 1024)
+# to match NAS file ownership (NFS exports map to uid 1024, gid 100 "users")
 RUN userdel -r ubuntu && \
-    useradd -m -u 1024 -U -s /bin/bash claude && \
+    groupadd -g 994 kvm && \
+    useradd -m -u 1024 -g 100 -G 994 -s /bin/bash claude && \
     echo 'claude ALL=(ALL) NOPASSWD:ALL' > /etc/sudoers.d/claude && \
     chmod 0440 /etc/sudoers.d/claude
 
