@@ -33,9 +33,9 @@ spec:
       # Claude has no business talking to the Kubernetes API
       automountServiceAccountToken: false
       securityContext:
-        runAsUser: 1000
-        runAsGroup: 1000
-        # GID 994 is the kvm group on quario; gives uid 1000 rw access to /dev/kvm
+        runAsUser: 1024
+        runAsGroup: 1024
+        # GID 994 is the kvm group on quario; gives uid 1024 rw access to /dev/kvm
         supplementalGroups: [994]
       containers:
         - image: nucio.nowhere:30038/claude-code:latest
