@@ -36,11 +36,6 @@ spec:
         - name: dshm
           emptyDir:
             medium: Memory
-        # redis runs --save "" --appendonly no (persistence disabled), so /data
-        # is never durably written to - no reason for it to sit on replicated
-        # Longhorn storage.
-        - name: redis-data
-          emptyDir: {}
       containers:
         - image: postgres:16-alpine
           imagePullPolicy: Always
@@ -116,48 +111,6 @@ spec:
             requests:
               cpu: 50m
               memory: 256Mi
-        - image: redis:alpine
-          imagePullPolicy: Always
-          name: redis
-          command: ["redis-server"]
-          args: ["--save", "", "--appendonly", "no", "--loglevel", "warning"]
-          volumeMounts:
-            - mountPath: "/data"
-              name: redis-data
-          startupProbe:
-            exec:
-              command:
-                - redis-cli
-                - ping
-            initialDelaySeconds: 20
-            periodSeconds: 10
-            timeoutSeconds: 3
-            failureThreshold: 5
-          livenessProbe:
-            exec:
-              command:
-                - redis-cli
-                - ping
-            initialDelaySeconds: 30
-            periodSeconds: 30
-            timeoutSeconds: 3
-            failureThreshold: 5
-          readinessProbe:
-            exec:
-              command:
-                - redis-cli
-                - ping
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 3
-          resources:
-            limits:
-              cpu: 100m
-              memory: 200Mi
-            requests:
-              cpu: 25m
-              memory: 50Mi
         - image: ghcr.io/goauthentik/server:2026.8.4
           imagePullPolicy: Always
           name: authentik-server
@@ -169,8 +122,6 @@ spec:
                 secretKeyRef:
                   name: authentik-secrets
                   key: AUTHENTIK_SECRET_KEY
-            - name: AUTHENTIK_REDIS__HOST
-              value: "localhost"
             - name: AUTHENTIK_POSTGRESQL__HOST
               value: "localhost"
             - name: AUTHENTIK_POSTGRESQL__USER
@@ -238,8 +189,6 @@ spec:
                 secretKeyRef:
                   name: authentik-secrets
                   key: AUTHENTIK_SECRET_KEY
-            - name: AUTHENTIK_REDIS__HOST
-              value: "localhost"
             - name: AUTHENTIK_POSTGRESQL__HOST
               value: "localhost"
             - name: AUTHENTIK_POSTGRESQL__USER
