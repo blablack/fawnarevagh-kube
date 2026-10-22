@@ -13,10 +13,10 @@ spec:
   replicas: 1
   resources:
     limits:
-      memory: "2200Mi"
+      memory: "3500Mi"
       cpu: "200m"
     requests:
-      memory: "1800Mi"
+      memory: "2800Mi"
       cpu: "100m"
   securityContext:
     fsGroup: 2000
@@ -47,7 +47,7 @@ spec:
   storage:
     emptyDir:
       medium: Memory
-      sizeLimit: 1500Mi
+      sizeLimit: 2500Mi
   retention: "3d"
   retentionSize: "1GiB"
   walCompression: true
