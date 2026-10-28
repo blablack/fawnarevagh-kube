@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+config.json
+.eufy_state.json
+backups/
+captures/

@@ -76,6 +76,7 @@ kubectl create secret generic paperless-password --from-literal=password='MYPASS
 kubectl create secret generic grafana-password --from-literal=password='MYPASSWORD' --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic warracker --from-literal=oidc_secret='OIDCSECRET'
 kubectl create secret generic tailscale --from-literal=TS_AUTHKEY='TAILSCALEKEY'
+kubectl create secret generic eufy --from-literal=username='EUFYEMAIL' --from-literal=password='EUFYPASSWORD'
 
 # ArgoCD's own OIDC connector (dex.config in argocd/patches/argocd-dex-config.yaml) reads its
 # client secret from a key on the argocd-secret Secret that the base ArgoCD install already
