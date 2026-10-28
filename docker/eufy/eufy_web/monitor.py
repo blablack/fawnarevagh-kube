@@ -1,7 +1,7 @@
 """Holds one MQTT session to the robot and logs what each clean does to the map.
 
 After a clean ends (the robot is back on its dock and stays there for a few
-minutes) it takes a snapshot and compares it with the reference map. In
+minutes) it takes a snapshot and compares it with the previous one. In
 `recover` mode it also sends MAP_RECOVERY, snapshots again and compares again.
 Everything that talks to the robot runs on this thread: web handlers hand it
 callables through `call()`.
@@ -37,11 +37,12 @@ DPS_BATTERY = "163"
 class Settings:
     def __init__(self, path: Path) -> None:
         self.path = path
-        self.data: dict[str, Any] = {"mode": "observe", "reference": None, "delay": 300}
+        self.data: dict[str, Any] = {"mode": "observe", "delay": 300}
         try:
             self.data.update(json.loads(path.read_text()))
         except (OSError, ValueError):
             pass
+        self.data.pop("reference", None)  # an earlier version kept a reference map
 
     def __getitem__(self, key: str) -> Any:
         return self.data[key]
@@ -68,7 +69,6 @@ class Monitor(threading.Thread):
         self._was_busy = False
         self._saw_mapping = False
         self._docked_since: float | None = None
-        self._reference: tuple[str, Snapshot] | None = None
 
     # -- called from the web side ----------------------------------------------
 
@@ -165,26 +165,18 @@ class Monitor(threading.Thread):
             shutil.rmtree(old, ignore_errors=True)
         return snap, dest
 
-    def reference(self) -> Snapshot | None:
-        name = self.settings["reference"]
-        if not name:
+    def _previous(self) -> Snapshot | None:
+        """The newest snapshot taken before now, to see what a clean did to the map."""
+        try:
+            dirs = sorted(p for p in self.history_dir.iterdir() if p.is_dir())
+        except OSError:
             return None
-        if self._reference is None or self._reference[0] != name:
+        for d in reversed(dirs):
             try:
-                snap = Snapshot.load(eufy_map.map_dir(str(eufy_map.BACKUPS / name)))
+                return Snapshot.load(d)
             except (OSError, ValueError):
-                return None
-            self._reference = (name, snap)
-        return self._reference[1]
-
-    def set_reference_here(self, robot: Robot) -> str:
-        """Save the robot's current map as a new snapshot and make it the reference."""
-        snap = robot.sync_map(30)
-        if snap is None:
-            raise RuntimeError("the robot sent no map")
-        dest = snap.save(eufy_map.BACKUPS / f"{eufy_map.stamp()}_map{snap.map_id}_reference")
-        self.settings.update(reference=dest.name)
-        return dest.name
+                continue
+        return None
 
     def _record(self, entry: dict[str, Any]) -> None:
         self.data.mkdir(parents=True, exist_ok=True)
@@ -197,10 +189,14 @@ class Monitor(threading.Thread):
         return {"floor": r["floor_overlap"], "walls": r["wall_overlap"], "rotation": r["rotation_deg"]}
 
     def cycle(self, robot: Robot, kind: str, recover: bool) -> dict[str, Any]:
-        """Snapshot, optionally recover, snapshot again; log how each compares with the reference."""
+        """Snapshot, optionally recover, snapshot again; log how each differs from the previous snapshot.
+
+        With recover, the second figure being 100% means the robot is back to how it was
+        before the clean.
+        """
         entry: dict[str, Any] = {"t": time.time(), "kind": kind,
                                  "mode": "recover" if recover else "observe"}
-        ref = self.reference()
+        prev = self._previous()
         got = self._capture(robot, kind)
         if got is None:
             entry["note"] = "the robot sent no map"
@@ -208,14 +204,12 @@ class Monitor(threading.Thread):
             return entry
         before, before_dir = got
         entry.update(map_id=before.map_id, dir=before_dir.name)
-        usable = ref is not None and ref.map_id == before.map_id
-        if ref is None:
-            entry["note"] = "no reference map set"
-        elif not usable:
-            entry["note"] = f"map {before.map_id} is not the reference map {ref.map_id}"
+        comparable = prev is not None and prev.map_id == before.map_id
+        if comparable:
+            entry["change"] = self._overlaps(prev, before)
         else:
-            entry["before"] = self._overlaps(ref, before)
-        if recover and (usable or kind == "manual"):
+            entry["note"] = "no earlier snapshot of this map to compare with"
+        if recover:
             state = eufy_map.work_state(robot.dps)
             if state in eufy_map.BUSY_STATES:
                 entry["recover"] = "refused: the robot is busy"
@@ -230,10 +224,8 @@ class Monitor(threading.Thread):
                 after = self._capture(robot, "recovered")
                 if after is not None:
                     entry["after_dir"] = after[1].name
-                    if usable:
-                        entry["after"] = self._overlaps(ref, after[0])
-        elif recover:
-            entry["recover"] = "skipped: needs a reference map"
+                    if comparable:
+                        entry["reverted"] = self._overlaps(prev, after[0])
         self._record(entry)
         return entry
 
