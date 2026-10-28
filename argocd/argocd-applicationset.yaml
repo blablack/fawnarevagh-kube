@@ -24,6 +24,8 @@ spec:
             exclude: true
           - path: "prometheus"
             exclude: true
+          - path: "docs"
+            exclude: true
   template:
     metadata:
       name: "{{path.basename}}"

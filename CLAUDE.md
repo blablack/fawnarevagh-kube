@@ -16,7 +16,7 @@ This is a home Kubernetes (k3s) cluster configuration repo ("Fawnarevagh Cloud")
 
 **Deployment model — two layers:**
 1. **Bootstrap** (`scripts/deploy_all.sh`): Run once to install infrastructure that ArgoCD itself cannot manage — MetalLB, Longhorn, cert-manager, persistent volumes, Intel GPU plugin, ArgoCD itself, and Prometheus.
-2. **ArgoCD GitOps** (`argocd/argocd-applicationset.yaml`): After bootstrap, ArgoCD watches this repo and auto-syncs every top-level directory (except `argocd`, `ansible`, `docker`, `persistent-volumes`, `scripts`, `intel-gpu-plugin`, `prometheus`) as a separate Application, using `selfHeal: true` and `prune: false`.
+2. **ArgoCD GitOps** (`argocd/argocd-applicationset.yaml`): After bootstrap, ArgoCD watches this repo and auto-syncs every top-level directory (except `argocd`, `ansible`, `docker`, `persistent-volumes`, `scripts`, `intel-gpu-plugin`, `prometheus`, `docs`) as a separate Application, using `selfHeal: true` and `prune: false`.
 
 **Storage:**
 - Longhorn (replicated block storage) — used for most app PVCs
