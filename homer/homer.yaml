@@ -103,6 +103,11 @@ data:
             target: "_blank"
             logo: "assets/apps/node-red.svg"
             subtitle: "Automation Flow"
+          - name: "Moppy"
+            url: "https://moppy.nowhere"
+            target: "_blank"
+            icon: "fas fa-robot"
+            subtitle: "Robot map"
 
   media.yml: |
     subtitle: "Media"

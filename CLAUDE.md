@@ -106,6 +106,7 @@ Five custom images are built and pushed to `nucio.nowhere:30038`:
 | `nordvpn` | `docker/nordvpn/` | NordVPN with Prowlarr + qBittorrent sidecar logic |
 | `homer` | `docker/homer/` | Homer dashboard with custom icons and app links baked in |
 | `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) with passwordless `sudo` for the `claude` user so it can install what it needs (minimal image, no Android SDK). Claude Code's self-update is disabled — it's updated by rebuilding the image |
+| `eufy` | `docker/eufy/` | `moppy.nowhere`: watches the Eufy X10 robot vacuum, logs how each clean changes its map, can send the robot's map-recover command, and backs up / restores rooms, zones, scenes and schedules. See `docker/eufy/README.md` |
 
 The tdarr deployment uses an **init container** to copy plugins from the image into the server's plugin directory on startup (so plugin updates take effect by restarting the pod).
 
@@ -130,6 +131,7 @@ Secrets are created manually with `kubectl create secret` — they are not store
 - `grafana-password` — includes OIDC secret
 - `warracker`, `mealie` — each includes an `oidc_secret`/`service_secret` key for Authentik SSO
 - `tailscale` — Tailscale auth key (`TS_AUTHKEY`)
+- `eufy` — `username` and `password` of the Eufy account (`kubectl create secret generic eufy --from-literal=username=... --from-literal=password=...`)
 - `claude-code` — `gh_token`, a fine-grained GitHub PAT exposed as `GH_TOKEN` (Claude Code's own claude.ai login is not a secret: it's done once with `claude auth login` and persists on the PVC)
 - `argocd-secret` (argocd namespace) — created by the base ArgoCD install (admin password, server signing key); `dex.authentik.clientSecret` is patched into it manually (see README) and referenced from `argocd/patches/argocd-dex-config.yaml` as `$dex.authentik.clientSecret` — this is Argo CD's own convention for resolving `$`-prefixed values in `dex.config` against `argocd-secret`, not a `secretKeyRef`
 

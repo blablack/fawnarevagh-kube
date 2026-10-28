@@ -1,0 +1,22 @@
+[project]
+name = "eufy"
+version = "0.1.0"
+description = "Eufy map backup/recover CLI plus a service that watches the robot and a status page"
+requires-python = ">=3.11"
+dependencies = [
+    "paho-mqtt>=2.1",
+    "protobuf>=5.28",
+    "requests>=2.32",
+    "pillow>=10.4",
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "python-multipart>=0.0.12",
+]
+
+[tool.uv]
+package = false
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+exclude = [".venv", "eufy_fix/proto"]

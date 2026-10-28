@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eufy
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: eufy
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: eufy
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        fsGroup: 10001
+      volumes:
+        - name: eufy-pvc
+          persistentVolumeClaim:
+            claimName: eufy-pvc
+      containers:
+        - image: nucio.nowhere:30038/eufy:latest
+          imagePullPolicy: Always
+          name: eufy
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
+            - name: EUFY_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: eufy
+                  key: username
+            - name: EUFY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: eufy
+                  key: password
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /data
+              name: eufy-pvc
+          # /health answers even when the robot is unreachable: a robot or Eufy
+          # outage must not restart the pod.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 5
+            failureThreshold: 3
+          resources:
+            limits:
+              cpu: 500m
+              memory: 512Mi
+            requests:
+              cpu: 50m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eufy
+  namespace: default
+spec:
+  selector:
+    app: eufy
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: eufy-tls
+  namespace: default
+spec:
+  secretName: eufy-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - moppy.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: eufy
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.kubernetes.io/hostname: moppy.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - moppy.nowhere
+      secretName: eufy-tls
+  rules:
+    - host: moppy.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: eufy
+                port:
+                  number: 80
