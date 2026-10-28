@@ -166,12 +166,18 @@ class Monitor(threading.Thread):
         return snap, dest
 
     def _previous(self) -> Snapshot | None:
-        """The newest snapshot taken before now, to see what a clean did to the map."""
+        """The newest snapshot taken before now, to see what a clean did to the map.
+
+        Startup snapshots are skipped: the session reconnects every 30 minutes, also in
+        the middle of a clean, and a half-cleaned map is the wrong baseline.
+        """
         try:
             dirs = sorted(p for p in self.history_dir.iterdir() if p.is_dir())
         except OSError:
             return None
         for d in reversed(dirs):
+            if d.name.endswith("_startup"):
+                continue
             try:
                 return Snapshot.load(d)
             except (OSError, ValueError):
