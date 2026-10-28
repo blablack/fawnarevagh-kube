@@ -75,8 +75,7 @@ def index() -> str:
     except (OSError, ValueError):
         latest = None
     body = (views.status_card(monitor.status, monitor.settings, latest)
-            + views.auto_card(monitor.settings, monitor.reference() is not None
-                              or not monitor.settings["reference"])
+            + views.auto_card(monitor.settings)
             + views.history_card(monitor.history()))
     return views.page("Moppy", body, refresh=30)
 
@@ -128,19 +127,6 @@ def recover() -> RedirectResponse:
     return back()
 
 
-@app.post("/reference/current")
-def reference_current() -> RedirectResponse:
-    run_on_robot(monitor.set_reference_here)
-    return back()
-
-
-@app.post("/reference/{name}")
-def reference_from(name: str) -> RedirectResponse:
-    backup_dir(name)
-    monitor.settings.update(reference=name)
-    return back("/backups")
-
-
 @app.get("/backups", response_class=HTMLResponse)
 def backups() -> str:
     items = []
@@ -149,8 +135,7 @@ def backups() -> str:
             m = eufy_map.map_dir(str(d))
             items.append({"name": d.name, "has_map": (m / "map.png").exists(),
                           "full": (d / "state.json").exists()})
-    return views.page("Backups", views.backups_page(items, monitor.settings["reference"],
-                                                    jobs.running()))
+    return views.page("Backups", views.backups_page(items, jobs.running()))
 
 
 @app.get("/backups/{name}/map.png")

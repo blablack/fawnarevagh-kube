@@ -87,23 +87,17 @@ current map <b>{s["map_id"] or "?"}</b></p>{err}{wait}
 <div class="card">{img}</div></div>"""
 
 
-def auto_card(settings: Any, reference_ok: bool) -> str:
+def auto_card(settings: Any) -> str:
     mode = settings["mode"]
     options = "".join(
         f'<label><input type="radio" name="mode" value="{m}"{" checked" if m == mode else ""}> {m}</label>'
         for m in ("off", "observe", "recover"))
-    ref = settings["reference"]
-    ref_line = (f'<code>{escape(ref)}</code>' + ("" if reference_ok else ' <span class="bad">(missing)</span>')
-                if ref else '<span class="bad">none set</span>')
     return f"""<div class="card"><h2>After each clean</h2>
 <form method="post" action="/mode">{options} <button class="go">Save</button></form>
-<p class="mut"><b>off</b>: nothing. <b>observe</b>: snapshot and compare with the reference map.
-<b>recover</b>: also send recover, snapshot again and compare.
-Waits {settings["delay"]} s after the robot docks; never acts while it is busy or mapping.</p>
-<p>Reference map: {ref_line}</p>
-<form method="post" action="/reference/current" class="inline"
- onsubmit="return confirm('Use the robot\\'s current map as the reference? Only do this while the map is healthy.')">
-<button>Use the current map as reference</button></form>
+<p class="mut"><b>off</b>: nothing. <b>observe</b>: take a snapshot of the map.
+<b>recover</b>: also send recover (the robot goes back to the map you last saved in the app)
+and take another snapshot. Waits {settings["delay"]} s after the robot docks; never acts
+while it is busy or mapping.</p>
 <form method="post" action="/recover" class="inline"
  onsubmit="return confirm('Send recover now? The robot goes back to its last saved map.')">
 <button class="danger">Recover now</button></form></div>"""
@@ -119,30 +113,31 @@ def history_card(rows: list[dict[str, Any]]) -> str:
             extra = f'recover: {escape(str(r["recover"]))}'
         if r.get("note"):
             extra = (extra + "; " if extra else "") + escape(r["note"])
-        before = f'<a href="/history/{escape(r["dir"])}/map.png">{overlaps(r.get("before"))}</a>' \
-            if r.get("dir") and r.get("before") else overlaps(r.get("before"))
-        after = (f'<a href="/history/{escape(r["after_dir"])}/map.png">{overlaps(r.get("after"))}</a>'
-                 if r.get("after_dir") and r.get("after") else overlaps(r.get("after")))
+        before = (f'<a href="/history/{escape(r["dir"])}/map.png">{overlaps(r.get("change"))}</a>'
+                  if r.get("dir") and r.get("change") else overlaps(r.get("change")))
+        after = (f'<a href="/history/{escape(r["after_dir"])}/map.png">{overlaps(r.get("reverted"))}</a>'
+                 if r.get("after_dir") and r.get("reverted") else overlaps(r.get("reverted")))
         body += (f'<tr><td>{when(r["t"])}</td><td>{escape(r["kind"])} ({escape(r["mode"])})</td>'
                  f'<td>{r.get("map_id", "")}</td><td>{before}</td><td>{after}</td>'
                  f'<td class="mut">{extra}</td></tr>')
-    return ('<div class="card"><h2>History</h2><p class="mut">Overlap with the reference map '
-            '(100% = identical). "After" is only filled when recover ran.</p>'
-            '<table><tr><th>When</th><th>Event</th><th>Map</th><th>Before recover</th>'
+    return ('<div class="card"><h2>History</h2><p class="mut">Each map is compared with the '
+            'previous snapshot (100% = identical). "Changed" is what the clean did to the map. '
+            '"After recover" is filled when recover ran: 100% means the robot is back to how it '
+            'was before the clean.</p>'
+            '<table><tr><th>When</th><th>Event</th><th>Map</th><th>Changed</th>'
             f'<th>After recover</th><th></th></tr>{body}</table></div>')
 
 
-def backups_page(items: list[dict[str, Any]], reference: str | None, busy: bool) -> str:
+def backups_page(items: list[dict[str, Any]], busy: bool) -> str:
     rows = ""
     for b in items:
         n = escape(b["name"])
         img = f'<a href="/backups/{n}/map.png">map</a>' if b["has_map"] else '<span class="mut">no map</span>'
-        marker = ' <span class="pill ok">reference</span>' if b["name"] == reference else ""
         full = "" if not b["full"] else ' <span class="pill">full backup</span>'
-        buttons = f"""<form method="post" action="/reference/{n}" class="inline"><button>Set as reference</button></form>"""
+        buttons = ""
         if b["full"]:
             buttons += f"""<form method="post" action="/jobs/restore-plan/{n}" class="inline"><button>Restore…</button></form>"""
-        rows += (f'<tr><td><code>{n}</code>{marker}{full}</td><td>{img}</td>'
+        rows += (f'<tr><td><code>{n}</code>{full}</td><td>{img}</td>'
                  f'<td><a href="/backups/{n}.zip">download</a></td><td>{buttons}</td></tr>')
     note = '<p class="bad">A job is running.</p>' if busy else ""
     return f"""{note}<div class="card"><h2>Back up now</h2>

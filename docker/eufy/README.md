@@ -16,18 +16,17 @@ measures the drift first.
 One process: a thread that keeps an MQTT session to the robot, and a web page.
 
 * After the robot has been docked for 5 minutes (the mop wash and dust emptying keep
-  flipping its state), it snapshots the map and compares it with the **reference map**.
-  Mode **recover** also sends recover, snapshots again and compares again. Mode **observe**
-  (the default) only measures. It never acts while the robot is busy, never after a mapping
-  run, and never when the current map is not the reference's.
-* The page shows the robot, the latest map, the mode, the history (overlap with the
-  reference before and after each recover), the backups (download, set as reference,
-  restore with a dry run first) and a "back up now" button (the CLI as a job).
+  flipping its state), it snapshots the map. Mode **recover** then sends recover (the robot
+  drops its working map and goes back to the map you last saved from the app), snapshots
+  again, and logs both. Mode **observe** (the default) only snapshots. It never acts while
+  the robot is busy and never after a mapping run.
+* The page shows the robot, the latest map, the mode, the history (how much each clean
+  changed the map, and whether recover brought it back), the backups (download, restore
+  with a dry run first) and a "back up now" button (the CLI as a job).
 * No login on the page: it is only reachable inside the cluster. Anyone who can open it can
   trigger recover and restore.
 
-Set the reference once, while the map is healthy ("Use the current map as reference").
-Edit the map in the app only while it is healthy too: an edit probably becomes the new saved
+Edit the map in the app only while it is healthy: an edit probably becomes the new saved
 version that recover goes back to.
 
 State lives on the PVC mounted at `/data` (`EUFY_DATA`): `config.json` (written from the
