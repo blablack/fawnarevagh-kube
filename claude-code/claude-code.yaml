@@ -64,7 +64,7 @@ spec:
             - name: EXTRA_PATH
               value: "/home/claude/jdk/bin:/home/claude/android-sdk/cmdline-tools/latest/bin:/home/claude/android-sdk/platform-tools:/home/claude/android-sdk/emulator"
             - name: CLAUDE_WORKDIR
-              value: "/home/claude/eufy-fix"
+              value: "/home/claude/hummla"
             - name: CLAUDE_REMOTE_CONTROL_SESSION_NAME_PREFIX
               value: "fawnarevagh"
             # Where Claude drops APKs/files for the user (see docker/claude-code/CLAUDE.md)
