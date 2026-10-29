@@ -31,13 +31,12 @@
         dest: /etc/apt/apt.conf.d/
     # Stagger the automatic reboots (nucio 06:00 from 20auto-upgrades, quario
     # 06:30) so both nodes - and so both Longhorn replicas of every volume - are
-    # never down at once. Push on its own with --tags reboot-schedule.
+    # never down at once.
     - name: Stagger unattended-upgrades reboot time on quario
       ansible.builtin.copy:
         src: quario/21auto-upgrades-reboot-time
         dest: /etc/apt/apt.conf.d/
       when: inventory_hostname == 'quario'
-      tags: reboot-schedule
 
 - name: Configure kernel
   hosts: all
@@ -457,14 +456,9 @@
 # enforced from kernel 7.0.0-42). That broke PostgreSQL startup (checkpoint
 # signalling) and gosu in every Postgres-sidecar pod. We ship a patched host copy
 # that also allows the stacked peer. See the file header and containerd#14485.
-# Part of the normal playbook run (required on every node). Also carries the
-# graceful-shutdown tag so it rides along when that Postgres-durability fix is
-# pushed to a running cluster without a full run:
-#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown
 - name: Patch containerd default AppArmor profile (containerd#14485)
   hosts: quario,nucio
   become: true
-  tags: graceful-shutdown
 
   tasks:
     - name: Install patched cri-containerd AppArmor profile
@@ -494,13 +488,10 @@
 # k3s/k3s-agent have started at least once (so the directory already exists) -
 # NOT settable via --kubelet-arg/config.yaml: shutdownGracePeriod* are
 # config-file-only in this kubelet version and passing them as CLI flags makes
-# the whole k3s service fail to start. Tagged separately so it can be pushed to an already-running cluster
-# without re-running the whole playbook (which also reboots both machines):
-#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown
+# the whole k3s service fail to start.
 - name: Configure kubelet graceful node shutdown
   hosts: quario,nucio
   become: true
-  tags: graceful-shutdown
 
   tasks:
     - name: Copy graceful shutdown kubelet config fragment
@@ -535,7 +526,6 @@
 - name: Restart k3s on Nucio
   hosts: nucio
   become: true
-  tags: graceful-shutdown
 
   tasks:
     - name: Restart master
@@ -546,7 +536,6 @@
 - name: Restart k3s on Quario
   hosts: quario
   become: true
-  tags: graceful-shutdown
 
   tasks:
     - name: Restart agent
