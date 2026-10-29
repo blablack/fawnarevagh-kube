@@ -42,9 +42,9 @@ This is a home Kubernetes (k3s) cluster configuration repo ("Fawnarevagh Cloud")
 cd ansible
 ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml
 ```
-To push just the kubelet graceful-shutdown config (see Deployment Conventions below) to an
-already-running cluster without re-running the whole playbook (which also reboots both
-machines): `ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown`
+Running the playbook reboots both machines. It is a full-provision document (no
+task tags) — the whole thing runs so a node comes out configured exactly as
+intended; there is no supported "push just one piece" subset.
 
 ### Bootstrap cluster (first time only)
 ```bash
@@ -87,6 +87,7 @@ kubectl exec --stdin --tty ubuntu -- /bin/bash
 - `docs/longhorn-disaster-recovery.md` — restoring Longhorn volumes from S3 backup after full cluster loss
 - `postgres-recovery.yaml` — one-off pod (`pg_resetwal`) for repairing a corrupted Postgres PVC (e.g. paperless, mealie) after an unclean shutdown; stop ArgoCD first if it manages the scaled-down deployment. Adjust the postgres image tag and PVC `subPath` to match the app (e.g. mealie uses `postgres:15` and `subPath: postgresql_15`, not paperless's `postgres:16`/`postgresql`)
 - This corruption was recurring because nodes were never drained before a reboot (unattended-upgrades reboots — nucio at 06:00, quario at 06:30 — whenever an update sets `/var/run/reboot-required` — roughly every 1-2 weeks, not daily — or the ping-based hardware watchdog in `ansible/all/watchdog.conf` forcing one) and kubelet's Graceful Node Shutdown was never configured, so Postgres got killed mid-write. Fixed via `ansible/all/01-graceful-shutdown.conf` — see Deployment Conventions below. The first version of that fix (2026-09) still let Postgres die uncleanly on 2026-10-03: it terminated Longhorn alongside the apps, so the volumes vanished mid-shutdown — now ordered by pod priority, see below
+- **Not every "Postgres down after a reboot" is WAL corruption — check this first before reaching for `pg_resetwal`.** On 2026-10-29, authentik, immich and paperless all crash-looped after quario rebooted onto kernel 7.0.0-42, with the Postgres sidecar failing its `pg_isready` startup probe (`/var/run/postgresql:5432 - no response`). The data was *fine* (`pg_controldata` showed `Database cluster state: shut down`); the real cause was containerd's default AppArmor profile (`cri-containerd.apparmor.d`) denying intra-container signals. Ubuntu's `kernel.apparmor_restrict_unprivileged_unconfined=1` (strict from 7.0.0-42) makes non-privileged containers carry the stacked label `cri-containerd.apparmor.d//&unconfined`, but containerd's profile only allows `signal/ptrace peer=cri-containerd.apparmor.d` — so Postgres can't signal its own checkpointer (`could not signal for checkpoint: Permission denied`) and gosu spins at 100% CPU on a denied `kill()`. Symptom tells: it reproduces on a *fresh empty* DB too, Postgres-sidecar apps on the not-yet-rebooted node stay healthy, and `pg_controldata` says "shut down". Fix: patched host copy of the profile at `ansible/all/cri-containerd.apparmor.d` (adds the `//&unconfined` stacked-peer lines), applied by the ansible playbook; containerd skips its built-in copy when a profile of that name is already loaded. Emergency one-liner to restore service *now* (runtime-only, resets on reboot, weakens hardening): `sudo sysctl -w kernel.apparmor_restrict_unprivileged_unconfined=0` on the affected node, then delete the crash-looping pods. See containerd#14485.
 
 ### Checking pinned versions
 Most apps track `:latest` with `imagePullPolicy: Always`, but 8 versions are hardcoded
