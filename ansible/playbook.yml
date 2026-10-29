@@ -448,6 +448,40 @@
         src: all/watchdog.conf
         dest: /etc/
 
+# k3s's bundled containerd applies a default AppArmor profile named
+# "cri-containerd.apparmor.d" to every non-privileged container, but skips
+# loading its built-in copy if a profile of that name is already loaded. Its
+# upstream template only permits intra-container signals/ptrace under the literal
+# profile name, which is DENIED once Ubuntu stacks the label as
+# "...//&unconfined" (kernel.apparmor_restrict_unprivileged_unconfined=1,
+# enforced from kernel 7.0.0-42). That broke PostgreSQL startup (checkpoint
+# signalling) and gosu in every Postgres-sidecar pod. We ship a patched host copy
+# that also allows the stacked peer. See the file header and containerd#14485.
+# Tagged so it can be pushed to a running cluster without a full playbook run
+# (which reboots both machines):
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags apparmor-fix
+- name: Patch containerd default AppArmor profile (containerd#14485)
+  hosts: quario,nucio
+  become: true
+  tags: apparmor-fix
+
+  tasks:
+    - name: Install patched cri-containerd AppArmor profile
+      ansible.builtin.copy:
+        src: all/cri-containerd.apparmor.d
+        dest: /etc/apparmor.d/cri-containerd.apparmor.d
+        mode: "0644"
+        owner: root
+        group: root
+      register: apparmor_profile
+
+    # Load it into the kernel immediately; placing it in /etc/apparmor.d/ also
+    # makes apparmor.service reload it on every boot, before k3s/containerd start.
+    - name: Reload the profile into the kernel
+      ansible.builtin.command:
+        cmd: apparmor_parser -r -W /etc/apparmor.d/cri-containerd.apparmor.d
+      when: apparmor_profile.changed
+
 # k3s's embedded kubelet reads /var/lib/rancher/k3s/agent/etc/kubelet.conf.d/*
 # (k3s itself writes 00-k3s-defaults.conf there on first start) and merges every
 # KubeletConfiguration fragment found. This one enables Graceful Node Shutdown so
