@@ -457,13 +457,14 @@
 # enforced from kernel 7.0.0-42). That broke PostgreSQL startup (checkpoint
 # signalling) and gosu in every Postgres-sidecar pod. We ship a patched host copy
 # that also allows the stacked peer. See the file header and containerd#14485.
-# Tagged so it can be pushed to a running cluster without a full playbook run
-# (which reboots both machines):
-#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags apparmor-fix
+# Part of the normal playbook run (required on every node). Also carries the
+# graceful-shutdown tag so it rides along when that Postgres-durability fix is
+# pushed to a running cluster without a full run:
+#   ansible-playbook -i hosts --ask-become-pass -u MYUSER --ask-pass ./playbook.yml --tags graceful-shutdown
 - name: Patch containerd default AppArmor profile (containerd#14485)
   hosts: quario,nucio
   become: true
-  tags: apparmor-fix
+  tags: graceful-shutdown
 
   tasks:
     - name: Install patched cri-containerd AppArmor profile
