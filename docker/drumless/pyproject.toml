@@ -2,7 +2,7 @@
 name = "drumless"
 version = "0.1.0"
 description = "Upload a song, get it back without the drums (audio-separator + ffmpeg)"
-requires-python = ">=3.11,<3.14"
+requires-python = ">=3.11,<3.15"
 dependencies = [
     "audio-separator[cpu]>=0.44",
     "torch",

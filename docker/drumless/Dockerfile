@@ -1,6 +1,6 @@
 # Build stage: diffq (a dependency of audio-separator) has no wheel for this Python and
 # compiles a C extension, so gcc is needed here but not in the final image.
-FROM python:3.13-slim AS build
+FROM python:3.14-slim AS build
 
 ENV UV_PROJECT_ENVIRONMENT=/opt/venv
 
@@ -13,7 +13,7 @@ COPY pyproject.toml uv.lock ./
 RUN pip install --no-cache-dir uv && uv sync --frozen --no-dev
 
 
-FROM python:3.13-slim
+FROM python:3.14-slim
 
 ENV PYTHONUNBUFFERED=1 \
     PATH=/opt/venv/bin:$PATH \
