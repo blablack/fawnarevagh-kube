@@ -191,6 +191,11 @@ data:
             target: "_blank"
             logo: "assets/apps/hummla.png"
             subtitle: "Drop a bounce"
+          - name: "Drumless"
+            url: "https://drumless.nowhere"
+            target: "_blank"
+            icon: "fas fa-drum"
+            subtitle: "Remove the drums"
 
   infrastructure.yml: |
     subtitle: "Infrastructure"

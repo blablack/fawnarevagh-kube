@@ -98,7 +98,7 @@ against GitHub releases and update any that are behind.
 
 ## Custom Docker Images
 
-Five custom images are built and pushed to `nucio.nowhere:30038`:
+Seven custom images are built and pushed to `nucio.nowhere:30038`:
 
 | Image | Directory | Purpose |
 |---|---|---|
@@ -108,6 +108,7 @@ Five custom images are built and pushed to `nucio.nowhere:30038`:
 | `homer` | `docker/homer/` | Homer dashboard with custom icons and app links baked in |
 | `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) with passwordless `sudo` for the `claude` user so it can install what it needs (minimal image, no Android SDK). Claude Code's self-update is disabled — it's updated by rebuilding the image |
 | `eufy` | `docker/eufy/` | `moppy.nowhere`: watches the Eufy X10 robot vacuum, logs how each clean changes its map, can send the robot's map-recover command, and backs up / restores rooms, zones, scenes and schedules. See `docker/eufy/README.md` |
+| `drumless` | `docker/drumless/` | `drumless.nowhere`: upload a song, `audio-separator` (htdemucs_ft, CPU) splits it and ffmpeg mixes bass+vocals+other into a drumless track. Tracks and models live on nasio at `Kubernetes/Drumless`. Single worker, no database — each `tracks/<id>/` dir is the whole state |
 
 The tdarr deployment uses an **init container** to copy plugins from the image into the server's plugin directory on startup (so plugin updates take effect by restarting the pod).
 

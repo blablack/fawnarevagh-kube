@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drumless
+  namespace: default
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: drumless
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: drumless
+    spec:
+      terminationGracePeriodSeconds: 30
+      securityContext:
+        runAsUser: 1000
+        runAsGroup: 1000
+      # Separation is CPU-bound; quario has 8 cores to nucio's 4.
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                matchExpressions:
+                  - key: kubernetes.io/hostname
+                    operator: In
+                    values: ["quario"]
+      volumes:
+        - name: nasio-nfs-pvc
+          persistentVolumeClaim:
+            claimName: nasio-nfs-pvc
+      containers:
+        - image: nucio.nowhere:30038/drumless:latest
+          imagePullPolicy: Always
+          name: drumless
+          env:
+            - name: TZ
+              value: "Europe/Dublin"
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            # tracks/ (original, drums, no_drums per song) and models/ (downloaded once)
+            - mountPath: /data
+              subPath: Kubernetes/Drumless
+              name: nasio-nfs-pvc
+          # /health is answered by the web thread, so it stays up while a separation
+          # saturates the CPU in a subprocess.
+          startupProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 12
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            periodSeconds: 30
+            timeoutSeconds: 10
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 6000m
+              memory: 8Gi
+            requests:
+              cpu: 100m
+              memory: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: drumless
+  namespace: default
+spec:
+  selector:
+    app: drumless
+  ports:
+    - port: 80
+      targetPort: 8000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: drumless-tls
+  namespace: default
+spec:
+  secretName: drumless-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - drumless.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: drumless
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.kubernetes.io/hostname: drumless.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - drumless.nowhere
+      secretName: drumless-tls
+  rules:
+    - host: drumless.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: drumless
+                port:
+                  number: 80
