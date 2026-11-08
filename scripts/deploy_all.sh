@@ -17,7 +17,7 @@ set -e
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 # https://github.com/metallb/metallb
-kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.16.1/config/manifests/metallb-native.yaml
+kubectl apply -f https://raw.githubusercontent.com/metallb/metallb/v0.16.2/config/manifests/metallb-native.yaml
 kubectl apply -f $SCRIPT_DIR/../metallb/metallb-config.yaml
 
 # https://github.com/longhorn/longhorn
