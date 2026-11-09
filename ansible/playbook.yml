@@ -442,10 +442,48 @@
     - name: Install package
       ansible.builtin.apt:
         name: watchdog
+    # nucio's PCH exposes an Intel TCO device; quario (NUC8i5BEK) only has the BIOS's ACPI
+    # WDAT table, so it needs wdat_wdt instead. wdat_wdt's probe fails with -ENOMEM unless PAT is
+    # off ("ioremap error for 0x7c9ba000": the WDAT register page is already tracked as
+    # write-back in a BIOS-reserved region), hence the nopat kernel parameter below.
+    - name: Pick the hardware watchdog driver for this node
+      ansible.builtin.set_fact:
+        wd_module: "{{ 'wdat_wdt' if inventory_hostname == 'quario' else 'iTCO_wdt' }}"
+    - name: Load the hardware watchdog driver at boot
+      ansible.builtin.copy:
+        content: "{{ wd_module }}\n"
+        dest: "/etc/modules-load.d/{{ wd_module }}.conf"
+        mode: "0644"
+    - name: Load the driver now
+      community.general.modprobe:
+        name: "{{ wd_module }}"
+        state: present
+    - name: Boot quario with nopat so wdat_wdt can ioremap its register
+      ansible.builtin.copy:
+        content: |
+          GRUB_CMDLINE_LINUX_DEFAULT="$GRUB_CMDLINE_LINUX_DEFAULT nopat"
+        dest: /etc/default/grub.d/nopat.cfg
+        mode: "0644"
+      when: inventory_hostname == 'quario'
+      notify: Update grub
     - name: Configure
       ansible.builtin.copy:
         src: all/watchdog.conf
         dest: /etc/
+      notify: Restart watchdog
+    - name: Enable watchdog
+      ansible.builtin.service:
+        name: watchdog
+        enabled: true
+        state: started
+
+  handlers:
+    - name: Update grub
+      ansible.builtin.command: update-grub
+    - name: Restart watchdog
+      ansible.builtin.service:
+        name: watchdog
+        state: restarted
 
 # k3s's bundled containerd applies a default AppArmor profile named
 # "cri-containerd.apparmor.d" to every non-privileged container, but skips
@@ -481,7 +519,7 @@
 # (k3s itself writes 00-k3s-defaults.conf there on first start) and merges every
 # KubeletConfiguration fragment found. This one enables Graceful Node Shutdown so
 # a node reboot (unattended-upgrades at 06:00, or the watchdog forcing a reboot
-# when it can't reach the gateway) waits for pods to terminate cleanly instead of
+# when it can't reach the gateway or the kernel freezes) waits for pods to terminate cleanly instead of
 # killing them mid-write - this is what was causing recurring Postgres WAL
 # corruption (see postgres-recovery.yaml). The fragment orders shutdown by pod
 # priority so Longhorn outlives the apps whose volumes it serves. Must run after
