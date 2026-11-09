@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import queue
+import re
 import shutil
 import subprocess
 import threading
@@ -22,7 +23,9 @@ log = logging.getLogger("drumless")
 DATA = Path(os.environ.get("DRUMLESS_DATA", "/data"))
 TRACKS = DATA / "tracks"
 MODELS = DATA / "models"
-MODEL = os.environ.get("DRUMLESS_MODEL", "htdemucs_ft.yaml")
+# BS-RoFormer SW (6 stems: bass, drums, other, vocals, guitar, piano) scores ~14.1 dB drums SDR on
+# MVSEP's multisong leaderboard vs ~11.2 for htdemucs_ft, for ~1.7x the CPU time (31 vs 19 min per 4:21 song).
+MODEL = os.environ.get("DRUMLESS_MODEL", "BS-Roformer-SW.ckpt")
 EXTENSIONS = {".mp3", ".wav", ".flac", ".m4a", ".aac", ".ogg", ".opus", ".wma", ".aif", ".aiff"}
 # Files a finished track serves, as {kind: file name inside the track directory}.
 OUTPUTS = {"original": None, "no_drums": "no_drums.flac", "drums": "drums.flac"}
@@ -77,12 +80,16 @@ def delete_track(track_id: str) -> None:
     shutil.rmtree(track_dir(track_id), ignore_errors=True)
 
 
-def find_stem(stems: Path, name: str) -> Path:
-    # audio-separator names its output "<input stem>_(Drums)_htdemucs_ft.flac".
+def stem_files(stems: Path) -> dict[str, Path]:
+    """Map lowercase stem name -> file. audio-separator writes one file per stem named
+    "<input>_(<stem>)_<model>.flac"; Demucs capitalises the stem name, RoFormer models don't, and
+    the number of stems depends on the model (4 for htdemucs_ft, 6 for BS-Roformer-SW)."""
+    out = {}
     for f in stems.iterdir():
-        if f"({name})" in f.name:
-            return f
-    raise RuntimeError(f"model produced no {name} stem (got: {sorted(p.name for p in stems.iterdir())})")
+        m = re.search(r"\(([^()]+)\)", f.name)
+        if m:
+            out[m.group(1).lower()] = f
+    return out
 
 
 def run(cmd: list[str], log_file: Path) -> None:
@@ -110,13 +117,17 @@ def process(track_id: str) -> None:
 
         meta.update(status="mixing")
         write_meta(track_id, meta)
-        rest = [find_stem(stems, n) for n in ("Bass", "Vocals", "Other")]
-        # Sum (not average) the stems back together; the limiter only catches rare clipping.
+        files = stem_files(stems)
+        if "drums" not in files or len(files) < 2:
+            raise RuntimeError(f"model produced no usable stems (got: {sorted(p.name for p in stems.iterdir())})")
+        # Every stem that isn't drums, whatever the model calls them, so a 6-stem model's guitar and
+        # piano aren't dropped. Sum (not average) them back together; the limiter only catches rare clipping.
+        rest = [f for name, f in sorted(files.items()) if name != "drums"]
         run(["ffmpeg", "-y", "-loglevel", "error",
              *[a for f in rest for a in ("-i", str(f))],
              "-filter_complex", f"amix=inputs={len(rest)}:normalize=0:duration=longest,alimiter=limit=0.97",
              "-c:a", "flac", str(d / "no_drums.flac")], logfile)
-        shutil.copyfile(find_stem(stems, "Drums"), d / "drums.flac")
+        shutil.copyfile(files["drums"], d / "drums.flac")
         shutil.rmtree(stems, ignore_errors=True)
         meta.update(status="done", finished=time.time())
     except Exception as e:  # noqa: BLE001 - any failure becomes a visible error on the track

@@ -74,7 +74,8 @@ spec:
           resources:
             limits:
               cpu: 6000m
-              memory: 8Gi
+              # BS-RoFormer SW peaks at ~4.6Gi on a 4-5 min song and scales with track length
+              memory: 12Gi
             requests:
               cpu: 100m
               memory: 1Gi

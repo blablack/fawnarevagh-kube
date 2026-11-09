@@ -4,16 +4,21 @@ version = "0.1.0"
 description = "Upload a song, get it back without the drums (audio-separator + ffmpeg)"
 requires-python = ">=3.11,<3.15"
 dependencies = [
-    "audio-separator[cpu]>=0.44",
-    "torch",
-    "audioread",  # imported by audio-separator but not declared in its metadata
-    "fastapi>=0.115",
-    "uvicorn>=0.32",
-    "python-multipart>=0.0.12",
+    "audio-separator[cpu]>=0.48",
+    "torch>=2.15",
+    "audioread>=3.1",  # imported by audio-separator but not declared in its metadata
+    "fastapi>=0.162",
+    "uvicorn>=0.54",
+    "python-multipart>=0.0.33",
 ]
 
 [tool.uv]
 package = false
+# audio-separator pins beartype<0.19, but 0.18.x can't type-check the RoFormer models' `Optional[Callable]`
+# hints on Python 3.14 (Optional[] now evaluates to `collections.abc.Callable | None`), so every
+# BS/Mel-RoFormer model fails to load with "either PEP-noncompliant or currently unsupported by @beartype".
+# Demucs models are unaffected. beartype 0.23.1 was verified to work with audio-separator 0.48.0.
+override-dependencies = ["beartype>=0.23.1"]
 
 # No CUDA on either node: CPU-only wheels avoid ~3 GB of nvidia-* packages.
 [tool.uv.sources]

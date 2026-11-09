@@ -49,7 +49,7 @@ function card(t){
 async function refresh(){
   try{
     const d=await (await fetch("/api/tracks")).json();
-    $("#model").textContent="Model: "+d.model.replace(".yaml","");
+    $("#model").textContent="Model: "+d.model.replace(/\.(yaml|ckpt)$/,"");
     const list=$("#list");
     // Don't rebuild cards while a player is in use, or playback would restart.
     const playing=[...list.querySelectorAll("audio")].some(a=>!a.paused);
