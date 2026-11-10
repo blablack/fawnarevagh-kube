@@ -38,7 +38,7 @@ Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 
 <div id="logbar" hidden><div class="row"><span id="logname"></span><button id="logtoggle">Hide log</button></div><pre id="log"></pre></div>
 <script>
 const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
-const LABEL={queued:"Queued",separating:"Separating…",mixing:"Mixing…",done:"Done",error:"Failed"};
+const LABEL={queued:"Queued",separating:"Separating…",mixing:"Mixing…",done:"Done",error:"Failed",cancelled:"Cancelled"};
 function elapsed(t){const s=Math.max(0,Math.round(Date.now()/1000-t));return Math.floor(s/60)+"m "+String(s%60).padStart(2,"0")+"s"}
 function card(t){
   const run=t.status==="separating"||t.status==="mixing";
@@ -49,7 +49,7 @@ function card(t){
   if(t.status==="done")body=`<div class="lbl">Without drums</div><audio controls preload="none" src="/files/${t.id}/no_drums"></audio>
    <div class="links"><a href="/files/${t.id}/no_drums?dl=1">Download without drums</a>
    <a href="/files/${t.id}/drums?dl=1">Drums only</a><a href="/files/${t.id}/original?dl=1">Original</a></div>`;
-  const del=run?"":`<button data-del="${t.id}">Delete</button>`;
+  const del=run?`<button data-cancel="${t.id}">Cancel</button>`:`<button data-del="${t.id}">Delete</button>`;
   return `<div class="card" data-id="${t.id}"><div class="row"><span class="name">${esc(t.name)}</span>${del}</div>
    <div class="st ${t.status}">${st}</div>${body}</div>`;
 }
@@ -102,8 +102,9 @@ drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
 drop.ondragleave=()=>drop.classList.remove("over");
 drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");upload([...e.dataTransfer.files])};
 $("#list").onclick=async e=>{
-  const id=e.target.dataset.del;
+  const id=e.target.dataset.del,cid=e.target.dataset.cancel;
   if(id&&confirm("Delete this track and its files?")){await fetch("/api/tracks/"+id,{method:"DELETE"});refresh.sig=null;refresh()}
+  if(cid&&confirm("Cancel processing this track?")){await fetch("/api/tracks/"+cid+"/cancel",{method:"POST"});refresh.sig=null;refresh()}
 };
 refresh();refreshLog();setInterval(refresh,3000);setInterval(refreshLog,2000);
 </script></body></html>

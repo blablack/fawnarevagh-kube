@@ -101,6 +101,15 @@ def download(track_id: str, kind: str, dl: bool = False) -> FileResponse:
     return FileResponse(path, filename=f"{meta['name']}{label}{path.suffix}" if dl else None)
 
 
+@app.post("/api/tracks/{track_id}/cancel")
+def cancel(track_id: str) -> dict:
+    meta = known(track_id)
+    if meta["status"] not in ("separating", "mixing"):
+        raise HTTPException(409, "not processing")
+    worker.cancel(track_id)
+    return {"ok": True}
+
+
 @app.delete("/api/tracks/{track_id}")
 def delete(track_id: str) -> dict:
     meta = known(track_id)

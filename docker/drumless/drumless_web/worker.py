@@ -12,6 +12,7 @@ import os
 import queue
 import re
 import shutil
+import signal
 import subprocess
 import threading
 import time
@@ -106,13 +107,44 @@ def tail_log(track_id: str, max_lines: int = 200, max_bytes: int = 64 * 1024) ->
     return [ln for ln in lines if ln][-max_lines:]
 
 
-def run(cmd: list[str], log_file: Path) -> None:
+class Cancelled(Exception):
+    pass
+
+
+_lock = threading.Lock()
+_procs: dict[str, subprocess.Popen] = {}  # track id -> the subprocess it is running right now
+_cancelled: set[str] = set()  # track ids whose cancel was requested
+
+
+def cancel(track_id: str) -> None:
+    """Stop a running track. Kills the whole process group (audio-separator may spawn helpers);
+    process() then notices and marks the track cancelled. Also covers a cancel that lands between
+    two subprocesses: run() checks the flag before starting the next one."""
+    with _lock:
+        _cancelled.add(track_id)
+        proc = _procs.get(track_id)
+        if proc and proc.poll() is None:
+            os.killpg(proc.pid, signal.SIGKILL)
+
+
+def run(cmd: list[str], log_file: Path, track_id: str) -> None:
     with log_file.open("ab") as out:
         out.write(f"\n$ {' '.join(cmd)}\n".encode())
         out.flush()
-        # Unbuffered so the log is live rather than arriving in blocks when stdout is a file.
-        subprocess.run(cmd, stdout=out, stderr=subprocess.STDOUT, check=True,
-                       env={**os.environ, "PYTHONUNBUFFERED": "1"})
+        with _lock:
+            if track_id in _cancelled:
+                raise Cancelled()
+            # Unbuffered so the log is live rather than arriving in blocks when stdout is a file.
+            proc = subprocess.Popen(cmd, stdout=out, stderr=subprocess.STDOUT, start_new_session=True,
+                                    env={**os.environ, "PYTHONUNBUFFERED": "1"})
+            _procs[track_id] = proc
+        code = proc.wait()
+        with _lock:
+            _procs.pop(track_id, None)
+            if track_id in _cancelled:
+                raise Cancelled()
+        if code:
+            raise subprocess.CalledProcessError(code, cmd)
 
 
 def process(track_id: str) -> None:
@@ -129,7 +161,7 @@ def process(track_id: str) -> None:
         MODELS.mkdir(parents=True, exist_ok=True)
         run(["audio-separator", str(d / meta["original"]),
              "-m", MODEL, "--model_file_dir", str(MODELS),
-             "--output_dir", str(stems), "--output_format", "FLAC"], logfile)
+             "--output_dir", str(stems), "--output_format", "FLAC"], logfile, track_id)
 
         meta.update(status="mixing")
         write_meta(track_id, meta)
@@ -142,13 +174,21 @@ def process(track_id: str) -> None:
         run(["ffmpeg", "-y", "-loglevel", "error",
              *[a for f in rest for a in ("-i", str(f))],
              "-filter_complex", f"amix=inputs={len(rest)}:normalize=0:duration=longest,alimiter=limit=0.97",
-             "-c:a", "flac", str(d / "no_drums.flac")], logfile)
+             "-c:a", "flac", str(d / "no_drums.flac")], logfile, track_id)
         shutil.copyfile(files["drums"], d / "drums.flac")
         shutil.rmtree(stems, ignore_errors=True)
         meta.update(status="done", finished=time.time())
+    except Cancelled:
+        log.info("track %s cancelled", track_id)
+        shutil.rmtree(stems, ignore_errors=True)
+        (d / "no_drums.flac").unlink(missing_ok=True)  # a half-written mix
+        meta.update(status="cancelled", finished=time.time())
     except Exception as e:  # noqa: BLE001 - any failure becomes a visible error on the track
         log.exception("track %s failed", track_id)
         meta.update(status="error", error=f"{type(e).__name__}: {e}", finished=time.time())
+    finally:
+        with _lock:
+            _cancelled.discard(track_id)
     if track_dir(track_id).is_dir():  # not deleted meanwhile
         write_meta(track_id, meta)
 
