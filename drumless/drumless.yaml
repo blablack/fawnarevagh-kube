@@ -41,6 +41,12 @@ spec:
           env:
             - name: TZ
               value: "Europe/Dublin"
+            # Match the CPU limit below: PyTorch otherwise starts one thread per host core (8)
+            # and the CFS quota just throttles them, which wastes cycles and makes it bursty.
+            - name: OMP_NUM_THREADS
+              value: "2"
+            - name: MKL_NUM_THREADS
+              value: "2"
           ports:
             - containerPort: 8000
           volumeMounts:
@@ -73,7 +79,9 @@ spec:
             failureThreshold: 5
           resources:
             limits:
-              cpu: 6000m
+              # Deliberately low: slow and cool beats fast and hot on a node that also hosts
+              # everything else. Raise it (and OMP/MKL_NUM_THREADS above) to go faster.
+              cpu: 2000m
               # BS-RoFormer SW peaks at ~4.6Gi on a 4-5 min song and scales with track length
               memory: 12Gi
             requests:
