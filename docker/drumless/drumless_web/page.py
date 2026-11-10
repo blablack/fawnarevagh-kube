@@ -27,7 +27,10 @@ progress{width:100%;height:6px;margin-top:8px}
 #logbar .row{max-width:760px;margin:0 auto;padding:6px 16px;font-size:.85rem}
 #logbar .row span{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #log{margin:0;height:11rem;overflow:auto;padding:0 16px 8px;font:12px/1.35 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
-#logbar.min #log{display:none}
+#logbar.min #log,#logbar.min #loghandle{display:none}
+#loghandle{height:10px;cursor:ns-resize;touch-action:none;display:flex;align-items:center;justify-content:center}
+#loghandle::after{content:"";width:40px;height:4px;border-radius:2px;background:var(--line)}
+#loghandle:hover::after,#loghandle.drag::after{background:var(--mute)}
 </style></head><body><main>
 <h1>Drumless</h1><p class="sub">Upload a song, get it back without the drums. <span id="model"></span></p>
 <div class="card" id="drop"><input id="file" type="file" accept="audio/*,.flac,.m4a,.opus" multiple hidden>
@@ -35,7 +38,7 @@ Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 
 <div id="msg" class="err"></div>
 <div id="list"></div>
 </main>
-<div id="logbar" hidden><div class="row"><span id="logname"></span><button id="logtoggle">Hide log</button></div><pre id="log"></pre></div>
+<div id="logbar" hidden><div id="loghandle" title="Drag to resize"></div><div class="row"><span id="logname"></span><button id="logtoggle">Hide log</button></div><pre id="log"></pre></div>
 <script>
 const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 const LABEL={queued:"Queued",separating:"Separating…",mixing:"Mixing…",done:"Done",error:"Failed",cancelled:"Cancelled"};
@@ -81,6 +84,24 @@ async function refreshLog(){
     refreshLog.id=d.id;
   }catch(e){}
 }
+// Drag the handle on the panel's top edge to resize the log; the height is remembered.
+const logH=()=>$("#log").getBoundingClientRect().height;
+function setLogH(px){
+  px=Math.max(60,Math.min(px,innerHeight*0.8));
+  $("#log").style.height=px+"px";
+  document.body.style.paddingBottom=$("#logbar").offsetHeight+"px";
+  return px;
+}
+try{const h=+localStorage.getItem("logH");if(h)setLogH(h)}catch(e){}
+$("#loghandle").onpointerdown=e=>{
+  const handle=e.currentTarget,y0=e.clientY,h0=logH();let h=h0;
+  handle.setPointerCapture(e.pointerId);handle.classList.add("drag");e.preventDefault();
+  handle.onpointermove=m=>{h=setLogH(h0+y0-m.clientY)};
+  handle.onpointerup=handle.onpointercancel=()=>{
+    handle.onpointermove=handle.onpointerup=handle.onpointercancel=null;handle.classList.remove("drag");
+    try{localStorage.setItem("logH",Math.round(h))}catch(e){}
+  };
+};
 $("#logtoggle").onclick=()=>{
   const bar=$("#logbar");bar.classList.toggle("min");
   $("#logtoggle").textContent=bar.classList.contains("min")?"Show log":"Hide log";
