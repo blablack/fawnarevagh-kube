@@ -92,11 +92,27 @@ def stem_files(stems: Path) -> dict[str, Path]:
     return out
 
 
+def tail_log(track_id: str, max_lines: int = 200, max_bytes: int = 64 * 1024) -> list[str]:
+    """Last lines of a track's log.txt, the way a terminal would show them: tqdm redraws its progress
+    bar with "\\r", so only the text after the last "\\r" of each line is kept."""
+    try:
+        with (track_dir(track_id) / "log.txt").open("rb") as f:
+            f.seek(0, os.SEEK_END)
+            f.seek(max(0, f.tell() - max_bytes))
+            raw = f.read()
+    except OSError:
+        return []
+    lines = [ln.rsplit("\r", 1)[-1].rstrip() for ln in raw.decode("utf-8", "replace").split("\n")]
+    return [ln for ln in lines if ln][-max_lines:]
+
+
 def run(cmd: list[str], log_file: Path) -> None:
     with log_file.open("ab") as out:
         out.write(f"\n$ {' '.join(cmd)}\n".encode())
         out.flush()
-        subprocess.run(cmd, stdout=out, stderr=subprocess.STDOUT, check=True)
+        # Unbuffered so the log is live rather than arriving in blocks when stdout is a file.
+        subprocess.run(cmd, stdout=out, stderr=subprocess.STDOUT, check=True,
+                       env={**os.environ, "PYTHONUNBUFFERED": "1"})
 
 
 def process(track_id: str) -> None:

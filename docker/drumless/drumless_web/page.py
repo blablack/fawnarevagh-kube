@@ -22,6 +22,12 @@ a:hover,button:hover{text-decoration:underline}
 .links{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;font-size:.9rem}
 progress{width:100%;height:6px;margin-top:8px}
 .err{color:var(--err);font-size:.85rem;overflow-wrap:anywhere}
+#logbar{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -2px 6px #0002}
+#logbar[hidden]{display:none}
+#logbar .row{max-width:760px;margin:0 auto;padding:6px 16px;font-size:.85rem}
+#logbar .row span{color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#log{margin:0;height:11rem;overflow:auto;padding:0 16px 8px;font:12px/1.35 ui-monospace,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+#logbar.min #log{display:none}
 </style></head><body><main>
 <h1>Drumless</h1><p class="sub">Upload a song, get it back without the drums. <span id="model"></span></p>
 <div class="card" id="drop"><input id="file" type="file" accept="audio/*,.flac,.m4a,.opus" multiple hidden>
@@ -29,6 +35,7 @@ Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 
 <div id="msg" class="err"></div>
 <div id="list"></div>
 </main>
+<div id="logbar" hidden><div class="row"><span id="logname"></span><button id="logtoggle">Hide log</button></div><pre id="log"></pre></div>
 <script>
 const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 const LABEL={queued:"Queued",separating:"Separating…",mixing:"Mixing…",done:"Done",error:"Failed"};
@@ -59,6 +66,26 @@ async function refresh(){
     }
   }catch(e){}
 }
+async function refreshLog(){
+  try{
+    const d=await (await fetch("/api/log")).json();
+    const bar=$("#logbar"),pre=$("#log");
+    bar.hidden=!d.id;
+    // Leave room at the bottom of the page so the panel never covers the last card.
+    document.body.style.paddingBottom=d.id?bar.offsetHeight+"px":"";
+    if(!d.id)return;
+    $("#logname").textContent="Log · "+d.name;
+    const stick=pre.scrollTop+pre.clientHeight>=pre.scrollHeight-24;
+    const text=d.lines.join("\n");
+    if(pre.textContent!==text){pre.textContent=text;if(stick||refreshLog.id!==d.id)pre.scrollTop=pre.scrollHeight}
+    refreshLog.id=d.id;
+  }catch(e){}
+}
+$("#logtoggle").onclick=()=>{
+  const bar=$("#logbar");bar.classList.toggle("min");
+  $("#logtoggle").textContent=bar.classList.contains("min")?"Show log":"Hide log";
+  document.body.style.paddingBottom=bar.offsetHeight+"px";
+};
 async function upload(files){
   for(const f of files){
     const fd=new FormData();fd.append("file",f);
@@ -78,6 +105,6 @@ $("#list").onclick=async e=>{
   const id=e.target.dataset.del;
   if(id&&confirm("Delete this track and its files?")){await fetch("/api/tracks/"+id,{method:"DELETE"});refresh.sig=null;refresh()}
 };
-refresh();setInterval(refresh,3000);
+refresh();refreshLog();setInterval(refresh,3000);setInterval(refreshLog,2000);
 </script></body></html>
 """

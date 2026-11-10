@@ -55,6 +55,16 @@ def tracks() -> dict:
     return {"tracks": items, "model": worker.MODEL}
 
 
+@app.get("/api/log")
+def current_log() -> dict:
+    """Live log of the track being processed right now (empty when idle)."""
+    track_id = w.current
+    meta = track_id and worker.read_meta(track_id)
+    if not meta:
+        return {"id": None, "name": None, "lines": []}
+    return {"id": track_id, "name": meta["name"], "lines": worker.tail_log(track_id)}
+
+
 @app.post("/api/upload")
 async def upload(file: UploadFile) -> dict:
     ext = Path(file.filename or "").suffix.lower()
