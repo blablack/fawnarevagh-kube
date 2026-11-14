@@ -34,7 +34,7 @@ spec:
               - key: ca.crt
                 path: ca.crt
       containers:
-        - image: ghcr.io/immich-app/postgres:16-vectorchord0.5.3-pgvector0.8.1
+        - image: ghcr.io/immich-app/postgres:18-vectorchord0.5.3-pgvector0.8.1
           imagePullPolicy: Always
           name: postgres
           env:
@@ -47,8 +47,11 @@ spec:
             - name: POSTGRES_INITDB_ARGS
               value: "--data-checksums"
           volumeMounts:
-            - mountPath: "/var/lib/postgresql/data"
-              subPath: "postgresql"
+            # postgres 18+ images manage a versioned data dir themselves; the
+            # mount point is the parent /var/lib/postgresql, not .../data
+            # (see https://github.com/docker-library/postgres/pull/1259)
+            - mountPath: "/var/lib/postgresql"
+              subPath: "postgresql_18"
               name: immich-data-pvc
           startupProbe:
             exec:
