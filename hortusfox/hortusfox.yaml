@@ -25,7 +25,7 @@ spec:
         - name: hortusfox-logs
           emptyDir: {}
       containers:
-        - image: mariadb:11.4
+        - image: mariadb:11.8
           imagePullPolicy: Always
           name: mariadb
           env:
