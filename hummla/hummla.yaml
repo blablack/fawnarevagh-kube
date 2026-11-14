@@ -27,7 +27,7 @@ spec:
           persistentVolumeClaim:
             claimName: nasio-nfs-pvc
       containers:
-        - image: postgres:17
+        - image: postgres:18
           imagePullPolicy: Always
           name: postgres
           env:
@@ -41,8 +41,11 @@ spec:
                   name: hummla
                   key: pg_password
           volumeMounts:
-            - mountPath: /var/lib/postgresql/data
-              subPath: postgresql_17
+            # postgres 18+ images manage a versioned data dir themselves; the
+            # mount point is the parent /var/lib/postgresql, not .../data
+            # (see https://github.com/docker-library/postgres/pull/1259)
+            - mountPath: /var/lib/postgresql
+              subPath: postgresql_18
               name: hummla-pvc
           startupProbe:
             exec:
