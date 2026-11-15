@@ -110,6 +110,20 @@ def cancel(track_id: str) -> dict:
     return {"ok": True}
 
 
+@app.post("/api/tracks/{track_id}/rename")
+def rename(track_id: str, body: dict) -> dict:
+    meta = known(track_id)
+    # The worker rewrites its own copy of meta.json while processing, which would undo a rename.
+    if meta["status"] in ("separating", "mixing"):
+        raise HTTPException(409, "still processing")
+    name = str(body.get("name", "")).strip()[:200]
+    if not name or any(c in name for c in "/\\\0"):
+        raise HTTPException(422, "invalid name")
+    meta["name"] = name
+    worker.write_meta(track_id, meta)
+    return {"ok": True}
+
+
 @app.delete("/api/tracks/{track_id}")
 def delete(track_id: str) -> dict:
     meta = known(track_id)

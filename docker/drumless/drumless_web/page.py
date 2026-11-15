@@ -12,6 +12,7 @@ h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mute);margin:0 0 16px}
 #drop{border:2px dashed var(--line);text-align:center;padding:28px 12px;cursor:pointer}
 #drop.over{border-color:var(--accent)}
 #drop small{display:block;color:var(--mute);margin-top:4px}
+.acts{display:flex;gap:12px}
 .row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .name{font-weight:600;overflow-wrap:anywhere}
 .st{font-size:.85rem;color:var(--mute)}.st.done{color:var(--ok)}.st.error{color:var(--err)}
@@ -52,8 +53,8 @@ function card(t){
   if(t.status==="done")body=`<div class="lbl">Without drums</div><audio controls preload="none" src="/files/${t.id}/no_drums"></audio>
    <div class="links"><a href="/files/${t.id}/no_drums?dl=1">Download without drums</a>
    <a href="/files/${t.id}/drums?dl=1">Drums only</a><a href="/files/${t.id}/original?dl=1">Original</a></div>`;
-  const del=run?`<button data-cancel="${t.id}">Cancel</button>`:`<button data-del="${t.id}">Delete</button>`;
-  return `<div class="card" data-id="${t.id}"><div class="row"><span class="name">${esc(t.name)}</span>${del}</div>
+  const del=run?`<button data-cancel="${t.id}">Cancel</button>`:`<button data-ren="${t.id}" data-name="${esc(t.name)}">Rename</button><button data-del="${t.id}">Delete</button>`;
+  return `<div class="card" data-id="${t.id}"><div class="row"><span class="name">${esc(t.name)}</span><span class="acts">${del}</span></div>
    <div class="st ${t.status}">${st}</div>${body}</div>`;
 }
 async function refresh(){
@@ -123,7 +124,12 @@ drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
 drop.ondragleave=()=>drop.classList.remove("over");
 drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");upload([...e.dataTransfer.files])};
 $("#list").onclick=async e=>{
-  const id=e.target.dataset.del,cid=e.target.dataset.cancel;
+  const id=e.target.dataset.del,cid=e.target.dataset.cancel,rid=e.target.dataset.ren;
+  if(rid){const n=prompt("Rename track",e.target.dataset.name);
+    if(n&&n.trim()&&n.trim()!==e.target.dataset.name){
+      const r=await fetch("/api/tracks/"+rid+"/rename",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n.trim()})});
+      if(!r.ok){const j=await r.json().catch(()=>({}));$("#msg").textContent="Rename: "+(j.detail||r.status)}
+      refresh.sig=null;refresh()}}
   if(id&&confirm("Delete this track and its files?")){await fetch("/api/tracks/"+id,{method:"DELETE"});refresh.sig=null;refresh()}
   if(cid&&confirm("Cancel processing this track?")){await fetch("/api/tracks/"+cid+"/cancel",{method:"POST"});refresh.sig=null;refresh()}
 };
