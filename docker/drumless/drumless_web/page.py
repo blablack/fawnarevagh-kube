@@ -38,15 +38,14 @@ h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mute);margin:0 0 16px}
 .seg button{padding:10px 6px;font-weight:600;color:var(--mute);border-right:1px solid var(--line)}
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--accent);color:#fff}
-.seek{display:flex;gap:10px;align-items:center;margin-top:16px;font-size:.85rem;color:var(--mute);font-variant-numeric:tabular-nums}
-#bar{position:relative;flex:1;min-width:0;height:32px;cursor:pointer;touch-action:none;user-select:none}
-#bar::before{content:"";position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:var(--line)}
-#fill{position:absolute;left:0;top:13px;height:6px;border-radius:3px;background:var(--mute);width:0}
-#region{position:absolute;top:6px;height:20px;border-radius:4px;background:color-mix(in srgb,var(--accent) 30%,transparent);border:1px solid var(--accent);pointer-events:none}
-#head{position:absolute;top:4px;left:0;width:2px;height:24px;margin-left:-1px;background:var(--text);pointer-events:none}
-.hdl{position:absolute;top:2px;width:16px;height:28px;margin-left:-8px;border-radius:5px;background:var(--accent);cursor:ew-resize;touch-action:none}
-.hdl::after{content:"";position:absolute;left:7px;top:8px;width:2px;height:12px;background:#fff;opacity:.8;pointer-events:none}
-#bar.noloop #region,#bar.noloop .hdl{display:none}
+.wavehead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:16px;font-size:.85rem;color:var(--mute);font-variant-numeric:tabular-nums}
+.zoom{display:flex;gap:6px}
+.zoom button{border:1px solid var(--line);border-radius:6px;padding:4px 11px;color:var(--text);font-weight:600;line-height:1.2}
+.zoom button:hover{text-decoration:none;border-color:var(--accent)}.zoom button:disabled{opacity:.35;cursor:default;border-color:var(--line)}
+#wave,#ovw{display:block;width:100%;touch-action:none;user-select:none;border-radius:8px;background:color-mix(in srgb,var(--text) 5%,transparent)}
+#wave{height:136px;margin-top:6px;cursor:pointer}
+#ovw{height:34px;margin-top:6px;cursor:pointer}
+#ovw[hidden]{display:none}
 .transport{display:flex;justify-content:center;align-items:center;gap:28px;margin-top:8px}
 #play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.4rem}
 .skip{color:var(--text);border:1px solid var(--line)!important;border-radius:20px;padding:8px 14px}
@@ -86,7 +85,8 @@ Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 
   <div class="tt"><div class="ptitle" id="pname"></div><div class="pstem" id="pstem"></div></div>
   <span class="acts"><button id="pren">Rename</button><button id="pdel">Delete</button></span></div>
  <div class="seg" id="stems"><button data-stem="no_drums">Without drums</button><button data-stem="drums">Drums only</button><button data-stem="original">Original</button></div>
- <div class="seek"><span id="pos">0:00</span><div id="bar" class="noloop"><div id="fill"></div><div id="region"></div><div id="head"></div><div class="hdl" id="ha" title="Loop start"></div><div class="hdl" id="hb" title="Loop end"></div></div><span id="tot">0:00</span></div>
+ <div class="wavehead"><span id="time">0:00 / 0:00</span><span class="zoom"><button id="zout" aria-label="Zoom out">−</button><button id="zin" aria-label="Zoom in">+</button><button id="zfit" title="Show the whole song">Fit</button><button id="zloop" title="Zoom to the loop section">Loop</button></span></div>
+ <canvas id="wave"></canvas><canvas id="ovw" hidden></canvas>
  <div class="transport"><button class="skip" id="back">⏪ 10s</button><button id="play" aria-label="Play">▶</button><button class="skip" id="fwd">10s ⏩</button></div>
  <div class="loop"><button class="skip" id="repeat">⟳ Repeat track</button><button class="skip" id="loopsec">⇔ Loop section</button><span id="looptxt"></span></div>
  <div class="rates" id="rates"><span>SPEED</span><button data-rate="50">50</button><button data-rate="60">60</button><button data-rate="70">70</button><button data-rate="80">80</button><button data-rate="90">90</button><button data-rate="100">100</button></div>
@@ -103,8 +103,9 @@ function elapsed(t){const s=Math.max(0,Math.round(Date.now()/1000-t));return Mat
 const STEMS={no_drums:"Without drums",drums:"Drums only",original:"Original"};
 const fmt=x=>{if(!isFinite(x))return"0:00";x=Math.floor(x);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")};
 const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
-const MIN_LOOP=0.5;
+const MIN_LOOP=0.5,MIN_VIEW=1,PPS=200; // PPS: peaks per second, as the server makes them
 let tracks=[],cur=null,stem="no_drums",rate=1,dragging=false,repeat=false,loop={a:null,b:null,on:false};
+let peaks=null,peakCache={},view={s:0,l:null},dirty=true,holdFollow=0; // view.l null: the whole song
 try{rate=+localStorage.getItem("rate")||1;repeat=localStorage.getItem("repeat")==="1"}catch(e){}
 const audio=$("#audio");
 audio.preservesPitch=audio.webkitPreservesPitch=true;audio.loop=repeat;
@@ -125,7 +126,8 @@ function showStem(keepPos){
   const pos=audio.currentTime,was=!audio.paused;
   audio.src=`/files/${cur}/${stem}`;
   if(keepPos)audio.addEventListener("loadedmetadata",()=>{audio.currentTime=pos;if(was)audio.play().catch(()=>{})},{once:true});
-  else{$("#head").style.left="0";$("#fill").style.width="0";$("#pos").textContent="0:00"}
+  else dirty=true;
+  loadPeaks();
   setRate(rate);
   $("#pstem").textContent=STEMS[stem];
   document.querySelectorAll("#stems button").forEach(b=>b.classList.toggle("on",b.dataset.stem===stem));
@@ -133,7 +135,8 @@ function showStem(keepPos){
 function select(id){
   const l=(tracks.find(t=>t.id===id)||{}).loop;
   loop=l?{a:l.a,b:l.b,on:!!l.on}:{a:null,b:null,on:false};updateLoopUi();
-  cur=id;stem="no_drums";$("#player").hidden=false;
+  cur=id;stem="no_drums";view={s:0,l:null};
+  for(const k in peakCache)if(!k.startsWith(id+"/"))delete peakCache[k];$("#player").hidden=false;
   $("#plinks").innerHTML=Object.entries(STEMS).map(([k,l])=>`<a href="/files/${id}/${k}?dl=1">${l}</a>`).join("");
   $("#dl").open=false;showStem(false);syncPlayer();
   $("#player").scrollIntoView({behavior:"smooth",block:"nearest"});
@@ -143,13 +146,93 @@ function syncPlayer(){
   if(!t){if(cur){cur=null;audio.pause();audio.removeAttribute("src");audio.load()}$("#player").hidden=true;return}
   $("#pname").textContent=t.name;$("#pdisc").style.setProperty("--h",hue(t.name));
 }
-function drawBar(){
-  const d=audio.duration;if(!isFinite(d)||!d)return;
-  const pc=x=>(x/d*100)+"%",on=loop.on&&loop.a!==null;
-  $("#head").style.left=pc(audio.currentTime);$("#fill").style.width=pc(audio.currentTime);
-  $("#bar").classList.toggle("noloop",!on);
-  if(on){$("#region").style.left=pc(loop.a);$("#region").style.width=((loop.b-loop.a)/d*100)+"%";$("#ha").style.left=pc(loop.a);$("#hb").style.left=pc(loop.b)}
+const dur=()=>isFinite(audio.duration)?audio.duration:(peaks?peaks.length/PPS:0);
+function vw(){ // the visible window, kept inside the song
+  const d=dur(),l=view.l===null||view.l>=d?d:Math.max(Math.min(MIN_VIEW,d),view.l);
+  return{s:Math.max(0,Math.min(view.s,Math.max(0,d-l))),l,d};
 }
+function setView(s,l){view={s,l};dirty=true;holdFollow=performance.now()+4000}
+function zoomBy(f,focus){ // f above 1 zooms in; the song position at `focus` (0..1 across the view) stays under it
+  const{s,l,d}=vw();if(!d)return;
+  const nl=Math.min(d,Math.max(Math.min(MIN_VIEW,d),l/f));
+  setView(s+focus*l-focus*nl,nl>=d?null:nl);
+}
+async function loadPeaks(){
+  const id=cur,sm=stem,key=id+"/"+sm;
+  if(peakCache[key]){peaks=peakCache[key];dirty=true;return}
+  peaks=null;dirty=true;
+  try{
+    const r=await fetch(`/api/tracks/${id}/peaks/${sm}`);if(!r.ok)return;
+    const a=new Uint8Array(await r.arrayBuffer());peakCache[key]=a;
+    if(cur===id&&stem===sm){peaks=a;dirty=true}
+  }catch(e){}
+}
+const wave=$("#wave"),ovw=$("#ovw"),wc=wave.getContext("2d"),oc=ovw.getContext("2d");
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function sizeOf(c){const r=c.getBoundingClientRect(),k=devicePixelRatio||1;
+  const w=Math.round(r.width*k),h=Math.round(r.height*k);if(c.width!==w||c.height!==h){c.width=w;c.height=h}return{k,W:r.width,H:r.height}}
+function colMax(a,t0,t1){ // loudest peak between two times, 0..1
+  const i0=Math.floor(t0*PPS),i1=Math.min(a.length-1,Math.max(i0,Math.ceil(t1*PPS)-1));let m=0;
+  for(let j=i0;j<=i1;j++)if(a[j]>m)m=a[j];return m/255;
+}
+function drawWave(){
+  const{k,W,H}=sizeOf(wave),c=wc;c.setTransform(k,0,0,k,0,0);c.clearRect(0,0,W,H);
+  const{s,l,d}=vw();if(!d||!W)return;
+  const mute=css("--mute"),acc=css("--accent"),txt=css("--text"),line=css("--line");
+  const xOf=t=>(t-s)/l*W,on=loop.on&&loop.a!==null,xa=on?xOf(loop.a):0,xb=on?xOf(loop.b):0;
+  const Hw=H-16,mid=Hw/2;
+  if(on){c.fillStyle=acc;c.globalAlpha=.14;const x0=Math.max(0,xa);c.fillRect(x0,0,Math.min(W,xb)-x0,Hw);c.globalAlpha=1}
+  const n=Math.max(1,Math.floor(W/2.5)),cw=W/n;c.lineWidth=cw*0.7;c.lineCap="butt";
+  if(!peaks){c.strokeStyle=line;c.lineWidth=2;c.beginPath();c.moveTo(0,mid);c.lineTo(W,mid);c.stroke()}
+  else for(let i=0;i<n;i++){
+    const t0=s+i*l/n;if(t0*PPS>=peaks.length)break;
+    const x=(i+.5)*cw,half=Math.max(1,colMax(peaks,t0,s+(i+1)*l/n)*mid);
+    c.strokeStyle=on&&x>=xa&&x<=xb?acc:mute;c.beginPath();c.moveTo(x,mid-half);c.lineTo(x,mid+half);c.stroke();
+  }
+  // time ruler
+  const step=[1,2,5,10,15,30,60,120,300,600].find(v=>v/l*W>=80)||600;
+  c.fillStyle=mute;c.strokeStyle=line;c.lineWidth=1;c.font="11px system-ui,sans-serif";
+  for(let t=Math.ceil(s/step)*step;t<=s+l;t+=step){const x=Math.round(xOf(t))+.5;c.beginPath();c.moveTo(x,Hw);c.lineTo(x,Hw+4);c.stroke();c.fillText(fmt(t),x+3,H-3)}
+  if(on)for(const x of[xa,xb]){
+    if(x<-8||x>W+8)continue;
+    c.strokeStyle=acc;c.fillStyle=acc;c.lineWidth=3;c.beginPath();c.moveTo(x,0);c.lineTo(x,Hw);c.stroke();
+    for(const y of[8,Hw-8]){c.beginPath();c.arc(x,y,7,0,7);c.fill()}
+  }
+  const px=xOf(audio.currentTime);
+  if(px>=0&&px<=W){c.globalAlpha=.9;c.strokeStyle=txt;c.lineWidth=2;c.beginPath();c.moveTo(px,0);c.lineTo(px,Hw);c.stroke();c.globalAlpha=1}
+}
+let ovBars=null;
+function drawOvw(){
+  const{s,l,d}=vw(),zoomed=d>0&&l<d-1e-6;ovw.hidden=!zoomed;if(!zoomed)return;
+  const{k,W,H}=sizeOf(ovw),c=oc;c.setTransform(k,0,0,k,0,0);c.clearRect(0,0,W,H);
+  const mute=css("--mute"),acc=css("--accent"),txt=css("--text"),mid=H/2,n=Math.max(1,Math.floor(W/2)),cw=W/n;
+  if(peaks&&(!ovBars||ovBars.src!==peaks||ovBars.n!==n)){ // the whole song's bars only change with the peaks or the width
+    ovBars={src:peaks,n,v:Array.from({length:n},(_,i)=>colMax(peaks,i*d/n,(i+1)*d/n))};
+  }
+  const x0=d?s/d*W:0,x1=d?(s+l)/d*W:W,on=loop.on&&loop.a!==null;
+  if(on){c.fillStyle=acc;c.globalAlpha=.2;c.fillRect(loop.a/d*W,0,(loop.b-loop.a)/d*W,H);c.globalAlpha=1}
+  c.lineWidth=cw*0.7;c.strokeStyle=mute;
+  if(ovBars)ovBars.v.forEach((m,i)=>{const x=(i+.5)*cw,h=Math.max(1,m*mid);c.beginPath();c.moveTo(x,mid-h);c.lineTo(x,mid+h);c.stroke()});
+  c.strokeStyle=txt;c.lineWidth=2;c.globalAlpha=.85;c.beginPath();c.moveTo(audio.currentTime/d*W,0);c.lineTo(audio.currentTime/d*W,H);c.stroke();
+  c.globalAlpha=1;c.lineWidth=2;c.strokeRect(x0+1,1,Math.max(3,x1-x0-2),H-2);
+}
+function followPlayhead(){ // zoomed in and playing: turn the page when the playhead leaves the window
+  if(audio.paused||dragging||performance.now()<holdFollow)return;
+  const{s,l,d}=vw();if(l>=d-1e-6)return;
+  const t=audio.currentTime;if(t<s||t>s+l)view={s:t-l*0.1,l:view.l};
+}
+let lastTime="";
+function frame(){
+  if(!$("#player").hidden&&(dirty||!audio.paused)){
+    dirty=false;followPlayhead();drawWave();drawOvw();
+    const t=fmt(audio.currentTime)+" / "+fmt(dur());if(t!==lastTime){lastTime=t;$("#time").textContent=t}
+    const{l,d}=vw();$("#zin").disabled=!d||l<=Math.min(MIN_VIEW,d)+1e-6;$("#zout").disabled=$("#zfit").disabled=!d||l>=d-1e-6;$("#zloop").disabled=loop.a===null;
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+new ResizeObserver(()=>{dirty=true}).observe(wave);
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>{dirty=true});
 function updateLoopUi(){
   $("#loopsec").classList.toggle("on",loop.on);$("#repeat").classList.toggle("on",repeat);
   $("#looptxt").textContent=loop.a===null?"":loop.on?fmt(loop.a)+" – "+fmt(loop.b)+" · drag the handles":"saved "+fmt(loop.a)+" – "+fmt(loop.b);
@@ -173,11 +256,16 @@ async function refresh(){
   }catch(e){}
 }
 audio.onloadedmetadata=()=>{
-  const d=audio.duration;$("#tot").textContent=fmt(d);
+  const d=audio.duration;
   if(loop.a!==null&&isFinite(d)){loop.b=Math.min(loop.b,d);loop.a=Math.max(0,Math.min(loop.a,loop.b-MIN_LOOP));updateLoopUi()}
-  drawBar();
+  dirty=true;
 };
-audio.ontimeupdate=()=>{$("#pos").textContent=fmt(audio.currentTime);drawBar()};
+audio.ontimeupdate=()=>{dirty=true;enforceLoop()};
+audio.addEventListener("ended",()=>{if(loop.on&&loop.a!==null&&!dragging){audio.currentTime=loop.a;audio.play().catch(()=>{})}});
+function enforceLoop(){ // seek back from the end of the section (only just past it: seeking further on leaves the loop)
+  if(audio.paused||dragging||!loop.on||loop.a===null)return;
+  const t=audio.currentTime;if(t>=loop.b&&t<loop.b+1)audio.currentTime=loop.a;
+}
 audio.onplay=audio.onpause=audio.onended=()=>{
   const p=!audio.paused&&!audio.ended;
   document.body.classList.toggle("playing",p);
@@ -263,21 +351,62 @@ $("#rates").onclick=e=>{const r=e.target.dataset.rate;if(r)setRate(r/100)};
 $("#play").onclick=()=>audio.paused?audio.play().catch(()=>{}):audio.pause();
 $("#back").onclick=()=>{audio.currentTime=Math.max(0,audio.currentTime-10)};
 $("#fwd").onclick=()=>{audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+10)};
-const bar=$("#bar");let drag=null;
-const timeAt=e=>{const r=bar.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*audio.duration};
-bar.onpointerdown=e=>{
-  if(!isFinite(audio.duration))return;
-  drag=e.target.id==="ha"?"a":e.target.id==="hb"?"b":"seek";
-  bar.setPointerCapture(e.pointerId);dragging=true;e.preventDefault();bar.onpointermove(e);
+const pts=new Map();let g=null;
+const pos=e=>{const r=wave.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top,W:r.width}};
+const timeAtX=x=>{const v=vw();return Math.max(0,Math.min(v.d,v.s+x/wave.getBoundingClientRect().width*v.l))};
+wave.onpointerdown=e=>{
+  if(!dur())return;
+  wave.setPointerCapture(e.pointerId);const p=pos(e);pts.set(e.pointerId,p);dragging=true;e.preventDefault();
+  if(pts.size===1)g={x0:p.x,y0:p.y,moved:false,mode:null,pinched:false,off:0,lastX:p.x};
+  else{g.pinched=true;g.mode="pinch";const[a,b]=[...pts.values()];g.dist=Math.hypot(a.x-b.x,a.y-b.y);g.cx=(a.x+b.x)/2}
 };
-bar.onpointermove=e=>{
-  if(!drag)return;const t=timeAt(e);
-  if(drag==="seek")audio.currentTime=t;
-  else if(drag==="a")loop.a=Math.max(0,Math.min(t,loop.b-MIN_LOOP));
-  else loop.b=Math.min(audio.duration,Math.max(t,loop.a+MIN_LOOP));
-  drawBar();updateLoopUi();
+wave.onpointermove=e=>{
+  if(!pts.has(e.pointerId)||!g)return;
+  const p=pos(e);pts.set(e.pointerId,p);const v=vw();
+  if(pts.size>=2){ // two fingers: zoom around the middle between them, and follow it when it moves
+    const[a,b]=[...pts.values()],dist=Math.max(1,Math.hypot(a.x-b.x,a.y-b.y)),cx=(a.x+b.x)/2;
+    const nl=Math.min(v.d,Math.max(Math.min(MIN_VIEW,v.d),v.l*g.dist/dist));
+    setView(v.s+g.cx/p.W*v.l-cx/p.W*nl,nl>=v.d?null:nl);g.dist=dist;g.cx=cx;return;
+  }
+  if(g.pinched)return; // one finger left over from a pinch does nothing
+  if(!g.moved){
+    if(Math.abs(p.x-g.x0)<6&&Math.abs(p.y-g.y0)<6)return;
+    g.moved=true;
+    const on=loop.on&&loop.a!==null,xa=on?(loop.a-v.s)/v.l*p.W:0,xb=on?(loop.b-v.s)/v.l*p.W:0;
+    const da=Math.abs(g.x0-xa),db=Math.abs(g.x0-xb),h=da<=db?"a":"b",dh=Math.min(da,db);
+    if(on&&dh<=28){g.mode=h;g.off=(h==="a"?xa:xb)-g.x0} // landed on a handle: it moves, and does not jump to the finger
+    else g.mode=v.l<v.d-1e-6?"pan":"seek";
+  }
+  if(g.mode==="a"||g.mode==="b"){
+    const t=Math.max(0,Math.min(v.d,v.s+(p.x+g.off)/p.W*v.l));
+    if(g.mode==="a")loop.a=Math.min(t,loop.b-MIN_LOOP);else loop.b=Math.max(t,loop.a+MIN_LOOP);
+    dirty=true;updateLoopUi();
+  }else if(g.mode==="pan"){setView(v.s-(p.x-g.lastX)/p.W*v.l,view.l);g.lastX=p.x}
+  else if(g.mode==="seek")audio.currentTime=timeAtX(p.x);
 };
-bar.onpointerup=bar.onpointercancel=()=>{if(drag&&drag!=="seek")saveLoop();drag=null;dragging=false};
+wave.onpointerup=wave.onpointercancel=e=>{
+  if(!pts.delete(e.pointerId))return;
+  if(pts.size>0)return;
+  if(g&&e.type==="pointerup"&&!g.moved&&!g.pinched)audio.currentTime=timeAtX(pos(e).x); // a tap seeks
+  if(g&&(g.mode==="a"||g.mode==="b"))saveLoop();
+  g=null;dragging=false;dirty=true;
+};
+wave.addEventListener("wheel",e=>{
+  if(!dur())return;e.preventDefault();const p=pos(e),v=vw();
+  if(e.shiftKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)){if(v.l<v.d-1e-6)setView(v.s+(e.deltaX||e.deltaY)/p.W*v.l,view.l)}
+  else zoomBy(Math.exp(-e.deltaY*(e.ctrlKey?0.01:0.0015)),p.x/p.W);
+},{passive:false});
+// The overview strip (shown when zoomed in): tap or drag to move the window.
+let ovDrag=false;
+const ovGo=e=>{const r=ovw.getBoundingClientRect(),v=vw();setView((e.clientX-r.left)/r.width*v.d-v.l/2,view.l)};
+ovw.onpointerdown=e=>{ovw.setPointerCapture(e.pointerId);ovDrag=true;ovGo(e)};
+ovw.onpointermove=e=>{if(ovDrag)ovGo(e)};
+ovw.onpointerup=ovw.onpointercancel=()=>{ovDrag=false};
+const zoomButton=f=>{const v=vw(),t=audio.currentTime;zoomBy(f,t>=v.s&&t<=v.s+v.l?(t-v.s)/v.l:0.5)};
+$("#zin").onclick=()=>zoomButton(2);
+$("#zout").onclick=()=>zoomButton(0.5);
+$("#zfit").onclick=()=>setView(0,null);
+$("#zloop").onclick=()=>{if(loop.a===null)return;const pad=(loop.b-loop.a)*0.15;setView(loop.a-pad,loop.b-loop.a+2*pad)};
 $("#loopsec").onclick=()=>{
   const d=audio.duration;if(!cur||!isFinite(d))return;
   if(loop.on)loop.on=false;
@@ -287,18 +416,14 @@ $("#loopsec").onclick=()=>{
     }
     loop.on=true;
   }
-  updateLoopUi();drawBar();saveLoop();
+  updateLoopUi();dirty=true;saveLoop();
 };
 $("#repeat").onclick=()=>{
   repeat=audio.loop=!repeat;updateLoopUi();
   try{localStorage.setItem("repeat",repeat?"1":"0")}catch(e){}
 };
-// timeupdate only fires ~4x/s; poll faster so the loop point is hit accurately and the playhead moves smoothly.
-setInterval(()=>{
-  if(audio.paused)return;
-  if(!dragging&&loop.on&&loop.a!==null&&audio.currentTime>=loop.b)audio.currentTime=loop.a;
-  drawBar();
-},30);
+// timeupdate only fires ~4x/s; poll faster so the loop point is hit accurately.
+setInterval(enforceLoop,30);
 $("#plinks").onclick=()=>{$("#dl").open=false};
 document.addEventListener("keydown",e=>{
   if(e.code==="Space"&&cur&&!["INPUT","BUTTON","SUMMARY","TEXTAREA"].includes(e.target.tagName)){e.preventDefault();$("#play").click()}

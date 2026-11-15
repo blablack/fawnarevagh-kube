@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, Response
 
 from . import worker
 from .page import PAGE
@@ -99,6 +99,21 @@ def download(track_id: str, kind: str, dl: bool = False) -> FileResponse:
     label = {"original": "", "no_drums": " (no drums)", "drums": " (drums)"}[kind]
     # No filename means inline playback; with one the browser saves it.
     return FileResponse(path, filename=f"{meta['name']}{label}{path.suffix}" if dl else None)
+
+
+@app.get("/api/tracks/{track_id}/peaks/{kind}")
+def peaks(track_id: str, kind: str) -> Response:
+    """The waveform of one output: one byte per 1/200 s (see worker.compute_peaks)."""
+    known(track_id)
+    path = worker.file_for(track_id, kind)
+    if not path:
+        raise HTTPException(404)
+    try:
+        data = worker.peaks_for(track_id, kind, path)
+    except Exception:
+        logging.getLogger("drumless").exception("peaks failed for %s/%s", track_id, kind)
+        raise HTTPException(500, "could not read the audio")
+    return Response(data, media_type="application/octet-stream", headers={"Cache-Control": "private, max-age=3600"})
 
 
 @app.post("/api/tracks/{track_id}/cancel")

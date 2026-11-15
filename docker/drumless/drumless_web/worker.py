@@ -91,6 +91,38 @@ def file_for(track_id: str, kind: str) -> Path | None:
     return path if path.is_file() else None
 
 
+PEAKS_PER_SECOND = 200  # 5 ms a peak: zoomed right in, a drum hit is drawn within a few pixels of where it is
+PEAK_RATE = 24000  # decoded at this rate so a peak is a whole number of samples (120)
+
+
+def compute_peaks(path: Path) -> bytes:
+    """The loudest sample of every 1/PEAKS_PER_SECOND of the file as one byte (0-255) each, for the waveform.
+    Scaled so the 99.9th percentile is full height: one loud spike must not flatten the rest."""
+    import numpy as np
+    raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(path), "-vn", "-ac", "1", "-ar", str(PEAK_RATE),
+                          "-f", "s16le", "-"], capture_output=True, check=True).stdout
+    samples = np.abs(np.frombuffer(raw[: len(raw) // 2 * 2], dtype="<i2").astype(np.int32))
+    step = PEAK_RATE // PEAKS_PER_SECOND
+    samples = np.pad(samples, (0, -len(samples) % step))
+    peaks = samples.reshape(-1, step).max(axis=1).astype(np.float32)
+    top = float(np.percentile(peaks, 99.9)) if len(peaks) else 0.0
+    return np.clip(peaks / max(top, 1.0) * 255, 0, 255).astype(np.uint8).tobytes()
+
+
+def peaks_for(track_id: str, kind: str, path: Path) -> bytes:
+    """Peaks of one output, computed on first use and kept next to it (the files never change once the track is done)."""
+    cache = track_dir(track_id) / f"peaks_{kind}.bin"
+    try:
+        return cache.read_bytes()
+    except OSError:
+        pass
+    data = compute_peaks(path)
+    tmp = cache.with_suffix(f".{uuid.uuid4().hex[:6]}.tmp")
+    tmp.write_bytes(data)
+    tmp.replace(cache)
+    return data
+
+
 def delete_track(track_id: str) -> None:
     shutil.rmtree(track_dir(track_id), ignore_errors=True)
 
