@@ -119,8 +119,23 @@ def rename(track_id: str, body: dict) -> dict:
     name = str(body.get("name", "")).strip()[:200]
     if not name or any(c in name for c in "/\\\0"):
         raise HTTPException(422, "invalid name")
-    meta["name"] = name
-    worker.write_meta(track_id, meta)
+    worker.update_meta(track_id, name=name)
+    return {"ok": True}
+
+
+@app.post("/api/tracks/{track_id}/loop")
+def set_loop(track_id: str, body: dict) -> dict:
+    """Remember the practice loop (seconds a..b, and whether it is switched on) for a track."""
+    meta = known(track_id)
+    if meta["status"] in ("separating", "mixing"):
+        raise HTTPException(409, "still processing")
+    try:
+        a, b, on = float(body["a"]), float(body["b"]), bool(body.get("on", True))
+    except (KeyError, TypeError, ValueError):
+        raise HTTPException(422, "need numeric a and b")
+    if not 0 <= a < b < 86400:
+        raise HTTPException(422, "need 0 <= a < b")
+    worker.update_meta(track_id, loop={"a": round(a, 2), "b": round(b, 2), "on": on})
     return {"ok": True}
 
 

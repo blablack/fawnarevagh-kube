@@ -50,6 +50,20 @@ def write_meta(track_id: str, meta: dict) -> None:
     tmp.replace(path)
 
 
+_meta_lock = threading.Lock()
+
+
+def update_meta(track_id: str, **fields) -> dict | None:
+    """Read-modify-write meta.json under a lock, for edits made outside the worker (rename, loop)."""
+    with _meta_lock:
+        meta = read_meta(track_id)
+        if not meta:
+            return None
+        meta.update(fields)
+        write_meta(track_id, meta)
+        return meta
+
+
 def list_tracks() -> list[dict]:
     out = []
     if TRACKS.is_dir():

@@ -39,10 +39,19 @@ h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mute);margin:0 0 16px}
 .seg button:last-child{border-right:0}
 .seg button.on{background:var(--accent);color:#fff}
 .seek{display:flex;gap:10px;align-items:center;margin-top:16px;font-size:.85rem;color:var(--mute);font-variant-numeric:tabular-nums}
-.seek input{flex:1;min-width:0;accent-color:var(--accent)}
+#bar{position:relative;flex:1;min-width:0;height:32px;cursor:pointer;touch-action:none;user-select:none}
+#bar::before{content:"";position:absolute;left:0;right:0;top:13px;height:6px;border-radius:3px;background:var(--line)}
+#fill{position:absolute;left:0;top:13px;height:6px;border-radius:3px;background:var(--mute);width:0}
+#region{position:absolute;top:6px;height:20px;border-radius:4px;background:color-mix(in srgb,var(--accent) 30%,transparent);border:1px solid var(--accent);pointer-events:none}
+#head{position:absolute;top:4px;left:0;width:2px;height:24px;margin-left:-1px;background:var(--text);pointer-events:none}
+.hdl{position:absolute;top:2px;width:16px;height:28px;margin-left:-8px;border-radius:5px;background:var(--accent);cursor:ew-resize;touch-action:none}
+.hdl::after{content:"";position:absolute;left:7px;top:8px;width:2px;height:12px;background:#fff;opacity:.8;pointer-events:none}
+#bar.noloop #region,#bar.noloop .hdl{display:none}
 .transport{display:flex;justify-content:center;align-items:center;gap:28px;margin-top:8px}
 #play{width:64px;height:64px;border-radius:50%;background:var(--accent);color:#fff;font-size:1.4rem}
 .skip{color:var(--text);border:1px solid var(--line)!important;border-radius:20px;padding:8px 14px}
+.loop{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:14px;font-size:.85rem;color:var(--mute);font-variant-numeric:tabular-nums}
+.skip.on{background:var(--accent);border-color:var(--accent)!important;color:#fff}
 .rates{display:flex;gap:6px;align-items:center;margin-top:16px}
 .rates span{color:var(--mute);font-size:.75rem;letter-spacing:.08em;margin-right:4px}
 .rates button{flex:1;border:1px solid var(--line);border-radius:6px;padding:8px 0;color:var(--text);font-weight:600}
@@ -77,8 +86,9 @@ Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 
   <div class="tt"><div class="ptitle" id="pname"></div><div class="pstem" id="pstem"></div></div>
   <span class="acts"><button id="pren">Rename</button><button id="pdel">Delete</button></span></div>
  <div class="seg" id="stems"><button data-stem="no_drums">Without drums</button><button data-stem="drums">Drums only</button><button data-stem="original">Original</button></div>
- <div class="seek"><span id="pos">0:00</span><input id="seek" type="range" min="0" max="1" step="0.1" value="0" aria-label="Seek"><span id="tot">0:00</span></div>
+ <div class="seek"><span id="pos">0:00</span><div id="bar" class="noloop"><div id="fill"></div><div id="region"></div><div id="head"></div><div class="hdl" id="ha" title="Loop start"></div><div class="hdl" id="hb" title="Loop end"></div></div><span id="tot">0:00</span></div>
  <div class="transport"><button class="skip" id="back">⏪ 10s</button><button id="play" aria-label="Play">▶</button><button class="skip" id="fwd">10s ⏩</button></div>
+ <div class="loop"><button class="skip" id="repeat">⟳ Repeat track</button><button class="skip" id="loopsec">⇔ Loop section</button><span id="looptxt"></span></div>
  <div class="rates" id="rates"><span>SPEED</span><button data-rate="50">50</button><button data-rate="60">60</button><button data-rate="70">70</button><button data-rate="80">80</button><button data-rate="90">90</button><button data-rate="100">100</button></div>
  <details id="dl"><summary>Download</summary><div class="links" id="plinks"></div></details>
  <audio id="audio" preload="auto"></audio>
@@ -93,10 +103,11 @@ function elapsed(t){const s=Math.max(0,Math.round(Date.now()/1000-t));return Mat
 const STEMS={no_drums:"Without drums",drums:"Drums only",original:"Original"};
 const fmt=x=>{if(!isFinite(x))return"0:00";x=Math.floor(x);return Math.floor(x/60)+":"+String(x%60).padStart(2,"0")};
 const hue=n=>{let h=0;for(const c of n)h=(h*31+c.charCodeAt(0))%360;return h};
-let tracks=[],cur=null,stem="no_drums",rate=1,dragging=false;
-try{rate=+localStorage.getItem("rate")||1}catch(e){}
+const MIN_LOOP=0.5;
+let tracks=[],cur=null,stem="no_drums",rate=1,dragging=false,repeat=false,loop={a:null,b:null,on:false};
+try{rate=+localStorage.getItem("rate")||1;repeat=localStorage.getItem("repeat")==="1"}catch(e){}
 const audio=$("#audio");
-audio.preservesPitch=audio.webkitPreservesPitch=true;
+audio.preservesPitch=audio.webkitPreservesPitch=true;audio.loop=repeat;
 function tile(t){
   const run=t.status==="separating"||t.status==="mixing",done=t.status==="done";
   const st=done?"":LABEL[t.status]+(t.status==="queued"&&t.position?` (#${t.position})`:"")+(run?" · "+elapsed(t.started):"");
@@ -114,12 +125,14 @@ function showStem(keepPos){
   const pos=audio.currentTime,was=!audio.paused;
   audio.src=`/files/${cur}/${stem}`;
   if(keepPos)audio.addEventListener("loadedmetadata",()=>{audio.currentTime=pos;if(was)audio.play().catch(()=>{})},{once:true});
-  else{$("#seek").value=0;$("#pos").textContent="0:00"}
+  else{$("#head").style.left="0";$("#fill").style.width="0";$("#pos").textContent="0:00"}
   setRate(rate);
   $("#pstem").textContent=STEMS[stem];
   document.querySelectorAll("#stems button").forEach(b=>b.classList.toggle("on",b.dataset.stem===stem));
 }
 function select(id){
+  const l=(tracks.find(t=>t.id===id)||{}).loop;
+  loop=l?{a:l.a,b:l.b,on:!!l.on}:{a:null,b:null,on:false};updateLoopUi();
   cur=id;stem="no_drums";$("#player").hidden=false;
   $("#plinks").innerHTML=Object.entries(STEMS).map(([k,l])=>`<a href="/files/${id}/${k}?dl=1">${l}</a>`).join("");
   $("#dl").open=false;showStem(false);syncPlayer();
@@ -129,6 +142,23 @@ function syncPlayer(){
   const t=tracks.find(t=>t.id===cur);
   if(!t){if(cur){cur=null;audio.pause();audio.removeAttribute("src");audio.load()}$("#player").hidden=true;return}
   $("#pname").textContent=t.name;$("#pdisc").style.setProperty("--h",hue(t.name));
+}
+function drawBar(){
+  const d=audio.duration;if(!isFinite(d)||!d)return;
+  const pc=x=>(x/d*100)+"%",on=loop.on&&loop.a!==null;
+  $("#head").style.left=pc(audio.currentTime);$("#fill").style.width=pc(audio.currentTime);
+  $("#bar").classList.toggle("noloop",!on);
+  if(on){$("#region").style.left=pc(loop.a);$("#region").style.width=((loop.b-loop.a)/d*100)+"%";$("#ha").style.left=pc(loop.a);$("#hb").style.left=pc(loop.b)}
+}
+function updateLoopUi(){
+  $("#loopsec").classList.toggle("on",loop.on);$("#repeat").classList.toggle("on",repeat);
+  $("#looptxt").textContent=loop.a===null?"":loop.on?fmt(loop.a)+" – "+fmt(loop.b)+" · drag the handles":"saved "+fmt(loop.a)+" – "+fmt(loop.b);
+}
+function saveLoop(){
+  if(loop.a===null||!cur)return;
+  const body={a:loop.a,b:loop.b,on:loop.on},t=tracks.find(t=>t.id===cur);
+  if(t)t.loop=body;
+  fetch("/api/tracks/"+cur+"/loop",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).catch(()=>{});
 }
 async function refresh(){
   try{
@@ -142,8 +172,12 @@ async function refresh(){
     syncPlayer();
   }catch(e){}
 }
-audio.onloadedmetadata=()=>{$("#seek").max=audio.duration;$("#tot").textContent=fmt(audio.duration)};
-audio.ontimeupdate=()=>{if(!dragging)$("#seek").value=audio.currentTime;$("#pos").textContent=fmt(audio.currentTime)};
+audio.onloadedmetadata=()=>{
+  const d=audio.duration;$("#tot").textContent=fmt(d);
+  if(loop.a!==null&&isFinite(d)){loop.b=Math.min(loop.b,d);loop.a=Math.max(0,Math.min(loop.a,loop.b-MIN_LOOP));updateLoopUi()}
+  drawBar();
+};
+audio.ontimeupdate=()=>{$("#pos").textContent=fmt(audio.currentTime);drawBar()};
 audio.onplay=audio.onpause=audio.onended=()=>{
   const p=!audio.paused&&!audio.ended;
   document.body.classList.toggle("playing",p);
@@ -229,15 +263,47 @@ $("#rates").onclick=e=>{const r=e.target.dataset.rate;if(r)setRate(r/100)};
 $("#play").onclick=()=>audio.paused?audio.play().catch(()=>{}):audio.pause();
 $("#back").onclick=()=>{audio.currentTime=Math.max(0,audio.currentTime-10)};
 $("#fwd").onclick=()=>{audio.currentTime=Math.min(audio.duration||1e9,audio.currentTime+10)};
-const seek=$("#seek");
-seek.oninput=()=>{audio.currentTime=+seek.value;$("#pos").textContent=fmt(+seek.value)};
-seek.onpointerdown=()=>{dragging=true};
-seek.onpointerup=seek.onpointercancel=()=>{dragging=false};
+const bar=$("#bar");let drag=null;
+const timeAt=e=>{const r=bar.getBoundingClientRect();return Math.min(1,Math.max(0,(e.clientX-r.left)/r.width))*audio.duration};
+bar.onpointerdown=e=>{
+  if(!isFinite(audio.duration))return;
+  drag=e.target.id==="ha"?"a":e.target.id==="hb"?"b":"seek";
+  bar.setPointerCapture(e.pointerId);dragging=true;e.preventDefault();bar.onpointermove(e);
+};
+bar.onpointermove=e=>{
+  if(!drag)return;const t=timeAt(e);
+  if(drag==="seek")audio.currentTime=t;
+  else if(drag==="a")loop.a=Math.max(0,Math.min(t,loop.b-MIN_LOOP));
+  else loop.b=Math.min(audio.duration,Math.max(t,loop.a+MIN_LOOP));
+  drawBar();updateLoopUi();
+};
+bar.onpointerup=bar.onpointercancel=()=>{if(drag&&drag!=="seek")saveLoop();drag=null;dragging=false};
+$("#loopsec").onclick=()=>{
+  const d=audio.duration;if(!cur||!isFinite(d))return;
+  if(loop.on)loop.on=false;
+  else{
+    if(loop.a===null){ // first use: a section starting at the playhead, 10% of the song long
+      const span=Math.min(d,Math.max(4,d*0.1));loop.a=Math.max(0,Math.min(audio.currentTime,d-span));loop.b=loop.a+span;
+    }
+    loop.on=true;
+  }
+  updateLoopUi();drawBar();saveLoop();
+};
+$("#repeat").onclick=()=>{
+  repeat=audio.loop=!repeat;updateLoopUi();
+  try{localStorage.setItem("repeat",repeat?"1":"0")}catch(e){}
+};
+// timeupdate only fires ~4x/s; poll faster so the loop point is hit accurately and the playhead moves smoothly.
+setInterval(()=>{
+  if(audio.paused)return;
+  if(!dragging&&loop.on&&loop.a!==null&&audio.currentTime>=loop.b)audio.currentTime=loop.a;
+  drawBar();
+},30);
 $("#plinks").onclick=()=>{$("#dl").open=false};
 document.addEventListener("keydown",e=>{
   if(e.code==="Space"&&cur&&!["INPUT","BUTTON","SUMMARY","TEXTAREA"].includes(e.target.tagName)){e.preventDefault();$("#play").click()}
 });
-setRate(rate);
+setRate(rate);updateLoopUi();
 refresh();refreshLog();setInterval(refresh,3000);setInterval(refreshLog,2000);
 </script></body></html>
 """
