@@ -16,7 +16,19 @@ h1{font-size:1.4rem;margin:8px 0 2px}.sub{color:var(--mute);margin:0 0 16px}
 .row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .name{font-weight:600;overflow-wrap:anywhere}
 .st{font-size:.85rem;color:var(--mute)}.st.done{color:var(--ok)}.st.error{color:var(--err)}
-audio{width:100%;margin-top:8px}
+audio{width:100%;margin-top:10px}
+.seg{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.seg button{border:1px solid var(--line);border-radius:6px;padding:6px 12px;color:var(--text)}
+.seg button.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.seg button:hover{text-decoration:none;border-color:var(--accent)}
+.speed{display:flex;gap:10px;align-items:center;margin-top:10px;font-size:.9rem}
+.speed input{flex:1;min-width:0}.speed b{min-width:3.2em;text-align:right;font-weight:600}
+#player{border:2px solid var(--accent)}
+.item{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 4px;border-top:1px solid var(--line)}
+.item:first-child{border-top:0}
+.item.pick{cursor:pointer}.item.pick:hover .name{color:var(--accent)}
+.item.sel .name{color:var(--accent)}
+.item .st{white-space:nowrap}
 .lbl{font-size:.8rem;color:var(--mute);margin-top:8px}
 a,button{color:var(--accent);background:none;border:0;font:inherit;cursor:pointer;padding:0;text-decoration:none}
 a:hover,button:hover{text-decoration:underline}
@@ -37,37 +49,63 @@ progress{width:100%;height:6px;margin-top:8px}
 <div class="card" id="drop"><input id="file" type="file" accept="audio/*,.flac,.m4a,.opus" multiple hidden>
 Drop songs here or click to choose<small>mp3, wav, flac, m4a, ogg … up to 500 MB each</small></div>
 <div id="msg" class="err"></div>
-<div id="list"></div>
+<div class="card" id="player" hidden>
+ <div class="row"><span class="name" id="pname"></span><span class="acts"><button id="pren">Rename</button><button id="pdel">Delete</button></span></div>
+ <div class="seg" id="stems"><button data-stem="no_drums">Without drums</button><button data-stem="drums">Drums only</button><button data-stem="original">Original</button></div>
+ <audio id="audio" controls preload="auto"></audio>
+ <div class="speed"><span>Speed</span><input id="rate" type="range" min="50" max="100" step="5" value="100"><b id="rateval">100%</b></div>
+ <div class="links" id="plinks"></div>
+</div>
+<div class="card" id="list"></div>
 </main>
 <div id="logbar" hidden><div id="loghandle" title="Drag to resize"></div><div class="row"><span id="logname"></span><button id="logtoggle">Hide log</button></div><pre id="log"></pre></div>
 <script>
 const $=s=>document.querySelector(s), esc=s=>s.replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
 const LABEL={queued:"Queued",separating:"Separating…",mixing:"Mixing…",done:"Done",error:"Failed",cancelled:"Cancelled"};
 function elapsed(t){const s=Math.max(0,Math.round(Date.now()/1000-t));return Math.floor(s/60)+"m "+String(s%60).padStart(2,"0")+"s"}
-function card(t){
+let tracks=[],cur=null,stem="no_drums";
+const audio=$("#audio");
+audio.preservesPitch=audio.webkitPreservesPitch=true;
+function item(t){
   const run=t.status==="separating"||t.status==="mixing";
-  let st=LABEL[t.status]+(t.status==="queued"&&t.position?` (#${t.position})`:"")+(run?" · "+elapsed(t.started):"");
-  let body="";
-  if(run||t.status==="queued")body="<progress></progress>";
-  if(t.status==="error")body=`<div class="err">${esc(t.error||"")}</div>`;
-  if(t.status==="done")body=`<div class="lbl">Without drums</div><audio controls preload="none" src="/files/${t.id}/no_drums"></audio>
-   <div class="links"><a href="/files/${t.id}/no_drums?dl=1">Download without drums</a>
-   <a href="/files/${t.id}/drums?dl=1">Drums only</a><a href="/files/${t.id}/original?dl=1">Original</a></div>`;
-  const del=run?`<button data-cancel="${t.id}">Cancel</button>`:`<button data-ren="${t.id}" data-name="${esc(t.name)}">Rename</button><button data-del="${t.id}">Delete</button>`;
-  return `<div class="card" data-id="${t.id}"><div class="row"><span class="name">${esc(t.name)}</span><span class="acts">${del}</span></div>
-   <div class="st ${t.status}">${st}</div>${body}</div>`;
+  const st=LABEL[t.status]+(t.status==="queued"&&t.position?` (#${t.position})`:"")+(run?" · "+elapsed(t.started):"");
+  const act=run?`<button data-cancel="${t.id}">Cancel</button>`:t.status==="done"?"":`<button data-del="${t.id}">Delete</button>`;
+  const err=t.status==="error"&&t.error?`<div class="err">${esc(t.error)}</div>`:"";
+  return `<div class="item${t.status==="done"?" pick":""}${t.id===cur?" sel":""}" data-id="${t.id}"><div><div class="name">${esc(t.name)}</div>${err}</div>
+   <span class="acts"><span class="st ${t.status}">${st}</span>${act}</span></div>`;
+}
+function showStem(keepPos){
+  const pos=audio.currentTime,was=!audio.paused;
+  audio.src=`/files/${cur}/${stem}`;
+  if(keepPos)audio.addEventListener("loadedmetadata",()=>{audio.currentTime=pos;if(was)audio.play().catch(()=>{})},{once:true});
+  applyRate();
+  document.querySelectorAll("#stems button").forEach(b=>b.classList.toggle("on",b.dataset.stem===stem));
+}
+function applyRate(){
+  const r=$("#rate").value/100;
+  audio.defaultPlaybackRate=audio.playbackRate=r;
+  $("#rateval").textContent=$("#rate").value+"%";
+}
+function select(id){
+  cur=id;stem="no_drums";$("#player").hidden=false;
+  $("#plinks").innerHTML=["no_drums|Without drums","drums|Drums only","original|Original"].map(x=>{const[k,l]=x.split("|");return `<a href="/files/${id}/${k}?dl=1">Download ${l.toLowerCase()}</a>`}).join("");
+  showStem(false);syncPlayer();
+}
+function syncPlayer(){
+  const t=tracks.find(t=>t.id===cur);
+  if(!t){if(cur){cur=null;audio.pause();audio.removeAttribute("src");audio.load()}$("#player").hidden=true;return}
+  $("#pname").textContent=t.name;
 }
 async function refresh(){
   try{
     const d=await (await fetch("/api/tracks")).json();
     $("#model").textContent="Model: "+d.model.replace(/\.(yaml|ckpt)$/,"");
-    const list=$("#list");
-    // Don't rebuild cards while a player is in use, or playback would restart.
-    const playing=[...list.querySelectorAll("audio")].some(a=>!a.paused);
-    const sig=JSON.stringify(d.tracks.map(t=>[t.id,t.status,t.position]));
-    if(!playing&&(sig!==refresh.sig||d.tracks.some(t=>t.status==="separating"||t.status==="mixing"))){
-      list.innerHTML=d.tracks.map(card).join("")||'<p class="sub">No tracks yet.</p>';refresh.sig=sig;
+    tracks=d.tracks;
+    const sig=JSON.stringify([cur,d.tracks.map(t=>[t.id,t.name,t.status,t.position])]);
+    if(sig!==refresh.sig||d.tracks.some(t=>t.status==="separating"||t.status==="mixing")){
+      $("#list").innerHTML=d.tracks.map(item).join("")||'<p class="sub" style="margin:0">No tracks yet.</p>';refresh.sig=sig;
     }
+    syncPlayer();
   }catch(e){}
 }
 async function refreshLog(){
@@ -123,16 +161,28 @@ $("#file").onchange=e=>{upload([...e.target.files]);e.target.value=""};
 drop.ondragover=e=>{e.preventDefault();drop.classList.add("over")};
 drop.ondragleave=()=>drop.classList.remove("over");
 drop.ondrop=e=>{e.preventDefault();drop.classList.remove("over");upload([...e.dataTransfer.files])};
+async function del(id){
+  if(!confirm("Delete this track and its files?"))return;
+  await fetch("/api/tracks/"+id,{method:"DELETE"});refresh.sig=null;refresh();
+}
 $("#list").onclick=async e=>{
-  const id=e.target.dataset.del,cid=e.target.dataset.cancel,rid=e.target.dataset.ren;
-  if(rid){const n=prompt("Rename track",e.target.dataset.name);
-    if(n&&n.trim()&&n.trim()!==e.target.dataset.name){
-      const r=await fetch("/api/tracks/"+rid+"/rename",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n.trim()})});
-      if(!r.ok){const j=await r.json().catch(()=>({}));$("#msg").textContent="Rename: "+(j.detail||r.status)}
-      refresh.sig=null;refresh()}}
-  if(id&&confirm("Delete this track and its files?")){await fetch("/api/tracks/"+id,{method:"DELETE"});refresh.sig=null;refresh()}
-  if(cid&&confirm("Cancel processing this track?")){await fetch("/api/tracks/"+cid+"/cancel",{method:"POST"});refresh.sig=null;refresh()}
+  const id=e.target.dataset.del,cid=e.target.dataset.cancel;
+  if(id)return del(id);
+  if(cid){if(confirm("Cancel processing this track?")){await fetch("/api/tracks/"+cid+"/cancel",{method:"POST"});refresh.sig=null;refresh()}return}
+  const row=e.target.closest(".pick");
+  if(row&&row.dataset.id!==cur){select(row.dataset.id);refresh.sig=null;refresh()}
 };
+$("#pdel").onclick=()=>del(cur);
+$("#pren").onclick=async()=>{
+  const t=tracks.find(t=>t.id===cur);if(!t)return;
+  const n=prompt("Rename track",t.name);
+  if(!n||!n.trim()||n.trim()===t.name)return;
+  const r=await fetch("/api/tracks/"+cur+"/rename",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name:n.trim()})});
+  if(!r.ok){const j=await r.json().catch(()=>({}));$("#msg").textContent="Rename: "+(j.detail||r.status)}
+  refresh.sig=null;refresh();
+};
+$("#stems").onclick=e=>{const k=e.target.dataset.stem;if(k&&k!==stem){stem=k;showStem(true)}};
+$("#rate").oninput=applyRate;
 refresh();refreshLog();setInterval(refresh,3000);setInterval(refreshLog,2000);
 </script></body></html>
 """
