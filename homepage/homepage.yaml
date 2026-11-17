@@ -280,8 +280,13 @@ spec:
           ports:
             - containerPort: 3000
           env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            # The kubelet probes hit the pod IP, which must pass host validation too.
             - name: HOMEPAGE_ALLOWED_HOSTS
-              value: homepage.nowhere
+              value: "homepage.nowhere,$(POD_IP):3000"
           # Widget API keys (HOMEPAGE_VAR_JELLYFIN_KEY, _SONARR_KEY, _RADARR_KEY, ...).
           # Optional so the pod starts before the secret exists; widgets just show errors.
           envFrom:
