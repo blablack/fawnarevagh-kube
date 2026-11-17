@@ -1,0 +1,62 @@
+#!/bin/bash
+# Manage the projects Claude Code serves. Each one gets its own tmux window in the "claude"
+# session running its own `claude remote-control`, so it shows up as a separate entry in the app.
+# The list lives on the PVC (~/projects.list, one owner/repo or clone URL per line).
+#
+#   project ls                 list projects and whether their window is running
+#   project add owner/repo     add to the list, clone if missing, start its window
+#   project rm  name           stop its window and drop it from the list (checkout is kept)
+#   project sync               clone/start everything in the list (done at pod start)
+#
+# Note: `project rm` run from inside that project's own session ends that session.
+set -euo pipefail
+
+LIST="$HOME/projects.list"
+SESSION=claude
+BASE="${CLAUDE_SESSION_PREFIX:-claude}"
+
+name_of() { basename "${1%.git}"; }
+# A checkout directly under ~ wins (hummla predates ~/projects); otherwise ~/projects/<name>
+dir_of() { if [ -d "$HOME/$1/.git" ]; then echo "$HOME/$1"; else echo "$HOME/projects/$1"; fi; }
+has_window() { tmux list-windows -t "$SESSION" -F '#W' 2>/dev/null | grep -qxF "$1"; }
+
+start_project() {
+  local repo=$1 n d
+  n=$(name_of "$repo"); d=$(dir_of "$n")
+  [ -d "$d" ] || gh repo clone "$repo" "$d"
+  has_window "$n" && return 0
+  tmux new-window -d -t "$SESSION:" -n "$n" -c "$d" \
+    env CLAUDE_SESSION_PREFIX="$BASE" /usr/local/bin/remote-control-loop.sh "$n"
+  echo "started $n ($d)"
+}
+
+touch "$LIST"
+cmd="${1:-ls}"
+case "$cmd" in
+  ls)
+    while read -r repo; do
+      [ -n "$repo" ] || continue
+      n=$(name_of "$repo")
+      printf '%-24s %-8s %s\n' "$n" "$(has_window "$n" && echo running || echo stopped)" "$(dir_of "$n")"
+    done < "$LIST"
+    ;;
+  add)
+    repo="${2:?usage: project add owner/repo}"
+    grep -qxF "$repo" "$LIST" || echo "$repo" >> "$LIST"
+    start_project "$repo"
+    ;;
+  rm)
+    n="${2:?usage: project rm name}"
+    grep -vxE ".*/?$n(\.git)?" "$LIST" > "$LIST.tmp" || true
+    mv "$LIST.tmp" "$LIST"
+    has_window "$n" && tmux kill-window -t "$SESSION:$n"
+    echo "removed $n"
+    ;;
+  sync)
+    while read -r repo; do
+      [ -n "$repo" ] || continue
+      start_project "$repo" || echo "failed to start $repo" >&2
+    done < "$LIST"
+    ;;
+  *) echo "usage: project ls|add owner/repo|rm name|sync" >&2; exit 1 ;;
+esac

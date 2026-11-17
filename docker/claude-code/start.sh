@@ -24,9 +24,14 @@ fi
 git config --global --get-all safe.directory | grep -qxF '*' || \
   git config --global --add safe.directory '*'
 
-WORKDIR="${CLAUDE_WORKDIR:-$HOME/projects}"
-mkdir -p "$WORKDIR"
-tmux new-session -d -s claude -c "$WORKDIR" /usr/local/bin/remote-control-loop.sh
+# One tmux session ("claude", what the probes check) with a plain shell window plus one
+# `claude remote-control` window per project in ~/projects.list. The list is seeded once from
+# $PROJECTS (space/comma separated owner/repo) and afterwards managed with the `project` command.
+if [ ! -f "$HOME/projects.list" ]; then
+  echo "${PROJECTS:-}" | tr ', ' '\n\n' | sed '/^$/d' > "$HOME/projects.list"
+fi
+tmux new-session -d -s claude -n shell -c "$HOME/projects"
+/usr/local/bin/project sync || true
 
 # Container lives as long as the tmux session; on SIGTERM, stop tmux so claude gets SIGHUP
 trap 'tmux kill-server; exit 0' TERM

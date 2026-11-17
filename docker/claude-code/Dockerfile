@@ -34,8 +34,8 @@ RUN userdel -r ubuntu && \
 # Managed-policy CLAUDE.md: always loaded, and kept current by rebuilding the image
 # (unlike ~/.claude/CLAUDE.md, which lives on the PVC and is left to the user)
 COPY CLAUDE.md /etc/claude-code/CLAUDE.md
-COPY start.sh remote-control-loop.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/start.sh /usr/local/bin/remote-control-loop.sh
+COPY start.sh remote-control-loop.sh project /usr/local/bin/
+RUN chmod +x /usr/local/bin/start.sh /usr/local/bin/remote-control-loop.sh /usr/local/bin/project
 
 # Also blocks `claude update`/`claude install`, which would drop a second copy into
 # ~/.local/bin on the PVC and outlive the next image rebuild
