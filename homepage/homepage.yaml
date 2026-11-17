@@ -41,14 +41,56 @@ data:
   settings.yaml: |
     title: "Solas na Gealaí"
     theme: dark
-    color: slate
-    headerStyle: boxed
+    color: violet
+    background:
+      image: https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=2400&q=80
+      opacity: 55
+    cardBlur: md
+    cardStyle: hairline
+    headerStyle: boxedWidgets
+    blockStyle: refined
+    iconStyle: theme
+    font: plexData
     statusStyle: dot
+    useEqualHeights: true
+    fullWidth: true
+    hideVersion: true
+    # Tabs mirror Homer's pages.
     layout:
+      Productivity:
+        tab: Home
+        style: row
+        columns: 3
+      Archive:
+        tab: Home
+        style: row
+        columns: 3
+      Home Automation:
+        tab: Home
+        style: row
+        columns: 3
       Media:
+        tab: Media
         style: row
         columns: 4
       Downloads:
+        tab: Media
+        style: row
+        columns: 4
+      Audio:
+        tab: Media
+        style: row
+        columns: 3
+      DevOps:
+        tab: Infrastructure
+        style: row
+        columns: 3
+      Monitoring:
+        tab: Infrastructure
+        style: row
+        columns: 3
+      Network & Storage:
+        tab: Network & Storage
         style: row
         columns: 4
   kubernetes.yaml: |
