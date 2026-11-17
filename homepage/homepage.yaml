@@ -40,13 +40,8 @@ metadata:
 data:
   settings.yaml: |
     title: "Solas na Gealaí"
-    theme: dark
-    color: neutral
-    cardStyle: hairline
-    headerStyle: boxedWidgets
-    blockStyle: refined
-    iconStyle: theme
-    font: plexData
+    color: slate
+    headerStyle: clean
     statusStyle: dot
     useEqualHeights: false
     fullWidth: true
@@ -80,10 +75,25 @@ data:
       Cloud Services:
         tab: Network & Storage
   custom.css: |
-    /* Homer's dark palette: #131313 page, #2b2b2b cards, #3367d6 accent */
-    body, #page_container { background-color: #131313 !important; }
-    .service-card, .bookmark { background-color: #2b2b2b !important; }
-    .service-card:hover { border-color: #3367d6 !important; }
+    /* Homer look: #3367d6 title band, #4285f4 tab bar, #f5f5f5 page / white cards
+       (dark: #131313 page / #2b2b2b cards). Follows the OS light/dark setting. */
+    html, body, #__next, #page_wrapper, #inner_wrapper { background-color: #f5f5f5 !important; }
+    html.dark, html.dark body, html.dark #__next, html.dark #page_wrapper, html.dark #inner_wrapper { background-color: #131313 !important; }
+
+    #information-widgets { background: #3367d6 !important; margin: 0 !important; padding: 1rem 2rem !important; border: 0 !important; }
+    #information-widgets, #information-widgets * { color: #fff !important; }
+    #tabs { background: #4285f4; margin: 0 !important; padding: 0 1.5rem; }
+    #tabs [role="tab"] { color: #fff !important; }
+    #tabs [aria-selected="true"] { background: rgba(255, 255, 255, 0.2) !important; }
+
+    .services-group { flex-basis: 33.333% !important; }
+    @media (max-width: 1023px) { .services-group { flex-basis: 100% !important; } }
+    .service-group-name, .service-group-icon { color: #3367d6 !important; }
+    /* one card per group, like Homer */
+    .services-group ul { background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); overflow: hidden; }
+    html.dark .services-group ul { background: #2b2b2b; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4); }
+    .service-card { background: transparent !important; border-radius: 0 !important; margin-bottom: 0 !important; backdrop-filter: none !important; }
+    .service-card:hover { background: rgba(51, 103, 214, 0.08) !important; }
   kubernetes.yaml: |
     mode: cluster
     # Ingress auto-discovery is off for now: services are listed by hand below.
@@ -92,6 +102,9 @@ data:
   docker.yaml: ""
   bookmarks.yaml: ""
   widgets.yaml: |
+    - greeting:
+        text_size: 3xl
+        text: "Solas na Gealaí"
     - kubernetes:
         cluster:
           show: true
