@@ -134,6 +134,7 @@ Secrets are created manually with `kubectl create secret` — they are not store
 - `warracker`, `mealie` — each includes an `oidc_secret`/`service_secret` key for Authentik SSO
 - `tailscale` — Tailscale auth key (`TS_AUTHKEY`)
 - `eufy` — `username` and `password` of the Eufy account (`kubectl create secret generic eufy --from-literal=username=... --from-literal=password=...`)
+- `homepage` — optional; widget API keys exposed as env vars (`kubectl create secret generic homepage --from-literal=HOMEPAGE_VAR_JELLYFIN_KEY=... --from-literal=HOMEPAGE_VAR_SONARR_KEY=... --from-literal=HOMEPAGE_VAR_RADARR_KEY=...`), referenced in `homepage/homepage.yaml` as `{{HOMEPAGE_VAR_*}}`. Pod restarts via reloader when it changes
 - `claude-code` — `gh_token`, a fine-grained GitHub PAT exposed as `GH_TOKEN` (Claude Code's own claude.ai login is not a secret: it's done once with `claude auth login` and persists on the PVC)
 - `argocd-secret` (argocd namespace) — created by the base ArgoCD install (admin password, server signing key); `dex.authentik.clientSecret` is patched into it manually (see README) and referenced from `argocd/patches/argocd-dex-config.yaml` as `$dex.authentik.clientSecret` — this is Argo CD's own convention for resolving `$`-prefixed values in `dex.config` against `argocd-secret`, not a `secretKeyRef`
 

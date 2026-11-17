@@ -1,0 +1,395 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: homepage
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: homepage
+rules:
+  - apiGroups: [""]
+    resources: ["namespaces", "pods", "nodes"]
+    verbs: ["get", "list"]
+  - apiGroups: ["extensions", "networking.k8s.io"]
+    resources: ["ingresses"]
+    verbs: ["get", "list"]
+  - apiGroups: ["metrics.k8s.io"]
+    resources: ["nodes", "pods"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: homepage
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: homepage
+subjects:
+  - kind: ServiceAccount
+    name: homepage
+    namespace: default
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage
+  namespace: default
+data:
+  settings.yaml: |
+    title: "Solas na Gealaí"
+    theme: dark
+    color: slate
+    headerStyle: boxed
+    statusStyle: dot
+    layout:
+      Media:
+        style: row
+        columns: 4
+      Downloads:
+        style: row
+        columns: 4
+  kubernetes.yaml: |
+    mode: cluster
+    # Ingress auto-discovery is off for now: services are listed by hand below.
+    ingress: false
+    traefik: false
+  docker.yaml: ""
+  bookmarks.yaml: |
+    - Links:
+        - GitHub:
+            - icon: github
+              href: https://github.com/blablack/fawnarevagh-kube
+        - CA Certificate:
+            - icon: mdi-certificate
+              href: http://ca.nowhere
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+    - datetime:
+        text_size: xl
+        format:
+          dateStyle: long
+          timeStyle: short
+          hourCycle: h23
+  # Widget keys come from the optional `homepage` secret (HOMEPAGE_VAR_*), see README/CLAUDE.md.
+  services.yaml: |
+    - Media:
+        - Jellyfin:
+            icon: jellyfin
+            href: http://jellyfin.nowhere:8096
+            description: Media Player
+            siteMonitor: http://jellyfin.default.svc.cluster.local:8096
+            widget:
+              type: jellyfin
+              url: http://jellyfin.default.svc.cluster.local:8096
+              key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
+              enableBlocks: true
+              enableNowPlaying: true
+        - Sonarr:
+            icon: sonarr
+            href: https://sonarr.nowhere
+            description: TV Shows
+            siteMonitor: http://sonarr.default.svc.cluster.local
+            widget:
+              type: sonarr
+              url: http://sonarr.default.svc.cluster.local
+              key: "{{HOMEPAGE_VAR_SONARR_KEY}}"
+        - Radarr:
+            icon: radarr
+            href: https://radarr.nowhere
+            description: Movies
+            siteMonitor: http://radarr.default.svc.cluster.local
+            widget:
+              type: radarr
+              url: http://radarr.default.svc.cluster.local
+              key: "{{HOMEPAGE_VAR_RADARR_KEY}}"
+        - Tdarr:
+            icon: tdarr
+            href: https://tdarr.nowhere
+            description: Transcoding
+
+    - Downloads:
+        - qBittorrent:
+            icon: qbittorrent
+            href: https://qbittorrent.nowhere
+            description: Torrent Client
+        - Prowlarr:
+            icon: prowlarr
+            href: https://prowlarr.nowhere
+            description: Indexes
+        - Cleanuparr:
+            icon: mdi-broom
+            href: https://cleanuparr.nowhere
+            description: Cleaner
+        - Bazarr:
+            icon: bazarr
+            href: https://bazarr.nowhere
+            description: Subtitles
+
+    - Audio:
+        - Matchering:
+            icon: mdi-equalizer
+            href: https://matchering.nowhere
+            description: Mastering
+        - Hummla:
+            icon: mdi-microphone
+            href: https://hummla.nowhere
+            description: Drop a bounce
+        - Drumless:
+            icon: mdi-drum
+            href: https://drumless.nowhere
+            description: Remove the drums
+
+    - Productivity:
+        - Mealie:
+            icon: mealie
+            href: https://mealie.nowhere
+            description: Cooking
+        - HortusFox:
+            icon: mdi-flower
+            href: https://hortusfox.nowhere
+            description: Plants
+
+    - Archive:
+        - Immich:
+            icon: immich
+            href: http://immich.nowhere
+            description: Photos and Videos
+        - Paperless:
+            icon: paperless-ngx
+            href: https://paperless.nowhere
+            description: Documents
+        - Warracker:
+            icon: mdi-shield-check
+            href: http://warracker.nowhere
+            description: Warranties
+
+    - Home Automation:
+        - Home Assistant:
+            icon: home-assistant
+            href: http://ha.nowhere
+            description: Home Automation
+        - Node-RED:
+            icon: node-red
+            href: https://node-red.nowhere
+            description: Automation Flow
+        - Moppy:
+            icon: mdi-robot-vacuum
+            href: https://moppy.nowhere
+            description: Robot map
+
+    - DevOps:
+        - Authentik:
+            icon: authentik
+            href: https://authentik.nowhere
+            description: Identity Provider
+        - ArgoCD:
+            icon: argo-cd
+            href: https://argocd.nowhere
+            description: GitOps
+        - Jenkins:
+            icon: jenkins
+            href: https://jenkins.nowhere
+            description: HomeLab Pipelines
+
+    - Monitoring:
+        - Gatus:
+            icon: gatus
+            href: https://gatus.nowhere
+            description: Service Health Monitor
+        - Grafana:
+            icon: grafana
+            href: https://grafana.nowhere
+            description: Metrics & Dashboards
+        - ntfy:
+            icon: ntfy
+            href: https://ntfy.nowhere
+            description: Notifications (backup, jenkins, nasio, uptime)
+
+    - Network & Storage:
+        - Pi-hole:
+            icon: pi-hole
+            href: http://192.168.2.2/admin
+            description: DNS Server
+        - Archerio:
+            icon: mdi-router-wireless
+            href: http://192.168.2.1
+            description: Router
+        - Officio:
+            icon: mdi-wifi
+            href: http://192.168.2.6
+            description: Office WiFi
+        - Nasio:
+            icon: synology
+            href: http://192.168.2.4:5000
+            description: Our NAS
+        - Longhorn:
+            icon: longhorn
+            href: https://longhorn.nowhere
+            description: Kubernetes Storage
+        - Syncthing Aurélien:
+            icon: syncthing
+            href: https://syncthing-aurelien.nowhere
+            description: File Sync Aurélien
+        - Syncthing Yvonne:
+            icon: syncthing
+            href: https://syncthing-yvonne.nowhere
+            description: File Sync Yvonne
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: homepage
+  namespace: default
+  annotations:
+    reloader.stakater.com/rollout-strategy: "restart"
+    reloader.stakater.com/auto: "true"
+spec:
+  replicas: 1
+  revisionHistoryLimit: 0
+  selector:
+    matchLabels:
+      app: homepage
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: homepage
+    spec:
+      serviceAccountName: homepage
+      automountServiceAccountToken: true
+      enableServiceLinks: false
+      containers:
+        - name: homepage
+          image: ghcr.io/gethomepage/homepage:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: HOMEPAGE_ALLOWED_HOSTS
+              value: homepage.nowhere
+          # Widget API keys (HOMEPAGE_VAR_JELLYFIN_KEY, _SONARR_KEY, _RADARR_KEY, ...).
+          # Optional so the pod starts before the secret exists; widgets just show errors.
+          envFrom:
+            - secretRef:
+                name: homepage
+                optional: true
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/settings.yaml
+              subPath: settings.yaml
+            - name: config
+              mountPath: /app/config/kubernetes.yaml
+              subPath: kubernetes.yaml
+            - name: config
+              mountPath: /app/config/docker.yaml
+              subPath: docker.yaml
+            - name: config
+              mountPath: /app/config/bookmarks.yaml
+              subPath: bookmarks.yaml
+            - name: config
+              mountPath: /app/config/widgets.yaml
+              subPath: widgets.yaml
+            - name: config
+              mountPath: /app/config/services.yaml
+              subPath: services.yaml
+          startupProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 30
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            periodSeconds: 10
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /api/healthcheck
+              port: 3000
+            periodSeconds: 30
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 20m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 384Mi
+      volumes:
+        - name: config
+          configMap:
+            name: homepage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: homepage
+  namespace: default
+spec:
+  selector:
+    app: homepage
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+  type: ClusterIP
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: homepage-tls
+  namespace: default
+spec:
+  secretName: homepage-tls
+  issuerRef:
+    name: blinky-ca-issuer
+    kind: ClusterIssuer
+  dnsNames:
+    - homepage.nowhere
+  privateKey:
+    rotationPolicy: Always
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: homepage
+  namespace: default
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    external-dns.kubernetes.io/hostname: homepage.nowhere
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - homepage.nowhere
+      secretName: homepage-tls
+  rules:
+    - host: homepage.nowhere
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: homepage
+                port:
+                  number: 80
