@@ -45,9 +45,6 @@ spec:
             - mountPath: "/home/claude"
               subPath: "Kubernetes/Claude Code Home"
               name: nasio-nfs-pvc
-            - mountPath: "/nasio"
-              name: nasio-nfs-pvc
-              subPath: "Kubernetes/Claude Code"
             - mountPath: /dev/kvm
               name: kvm
             - mountPath: /usr/local/bin/setup-android
@@ -66,12 +63,9 @@ spec:
             # Seeds ~/projects.list on first start only; after that use `project add/rm`
             - name: PROJECTS
               value: "blablack/hummla"
-            # Each project's Remote Control session is named <prefix>-<project>
-            - name: CLAUDE_SESSION_PREFIX
-              value: "fawnarevagh"
             # Where Claude drops APKs/files for the user (see docker/claude-code/CLAUDE.md)
             - name: HANDOFF_DIR
-              value: "/nasio"
+              value: "/home/claude/outputs"
             - name: GH_TOKEN
               valueFrom:
                 secretKeyRef:

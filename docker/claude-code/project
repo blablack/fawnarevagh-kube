@@ -13,20 +13,30 @@ set -euo pipefail
 
 LIST="$HOME/projects.list"
 SESSION=claude
-BASE="${CLAUDE_SESSION_PREFIX:-claude}"
+CLAUDE_JSON="$HOME/.claude.json"
 
 name_of() { basename "${1%.git}"; }
 # A checkout directly under ~ wins (hummla predates ~/projects); otherwise ~/projects/<name>
 dir_of() { if [ -d "$HOME/$1/.git" ]; then echo "$HOME/$1"; else echo "$HOME/projects/$1"; fi; }
 has_window() { tmux list-windows -t "$SESSION" -F '#W' 2>/dev/null | grep -qxF "$1"; }
 
+# Pre-answer the two one-time prompts Claude Code asks per folder (trust it; spawn mode) by
+# recording the answers where it stores them. Idempotent; written atomically.
+trust_project() {
+  local tmp
+  [ -f "$CLAUDE_JSON" ] || echo '{}' > "$CLAUDE_JSON"
+  tmp=$(mktemp "$CLAUDE_JSON.XXXXXX")
+  jq --arg d "$1" '.projects[$d] = ((.projects[$d] // {}) + {hasTrustDialogAccepted: true, remoteControlSpawnMode: "same-dir"})' \
+    "$CLAUDE_JSON" > "$tmp" && mv "$tmp" "$CLAUDE_JSON"
+}
+
 start_project() {
   local repo=$1 n d
   n=$(name_of "$repo"); d=$(dir_of "$n")
   [ -d "$d" ] || gh repo clone "$repo" "$d"
   has_window "$n" && return 0
-  tmux new-window -d -t "$SESSION:" -n "$n" -c "$d" \
-    env CLAUDE_SESSION_PREFIX="$BASE" /usr/local/bin/remote-control-loop.sh "$n"
+  trust_project "$d"
+  tmux new-window -d -t "$SESSION:" -n "$n" -c "$d" /usr/local/bin/remote-control-loop.sh "$n"
   echo "started $n ($d)"
 }
 

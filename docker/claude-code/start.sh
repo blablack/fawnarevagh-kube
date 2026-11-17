@@ -6,6 +6,7 @@ set -euo pipefail
 export PATH="${EXTRA_PATH:+$EXTRA_PATH:}$PATH"
 
 mkdir -p "$HOME/projects"
+[ -z "${HANDOFF_DIR:-}" ] || mkdir -p "$HANDOFF_DIR"
 
 # Pre-answer the two one-time prompts Claude Code asks on first start in a new home:
 #   1. "Allow remote control?" — set hasAcknowledgedRemoteControlWarning so it never blocks startup
