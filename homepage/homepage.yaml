@@ -41,72 +41,56 @@ data:
   settings.yaml: |
     title: "Solas na Gealaí"
     theme: dark
-    color: violet
-    background:
-      image: https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?auto=format&fit=crop&w=2400&q=80
-      opacity: 55
-    cardBlur: md
+    color: neutral
     cardStyle: hairline
     headerStyle: boxedWidgets
     blockStyle: refined
     iconStyle: theme
     font: plexData
     statusStyle: dot
-    useEqualHeights: true
+    useEqualHeights: false
     fullWidth: true
     hideVersion: true
-    # Tabs mirror Homer's pages.
+    # Tabs mirror Homer's pages; each group is a column of stacked cards.
     layout:
       Productivity:
         tab: Home
-        style: row
-        columns: 3
       Archive:
         tab: Home
-        style: row
-        columns: 3
       Home Automation:
         tab: Home
-        style: row
-        columns: 3
       Media:
         tab: Media
-        style: row
-        columns: 4
       Downloads:
         tab: Media
-        style: row
-        columns: 4
       Audio:
         tab: Media
-        style: row
-        columns: 3
       DevOps:
         tab: Infrastructure
-        style: row
-        columns: 3
       Monitoring:
         tab: Infrastructure
-        style: row
-        columns: 3
-      Network & Storage:
+      Alerts:
+        tab: Infrastructure
+      Network Services:
         tab: Network & Storage
-        style: row
-        columns: 4
+      Hardware:
+        tab: Network & Storage
+      Storage:
+        tab: Network & Storage
+      Cloud Services:
+        tab: Network & Storage
+  custom.css: |
+    /* Homer's dark palette: #131313 page, #2b2b2b cards, #3367d6 accent */
+    body, #page_container { background-color: #131313 !important; }
+    .service-card, .bookmark { background-color: #2b2b2b !important; }
+    .service-card:hover { border-color: #3367d6 !important; }
   kubernetes.yaml: |
     mode: cluster
     # Ingress auto-discovery is off for now: services are listed by hand below.
     ingress: false
     traefik: false
   docker.yaml: ""
-  bookmarks.yaml: |
-    - Links:
-        - GitHub:
-            - icon: github
-              href: https://github.com/blablack/fawnarevagh-kube
-        - CA Certificate:
-            - icon: mdi-certificate
-              href: http://ca.nowhere
+  bookmarks.yaml: ""
   widgets.yaml: |
     - kubernetes:
         cluster:
@@ -256,16 +240,36 @@ data:
             icon: grafana
             href: https://grafana.nowhere
             description: Metrics & Dashboards
-        - ntfy:
-            icon: ntfy
-            href: https://ntfy.nowhere
-            description: Notifications (backup, jenkins, nasio, uptime)
 
-    - Network & Storage:
+    - Alerts:
+        - ntfy Backup:
+            icon: ntfy
+            href: https://ntfy.nowhere/backup
+            description: Backup Notifications
+        - ntfy Jenkins:
+            icon: ntfy
+            href: https://ntfy.nowhere/jenkins
+            description: Pipeline Notifications
+        - ntfy Nasio:
+            icon: ntfy
+            href: https://ntfy.nowhere/nasio
+            description: NAS Notifications
+        - ntfy Uptime:
+            icon: ntfy
+            href: https://ntfy.nowhere/uptime
+            description: Service Uptime Alerts
+
+    - Network Services:
         - Pi-hole:
             icon: pi-hole
             href: http://192.168.2.2/admin
             description: DNS Server
+        - CA Certificate:
+            icon: mdi-certificate
+            href: http://ca.nowhere
+            description: Blinky CA Certificate
+
+    - Hardware:
         - Archerio:
             icon: mdi-router-wireless
             href: http://192.168.2.1
@@ -274,6 +278,8 @@ data:
             icon: mdi-wifi
             href: http://192.168.2.6
             description: Office WiFi
+
+    - Storage:
         - Nasio:
             icon: synology
             href: http://192.168.2.4:5000
@@ -290,6 +296,20 @@ data:
             icon: syncthing
             href: https://syncthing-yvonne.nowhere
             description: File Sync Yvonne
+
+    - Cloud Services:
+        - GitHub:
+            icon: github
+            href: https://github.com/blablack/fawnarevagh-kube
+            description: Version Control
+        - Scaleway:
+            icon: scaleway
+            href: https://console.scaleway.com
+            description: Cloud Backup
+        - Tailscale:
+            icon: tailscale
+            href: https://login.tailscale.com/admin/machines
+            description: VPN
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -354,6 +374,9 @@ spec:
             - name: config
               mountPath: /app/config/services.yaml
               subPath: services.yaml
+            - name: config
+              mountPath: /app/config/custom.css
+              subPath: custom.css
           startupProbe:
             httpGet:
               path: /api/healthcheck
