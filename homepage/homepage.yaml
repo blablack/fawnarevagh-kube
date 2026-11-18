@@ -325,7 +325,7 @@ data:
             href: https://github.com/blablack/fawnarevagh-kube
             description: Version Control
         - Scaleway:
-            icon: scaleway
+            icon: /icons/scaleway.png
             href: https://console.scaleway.com
             description: Cloud Backup
         - Tailscale:
