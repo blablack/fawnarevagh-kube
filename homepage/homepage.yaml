@@ -177,6 +177,9 @@ data:
             icon: qbittorrent
             href: https://qbittorrent.nowhere
             description: Torrent Client
+            widget:
+              type: qbittorrent
+              url: http://qbittorrent.default.svc.cluster.local:8112
         - Prowlarr:
             icon: prowlarr
             href: https://prowlarr.nowhere
@@ -298,6 +301,11 @@ data:
             icon: pi-hole
             href: http://192.168.2.2/admin
             description: DNS Server
+            widget:
+              type: pihole
+              version: 6
+              url: http://192.168.2.2
+              key: "{{HOMEPAGE_VAR_PIHOLE_KEY}}"
         - CA Certificate:
             icon: /icons/ca-certificate.png
             href: http://ca.nowhere
@@ -410,6 +418,12 @@ spec:
             # The kubelet probes hit the pod IP, which must pass host validation too.
             - name: HOMEPAGE_ALLOWED_HOSTS
               value: "homepage.nowhere,homepage.default.svc.cluster.local,$(POD_IP):3000"
+            # Pi-hole web password for the widget, read from Pi-hole's own secret (no second copy)
+            - name: HOMEPAGE_VAR_PIHOLE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: pihole-webpassword
+                  key: password
           # Widget API keys (HOMEPAGE_VAR_JELLYFIN_KEY, _SONARR_KEY, _RADARR_KEY, ...).
           # Optional so the pod starts before the secret exists; widgets just show errors.
           envFrom:
