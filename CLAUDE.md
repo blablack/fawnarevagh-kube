@@ -98,19 +98,28 @@ against GitHub releases and update any that are behind.
 
 ## Custom Docker Images
 
-Seven custom images are built and pushed (six from `docker/`, drumless from its own repo) to `nucio.nowhere:30038`:
+Six custom images are built and pushed (five from `docker/`, drumless from its own repo) to `nucio.nowhere:30038`:
 
 | Image | Directory | Purpose |
 |---|---|---|
 | `tdarr` | `docker/tdarr/` | Tdarr server with Jellyfin FFmpeg, dovi_tool, hdr10plus_tool, MP4Box, and local plugins baked in |
 | `tdarr_node` | `docker/tdarr_node/` | Tdarr worker node (same tools) |
 | `nordvpn` | `docker/nordvpn/` | NordVPN with Prowlarr + qBittorrent sidecar logic |
-| `homer` | `docker/homer/` | Homer dashboard with custom icons and app links baked in |
 | `claude-code` | `docker/claude-code/` | Headless Claude Code (`claude remote-control` in tmux, auto mode) with passwordless `sudo` for the `claude` user so it can install what it needs (minimal image, no Android SDK). Claude Code's self-update is disabled — it's updated by rebuilding the image. Serves several projects at once: one tmux window + `claude remote-control` per entry in `~/projects.list` on the PVC (seeded from the `PROJECTS` env var on first start), managed live with `project ls\|add owner/repo\|rm name` — no redeploy |
 | `eufy` | `docker/eufy/` | `moppy.nowhere`: watches the Eufy X10 robot vacuum, logs how each clean changes its map, can send the robot's map-recover command, and backs up / restores rooms, zones, scenes and schedules. See `docker/eufy/README.md` |
 | `drumless` | own repo, [`blablack/drumless`](https://github.com/blablack/drumless) (public; manifest stays here in `drumless/`) | `drumless.nowhere`: upload a song, `audio-separator` (BS-RoFormer SW, 6 stems, CPU-only — ~14 dB drums SDR vs ~11 for htdemucs_ft; ~1.7x slower: 31 min and 4.6 GiB peak for a 4:21 song on quario; `DRUMLESS_MODEL` env overrides) splits it and ffmpeg sums every non-drum stem into a drumless track. Tracks and models live on nasio at `Kubernetes/Drumless`. Built by the Jenkins job `build-drumless`, an inline pipeline defined in Jenkins (not in either repo) that clones `blablack/drumless`, builds, pushes and restarts the deployment — the public repo deliberately has no CI or homelab details in it. Single worker, no database — each `tracks/<id>/` dir is the whole state |
 
 The tdarr deployment uses an **init container** to copy plugins from the image into the server's plugin directory on startup (so plugin updates take effect by restarting the pod).
+
+## Homepage dashboard
+
+`homepage.nowhere` (`homepage/`) is the dashboard (it replaced Homer, whose image and config were removed). It uses the stock `ghcr.io/gethomepage/homepage` image; everything is config in the `homepage` ConfigMap in `homepage/homepage.yaml` (`settings.yaml`, `services.yaml`, `widgets.yaml`, `custom.css`). The Homer look (blue header/tab bands, one white card per group, OS light/dark) is all in `custom.css`.
+
+- **Icons**: `icon: sonarr` resolves through Homepage's built-in dashboard-icons catalogue (not every name exists, check `https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/<name>.png`). Custom icons live on the Longhorn PVC `homepage-pvc`, in `icons/` (served at `/icons/<name>`, e.g. `icon: /icons/tplink.png`). They are not in git.
+- **Favicon / logo**: the PVC's `site/` folder (`homepage.ico`, `apple-touch-icon.png`, `favicon-16x16.png`, `favicon-32x32.png`, `android-chrome-192x192.png`, `android-chrome-512x512.png`, `moon-logo.png`) is overlaid onto `/app/public` by the `seed-public` init container, which first copies the image's own `/app/public` into an emptyDir. Do **not** set `favicon:` in `settings.yaml`: it forces one image for every icon.
+- **Adding or changing an icon**: write it into the running pod's mounted PVC, then restart the pod: Next.js lists `public/` only at startup, so a new file returns 404 until then (`tar -C <dir> -cf - icon.png | kubectl exec -i <pod> -c homepage -- tar -xf - -C /app/public/icons`; use `/app/public/icons` only, `site/` files are overlaid by the init container from the PVC's `/data/site`). The PVC is `ReadWriteOnce`, so don't start a second pod on it from another node.
+- **Widgets**: API keys come from the optional `homepage` secret as `HOMEPAGE_VAR_*` (see Secrets). Jellyfin needs `version: 2` (the default calls the legacy `/emby/...?api_key=` paths, which this Jellyfin rejects). Widgets exist for Tdarr, Gatus and Prometheus (URL only), plus Jellyfin, Sonarr and Radarr (keys). Traefik's widget isn't usable: the API isn't exposed (k3s enables the dashboard but doesn't route `/api`, and the `traefik` Service only exposes 80/443).
+- **Host validation**: Homepage answers 400 to any `Host` header not in `HOMEPAGE_ALLOWED_HOSTS` (`homepage.nowhere`, its in-cluster service name, and the pod IP for kubelet probes). A new way of reaching it needs adding there.
 
 ## Tdarr Local Flow Plugins
 

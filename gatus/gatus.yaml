@@ -62,9 +62,9 @@ data:
           - "[STATUS] == 200"
         alerts:
           - type: ntfy
-      - name: Homer
+      - name: Homepage
         group: service
-        url: "http://homer.default.svc.cluster.local"
+        url: "http://homepage.default.svc.cluster.local"
         interval: 5m
         client:
           insecure: true
