@@ -86,10 +86,12 @@ data:
     #tabs { background: #4285f4; margin: 0 !important; padding: 0 1.5rem; }
     #tabs [role="tab"] { color: #fff !important; }
     #tabs [aria-selected="true"] { background: rgba(255, 255, 255, 0.2) !important; }
-    /* Phones: keep tabs on one horizontal row (scrolls if too wide) instead of a stacked column */
-    #tabs [role="tablist"] { flex-direction: row !important; flex-wrap: nowrap !important; overflow-x: auto; background: transparent !important; padding: 0 !important; margin: 0 !important; scrollbar-width: none; }
-    #tabs [role="tablist"]::-webkit-scrollbar { display: none; }
-    #tabs [role="tab"] { width: auto !important; flex: 1 0 auto; white-space: nowrap; padding: 0.7rem 1rem !important; border-radius: 6px 6px 0 0 !important; }
+    /* Tabs: ul#myTab > li (h-10, w-full) > button[role=tab]. The ul is display:block below sm, so force a
+       single flex row (scrolls sideways if too wide) and centre the label inside the fixed-height li. */
+    #myTab { display: flex !important; flex-wrap: nowrap; overflow-x: auto; background: transparent !important; backdrop-filter: none !important; scrollbar-width: none; }
+    #myTab::-webkit-scrollbar { display: none; }
+    #myTab li { width: auto !important; flex: 1 0 auto; height: 2.75rem !important; }
+    #myTab [role="tab"] { margin: 0 !important; padding: 0 1rem; white-space: nowrap; border-radius: 6px 6px 0 0 !important; }
     @media (max-width: 639px) {
       #information-widgets { padding: 0.75rem 1rem !important; }
       #tabs { padding: 0 0.5rem; }
@@ -140,6 +142,7 @@ data:
             siteMonitor: http://jellyfin.default.svc.cluster.local:8096
             widget:
               type: jellyfin
+              version: 2 # new API: Jellyfin rejects the legacy /emby/...?api_key= calls (v1)
               url: http://jellyfin.default.svc.cluster.local:8096
               key: "{{HOMEPAGE_VAR_JELLYFIN_KEY}}"
               enableBlocks: true
