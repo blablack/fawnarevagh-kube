@@ -168,6 +168,9 @@ data:
             icon: tdarr
             href: https://tdarr.nowhere
             description: Transcoding
+            widget:
+              type: tdarr
+              url: http://tdarr.default.svc.cluster.local
 
     - Downloads:
         - qBittorrent:
@@ -197,7 +200,7 @@ data:
             href: https://hummla.nowhere
             description: Drop a bounce
         - Drumless:
-            icon: mdi-drum
+            icon: /icons/drumless.png
             href: https://drumless.nowhere
             description: Remove the drums
 
@@ -258,6 +261,15 @@ data:
             icon: gatus
             href: https://gatus.nowhere
             description: Service Health Monitor
+            widget:
+              type: gatus
+              url: http://gatus.default.svc.cluster.local
+        - Prometheus:
+            icon: prometheus
+            description: Metrics
+            widget:
+              type: prometheus
+              url: http://prometheus.monitoring.svc.cluster.local:9090
         - Grafana:
             icon: grafana
             href: https://grafana.nowhere
